@@ -27,6 +27,30 @@ function App() {
 
   const categories = ['Dairy', 'Meat', 'Fish', 'Pantry', 'Vegetables', 'Fruit', 'Cleaning'];
 
+  // Auto-categorization helper
+  const autoCategorize = (itemName: string): string => {
+    const name = itemName.toLowerCase().trim();
+
+    const categoryMap: Record<string, string[]> = {
+      'Dairy': ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'sour cream', 'cottage cheese', 'mozzarella', 'cheddar', 'ice cream'],
+      'Meat': ['chicken', 'beef', 'pork', 'lamb', 'turkey', 'sausage', 'bacon', 'ham', 'steak', 'ground beef', 'meatball'],
+      'Fish': ['salmon', 'tuna', 'cod', 'shrimp', 'fish', 'tilapia', 'crab', 'lobster', 'sardine', 'anchovy'],
+      'Vegetables': ['tomato', 'lettuce', 'carrot', 'onion', 'potato', 'broccoli', 'cucumber', 'pepper', 'spinach', 'celery', 'garlic', 'cabbage', 'zucchini', 'eggplant', 'mushroom'],
+      'Fruit': ['apple', 'banana', 'orange', 'grape', 'strawberry', 'blueberry', 'mango', 'pineapple', 'watermelon', 'pear', 'peach', 'lemon', 'lime', 'cherry', 'kiwi'],
+      'Cleaning': ['soap', 'detergent', 'bleach', 'sponge', 'cleaner', 'paper towel', 'tissue', 'toilet paper', 'dish soap', 'laundry', 'wipes'],
+      'Pharma & Hygiene': ['toothpaste', 'toothbrush', 'shampoo', 'conditioner', 'deodorant', 'vitamin', 'aspirin', 'band-aid', 'sunscreen', 'razor', 'floss', 'lotion', 'pads', 'tampons']
+    };
+
+    // Check if any keyword matches
+    for (const [category, keywords] of Object.entries(categoryMap)) {
+      if (keywords.some(keyword => name.includes(keyword))) {
+        return category;
+      }
+    }
+
+    return 'Pantry'; // Default category
+  };
+
   // שמירה אוטומטית בכל פעם שהרשימה משתנה
   useEffect(() => {
     localStorage.setItem('homehub-items', JSON.stringify(items));
@@ -35,11 +59,12 @@ function App() {
   const addItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItem.trim()) return;
+    const category = autoCategorize(newItem);
     setItems([{
       id: Date.now(),
       text: newItem,
       completed: false,
-      category: selectedCategory || undefined
+      category: category
     }, ...items]);
     setNewItem('');
     setSelectedCategory('');
@@ -148,7 +173,7 @@ function App() {
 
         <main className="max-w-4xl mx-auto">
           {/* שדה הוספה */}
-          <form onSubmit={addItem} className="mb-8 space-y-3">
+          <form onSubmit={addItem} className="mb-8">
             <input
               type="text"
               value={newItem}
@@ -157,17 +182,6 @@ function App() {
               className="w-full p-5 rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-[#8E806A44] outline-none text-lg"
               style={{ color: '#8E806A' }}
             />
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full p-4 rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-[#8E806A44] outline-none"
-              style={{ color: '#8E806A' }}
-            >
-              <option value="">Other</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
           </form>
 
           {/* הצגת הפריטים */}
@@ -185,114 +199,121 @@ function App() {
                 if (categoryItems.length === 0) return null;
 
                 return (
-                  <div key={category} className="space-y-3">
+                  <div key={category}>
                     {/* Category Headline */}
                     <h2
-                      className="text-lg font-semibold px-2 flex items-center gap-2"
+                      className="text-base font-bold uppercase tracking-wide mb-3 px-1 flex items-center gap-2"
                       style={{ color: '#630606' }}
                     >
                       {category}
-                      <span className="text-sm font-normal opacity-60">
+                      <span className="text-xs font-normal normal-case opacity-60">
                         ({categoryItems.filter(i => !i.completed).length})
                       </span>
                     </h2>
 
-                    {/* Items in this category */}
-                    {categoryItems.map(item => (
-                      <div
-                        key={item.id}
-                        className="bg-white p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all group"
-                      >
-                        {editingId === item.id ? (
-                          // Edit Mode
-                          <>
-                            <div className="flex-1 space-y-3">
-                              <input
-                                type="text"
-                                value={editText}
-                                onChange={(e) => setEditText(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none"
-                                style={{ color: '#8E806A' }}
-                                autoFocus
-                              />
-                              <select
-                                value={editCategory}
-                                onChange={(e) => setEditCategory(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none"
-                                style={{ color: '#8E806A' }}
-                              >
-                                <option value="">Other</option>
-                                {categories.map(cat => (
-                                  <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={saveEdit}
-                                className="px-4 py-2 rounded-full text-sm font-medium text-white transition-colors"
-                                style={{ backgroundColor: '#630606' }}
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={cancelEdit}
-                                className="px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors"
-                                style={{ color: '#8E806A' }}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          // View Mode
-                          <>
-                            {/* Checkbox */}
-                            <div
-                              onClick={() => toggleItem(item.id)}
-                              className="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer flex-shrink-0"
-                              style={{
-                                borderColor: item.completed ? '#630606' : '#8E806A33',
-                                backgroundColor: item.completed ? '#630606' : 'transparent'
-                              }}
-                            >
-                              {item.completed && <span className="text-white text-xs font-bold">✓</span>}
-                            </div>
+                    {/* Items in this category - Notepad style */}
+                    <div className="bg-white rounded-xl overflow-hidden">
+                      {categoryItems.map((item, index) => (
+                        <div key={item.id}>
+                          <div
+                            className="p-4 flex items-center gap-4 group hover:bg-[#8E806A05] transition-colors"
+                          >
+                            {editingId === item.id ? (
+                              // Edit Mode
+                              <>
+                                <div className="flex-1 space-y-3">
+                                  <input
+                                    type="text"
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    className="w-full p-2 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none"
+                                    style={{ color: '#8E806A' }}
+                                    autoFocus
+                                  />
+                                  <select
+                                    value={editCategory}
+                                    onChange={(e) => setEditCategory(e.target.value)}
+                                    className="w-full p-2 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none text-sm"
+                                    style={{ color: '#8E806A' }}
+                                  >
+                                    <option value="">Other</option>
+                                    {categories.map(cat => (
+                                      <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={saveEdit}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
+                                    style={{ backgroundColor: '#630606' }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={cancelEdit}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors"
+                                    style={{ color: '#8E806A' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              // View Mode
+                              <>
+                                {/* Checkbox */}
+                                <div
+                                  onClick={() => toggleItem(item.id)}
+                                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer flex-shrink-0"
+                                  style={{
+                                    borderColor: item.completed ? '#630606' : '#8E806A33',
+                                    backgroundColor: item.completed ? '#630606' : 'transparent'
+                                  }}
+                                >
+                                  {item.completed && <span className="text-white text-xs font-bold">✓</span>}
+                                </div>
 
-                            {/* Item Text */}
-                            <span
-                              onClick={() => toggleItem(item.id)}
-                              className={`flex-1 text-lg transition-all cursor-pointer ${item.completed ? 'line-through opacity-40 italic' : ''}`}
-                              style={{ color: '#8E806A' }}
-                            >
-                              {item.text}
-                            </span>
+                                {/* Item Text */}
+                                <span
+                                  onClick={() => toggleItem(item.id)}
+                                  className={`flex-1 text-base transition-all cursor-pointer ${item.completed ? 'line-through opacity-40' : ''}`}
+                                  style={{ color: '#8E806A' }}
+                                >
+                                  {item.text}
+                                </span>
 
-                            {/* Edit Button */}
-                            <button
-                              onClick={() => startEditing(item)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-[#8E806A11] rounded-full"
-                              style={{ color: '#8E806A' }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                              </svg>
-                            </button>
+                                {/* Edit Button */}
+                                <button
+                                  onClick={() => startEditing(item)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-[#8E806A11] rounded-lg"
+                                  style={{ color: '#8E806A' }}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                  </svg>
+                                </button>
 
-                            {/* Delete Button */}
-                            <button
-                              onClick={() => deleteItem(item.id)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-full"
-                              style={{ color: '#630606' }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                              </svg>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    ))}
+                                {/* Delete Button */}
+                                <button
+                                  onClick={() => deleteItem(item.id)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-lg"
+                                  style={{ color: '#630606' }}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                          {/* Subtle divider between items */}
+                          {index < categoryItems.length - 1 && (
+                            <div className="border-b border-[#8E806A11]"></div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })
