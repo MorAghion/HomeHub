@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* נגדיר את הרקע בצורה פשוטה שלא תתנגש עם כלום */
+body {
+  background-color: #F5F2E7; /* הקרם המקורי והיפה */
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+}
