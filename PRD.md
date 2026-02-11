@@ -400,3 +400,121 @@ See [TECH_STACK.md](./TECH_STACK.md) for detailed rationale.
 
 **Document Status**: Approved - Active Development
 **Next Review**: Post-MVP Launch
+
+
+# HomeHub - Product Requirements Document (PRD)
+
+**Document Version**: 1.2
+**Last Updated**: 2026-02-10
+**Status**: Approved - In Development
+
+---
+
+## Project Overview
+**HomeHub** is a shared household management application designed to reduce cognitive load for partners. It provides a clean, minimalist dashboard to organize household responsibilities into digestible chunks.
+
+---
+
+## Design & Style Guidelines
+- **Core Philosophy**: Minimalist, calm, and functional.
+- **Color Palette**: 
+  - **Primary**: Burgundy (#630606) - used for headers, icons, and primary actions.
+  - **Secondary**: Taupe (#8E806A).
+  - **Background**: Cream/Light Sand.
+- **UI Components**: Flat design, minimal cards, and smooth transitions (duration-300).
+
+---
+
+## Feature Module: Shopping List (MVP)
+
+### 1. Grouped View & Organization
+- **Categorization**: Items are automatically grouped under bold Burgundy headers.
+- **Standard Categories**: Dairy, Meat, Fish, Pantry, Vegetables, Fruit, Cleaning, Pharma & Hygiene.
+- **Sorting Logic**: Active items appear at the top of their category; completed (checked) items automatically move to the bottom of the category list.
+
+### 2. MasterList (Pre-defined Items)
+- **Concept**: A "bank" of common household items for quick addition.
+- **UI**: A sliding Drawer (sliding from left) accessed via a list-icon in the top-left corner.
+- **Functionality**:
+    - Click an item to add it to the active list.
+    - **Edit Mode**: A toggle to add, edit, or delete items and categories within the MasterList.
+    - **Bulk Add**: A "Select All" button to add all MasterList items to the active list at once.
+- **Persistence**: Saved in localStorage.
+
+### 3. Smart Features
+- **Auto-Categorization**: Local logic that suggests a category based on the item name (e.g., "Milk" -> "Dairy"). Defaults to "Pantry".
+- **Duplicate Prevention**: Case-insensitive check when adding items.
+    - **Confirmation UI**: A popup dialog asking: "<Item> is already in the list. Add it anyway?"
+- **Auto-Capitalization**: The first letter of any added item is automatically capitalized.
+
+### 4. Bulk Actions (Active List)
+- **Bulk Delete Mode**:
+    - Triggered by an "Edit" or "Trash" icon.
+    - UI changes from circular checkmarks to selection squares.
+    - Features "Delete Selected" and "Cancel" buttons.
+- **Clear All**: Option to wipe the active list after a shopping trip.
+
+---
+
+## Tech Stack
+1. **Frontend**: React (Vite) + TypeScript.
+2. **Styling**: Tailwind CSS.
+3. **State Management**: React Hooks + LocalStorage (Current).
+4. **Deployment**: Vercel.
+
+---
+
+## Appendix
+- **Design Inspiration**: Things 3 (simplicity), Linear (speed).
+- **Current Focus**: Perfecting the Shopping List UX before moving to Home Tasks.
+
+**Document Status**: Approved - Active Development
+
+
+## 🎯 Product Vision: HomeHub
+A minimalist, high-efficiency home management app designed to reduce cognitive load through smart automation, intuitive hierarchy, and rapid action.
+
+---
+
+## 🏗️ System Architecture & Hierarchy
+
+### 1. Level 1: Main Dashboard (Parent Hubs)
+* **Concept:** High-level categories of home life.
+* **Initial Hubs:** `Shopping List`, `Home Tasks` (Coming Soon).
+* **Customization:** Users can add new Parent Hubs with custom icons/names.
+
+### 2. Level 2: Sub-Hubs (The Selection Layer)
+* **Concept:** Breaking down large categories into focused contexts.
+* **Shopping Sub-Hubs:** * `Groceries` (Default)
+    * `General Household` (Default - bulbs, batteries, etc.)
+    * `Custom Sub-Lists` (User-defined, e.g., "Camping", "Party").
+
+### 3. Level 3: Active List Template (The Engine)
+* **Core Logic:** All sub-lists inherit a unified template.
+* **Auto-Categorization:** Items are automatically grouped (Dairy, Pantry, etc.) based on a smart keyword engine.
+* **Duplicate Prevention:** Alerts user if an item already exists in the active list.
+
+---
+
+## ✨ Key Features & Interactions
+
+### 🚀 Smart Master List (Context-Aware)
+* **On List Creation:** When a user names a new sub-list (e.g., "Pharmacy"), the system suggests a "Starter Pack".
+* **The "Bubbles" Interface:** Rounded chips appear in the Master List Drawer:
+    * `[Suggested Items for "X"]`: Fills the master list with relevant defaults.
+    * `[Blank Slate]`: Keeps the list empty for full manual control.
+* **Persistence:** Once populated, the Master List for that specific sub-hub is fully editable and saved locally.
+
+### 🛠️ Bulk Actions (Efficiency Tools)
+* **Bulk Delete Mode:** Toggle to select multiple items for removal.
+* **Select All:** One-click selection of all items within the active list.
+* **Clear All:** Deep-clean the list after a shopping trip.
+
+### 🔍 Search & Quick Add
+* **Global Master Search:** Search within the Master List Drawer to find and "inject" items into the active list.
+
+---
+
+## 🎨 Design Language (The Vibe)
+* **Color Palette:** Deep Burgundy (#630606), Taupe/Cream (#F5F2E7), Soft Grey.
+* **Feel:** Tactile, smooth transitions, high contrast for readability, minimal clutter.
