@@ -87,13 +87,12 @@ function App() {
 
   // Auto-save master list to context-based localStorage (Flexible Memory)
   // Saves based on the active list's context
-  // Only saves when masterListItems or activeListId change, not when lists changes
   useEffect(() => {
     const currentList = lists[activeListId];
-    if (currentList) {
+    if (currentList && masterListItems.length > 0) {
       saveMasterListByContext(currentList.name, masterListItems);
     }
-  }, [masterListItems, activeListId]);
+  }, [masterListItems, activeListId, lists]);
 
   // Load master list when active list changes (Flexible Memory context switching)
   // This ensures that switching to a list with a different context loads its own master list
