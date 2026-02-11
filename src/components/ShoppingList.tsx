@@ -576,6 +576,7 @@ function ShoppingList({
             ...masterListItems,
           ]);
         }}
+        onUpdateMasterList={onUpdateMasterList}
         onUpdateMasterItem={(id, text, category) => {
           onUpdateMasterList(
             masterListItems.map(item =>

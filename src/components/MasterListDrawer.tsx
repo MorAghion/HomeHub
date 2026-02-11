@@ -11,6 +11,7 @@ interface MasterListDrawerProps {
   masterListItems: MasterListItem[];
   onAddToActiveList: (item: MasterListItem) => void;
   onAddToMasterList: (text: string, category: string) => void;
+  onUpdateMasterList: (items: MasterListItem[]) => void;
   onUpdateMasterItem: (id: number, text: string, category: string) => void;
   onDeleteMasterItem: (id: number) => void;
   onAddAllFromMasterList: () => void;
@@ -26,6 +27,7 @@ function MasterListDrawer({
   masterListItems,
   onAddToActiveList,
   onAddToMasterList,
+  onUpdateMasterList,
   onUpdateMasterItem,
   onDeleteMasterItem,
   onAddAllFromMasterList,
@@ -75,19 +77,32 @@ function MasterListDrawer({
     const contextItems = getContextItems(contextKey);
     if (!contextItems || contextItems.length === 0) return;
 
-    // Smart Merge: Add items without duplicates
+    // Batch all items into a single state update to avoid stale state issues
+    const newItems: MasterListItem[] = [];
+
     contextItems.forEach((item) => {
       const capitalizedText = capitalizeFirstLetter(item.name);
 
       // Check if item already exists (case-insensitive) to prevent duplicates
       const exists = masterListItems.some(
         existingItem => existingItem.text.toLowerCase() === capitalizedText.toLowerCase()
+      ) || newItems.some(
+        existingItem => existingItem.text.toLowerCase() === capitalizedText.toLowerCase()
       );
 
       if (!exists) {
-        onAddToMasterList(capitalizedText, item.listCategory);
+        newItems.push({
+          id: Date.now() + Math.random(),
+          text: capitalizedText,
+          category: item.listCategory,
+        });
       }
     });
+
+    // Update master list with all new items at once
+    if (newItems.length > 0) {
+      onUpdateMasterList([...newItems, ...masterListItems]);
+    }
   };
 
   const groupedMasterItems = () => {
