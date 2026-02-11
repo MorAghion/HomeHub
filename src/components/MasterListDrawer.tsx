@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import type { MasterListItem } from '../App';
 import {
-  getSuggestedTemplates,
-  SUGGESTION_TEMPLATES,
-  filterMasterItemsByContext,
-  type SuggestedItem
-} from '../utils/suggestions';
+  getSuggestedContexts,
+  getContextItems,
+} from '../utils/contextMapping';
 
 interface MasterListDrawerProps {
   isOpen: boolean;
@@ -73,12 +71,13 @@ function MasterListDrawer({
     setNewMasterItem('');
   };
 
-  const handleApplySuggestions = (templateKey: string) => {
-    const suggestions = SUGGESTION_TEMPLATES[templateKey];
-    if (!suggestions) return;
+  const handleApplyContext = (contextKey: string) => {
+    const contextItems = getContextItems(contextKey);
+    if (!contextItems || contextItems.length === 0) return;
 
-    suggestions.forEach((item: SuggestedItem) => {
-      const capitalizedText = capitalizeFirstLetter(item.text);
+    // Smart Merge: Add items without duplicates
+    contextItems.forEach((item) => {
+      const capitalizedText = capitalizeFirstLetter(item.name);
 
       // Check if item already exists (case-insensitive) to prevent duplicates
       const exists = masterListItems.some(
@@ -86,7 +85,7 @@ function MasterListDrawer({
       );
 
       if (!exists) {
-        onAddToMasterList(capitalizedText, item.category);
+        onAddToMasterList(capitalizedText, item.listCategory);
       }
     });
   };
@@ -98,11 +97,8 @@ function MasterListDrawer({
     });
     grouped['Other'] = [];
 
-    // Filter items by context first
-    const contextFilteredItems = filterMasterItemsByContext(currentListName, masterListItems);
-
-    // Then apply search filter
-    const filteredItems = contextFilteredItems.filter(item => {
+    // Apply search filter
+    const filteredItems = masterListItems.filter(item => {
       if (!masterListSearch.trim()) return true;
       return item.text.toLowerCase().includes(masterListSearch.toLowerCase().trim());
     });
@@ -226,40 +222,45 @@ function MasterListDrawer({
           {/* Master List Items */}
           <div className="space-y-6">
             {masterListItems.length === 0 ? (
-              <div className="text-center py-8 px-4">
-                {/* Quick Setup Header */}
+              <div className="flex flex-col items-center justify-center py-12 px-4 min-h-64">
+                {/* Header */}
                 <h3 className="text-lg font-semibold mb-2" style={{ color: '#630606' }}>
                   Quick Setup
                 </h3>
-                <p className="text-sm mb-6 opacity-70" style={{ color: '#8E806A' }}>
-                  Get started with pre-selected items
+                <p className="text-sm mb-8 opacity-70" style={{ color: '#8E806A' }}>
+                  Start with a context-based suggestion
                 </p>
 
                 {/* Suggestion Bubbles */}
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {getSuggestedTemplates(currentListName).map(template => (
+                <div className="flex flex-wrap gap-3 justify-center mb-6">
+                  {getSuggestedContexts(currentListName).map(suggestion => (
                     <button
-                      key={template.key}
-                      onClick={() => handleApplySuggestions(template.key)}
+                      key={suggestion.contextKey}
+                      onClick={() => handleApplyContext(suggestion.contextKey)}
                       className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:shadow-md active:scale-95"
                       style={{
-                        backgroundColor: '#F5F2E7',
-                        border: '2px solid #630606',
+                        backgroundColor: 'rgba(99, 6, 6, 0.1)',
+                        border: `1px solid #630606`,
                         color: '#630606'
                       }}
+                      title={`${suggestion.itemCount} items`}
                     >
-                      {template.label}
+                      {suggestion.displayLabel}
                     </button>
                   ))}
                 </div>
 
-                {/* Blank Slate Option */}
+                {/* Keep Empty Bubble */}
                 <button
                   onClick={() => setIsMasterListEditMode(true)}
-                  className="mt-4 text-sm underline hover:opacity-70 transition-opacity"
-                  style={{ color: '#8E806A' }}
+                  className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:shadow-md active:scale-95"
+                  style={{
+                    backgroundColor: 'rgba(99, 6, 6, 0.1)',
+                    border: `1px dashed #630606`,
+                    color: '#630606'
+                  }}
                 >
-                  Start with a blank slate
+                  Keep Empty
                 </button>
               </div>
             ) : Object.values(groupedMasterItems()).every(arr => arr.length === 0) ? (
