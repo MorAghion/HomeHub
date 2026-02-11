@@ -89,7 +89,7 @@ function App() {
   // Saves based on the active list's context
   useEffect(() => {
     const currentList = lists[activeListId];
-    if (currentList && masterListItems.length > 0) {
+    if (currentList) {
       saveMasterListByContext(currentList.name, masterListItems);
     }
   }, [masterListItems, activeListId, lists]);
