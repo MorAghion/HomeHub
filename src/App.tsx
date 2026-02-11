@@ -51,22 +51,12 @@ function App() {
   const [activeListId, setActiveListId] = useState<string>('groceries');
 
   // Master list (context-based with Flexible Memory)
-  // Starts with context-based loading from the initial active list
+  // Loads from context-based localStorage keys
+  // Starts empty to show suggestion bubbles for new lists
   const [masterListItems, setMasterListItems] = useState<MasterListItem[]>(() => {
     // Load from context of the default active list (groceries)
     const contextItems = loadMasterListByContext('Groceries');
-    if (contextItems.length > 0) {
-      return contextItems;
-    }
-
-    // Fallback default items if no context match or empty
-    return [
-      { id: 1, text: 'Bread', category: 'Pantry' },
-      { id: 2, text: 'Cheese', category: 'Dairy' },
-      { id: 3, text: 'Chicken', category: 'Meat' },
-      { id: 4, text: 'Tomato', category: 'Vegetables' },
-      { id: 5, text: 'Apple', category: 'Fruit' },
-    ];
+    return contextItems; // Returns empty array if nothing saved in context
   });
 
   const categories = [
