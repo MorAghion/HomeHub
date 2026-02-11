@@ -61,7 +61,26 @@ function App() {
     ];
   });
 
-  const categories = ['Dairy', 'Meat', 'Fish', 'Pantry', 'Vegetables', 'Fruit', 'Cleaning', 'Pharma & Hygiene'];
+  const categories = [
+    // Existing categories
+    'Dairy',
+    'Meat',
+    'Fish',
+    'Pantry',
+    'Vegetables',
+    'Fruit',
+    'Cleaning',
+    'Pharma & Hygiene',
+    // New categories for Context Recognition
+    'Documents & Money',
+    'Camping',
+    'Baby',
+    'Home Renovation',
+    'Party',
+    'Pets',
+    'Gardening',
+    'Home Decor',
+  ];
 
   // Auto-save multi-list state to localStorage
   useEffect(() => {
