@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
+import { loadMasterListByContext, saveMasterListByContext } from './utils/flexibleMemory'
 
 export interface ShoppingItem {
   id: number;
@@ -49,10 +50,17 @@ function App() {
 
   const [activeListId, setActiveListId] = useState<string>('groceries');
 
-  // Master list (global)
+  // Master list (context-based with Flexible Memory)
+  // Starts with context-based loading from the initial active list
   const [masterListItems, setMasterListItems] = useState<MasterListItem[]>(() => {
-    const saved = localStorage.getItem('homehub-masterlist');
-    return saved ? JSON.parse(saved) : [
+    // Load from context of the default active list (groceries)
+    const contextItems = loadMasterListByContext('Groceries');
+    if (contextItems.length > 0) {
+      return contextItems;
+    }
+
+    // Fallback default items if no context match or empty
+    return [
       { id: 1, text: 'Bread', category: 'Pantry' },
       { id: 2, text: 'Cheese', category: 'Dairy' },
       { id: 3, text: 'Chicken', category: 'Meat' },
@@ -87,10 +95,24 @@ function App() {
     localStorage.setItem('homehub-lists', JSON.stringify(lists));
   }, [lists]);
 
-  // Auto-save master list to localStorage
+  // Auto-save master list to context-based localStorage (Flexible Memory)
+  // Saves based on the active list's context
   useEffect(() => {
-    localStorage.setItem('homehub-masterlist', JSON.stringify(masterListItems));
-  }, [masterListItems]);
+    const currentList = lists[activeListId];
+    if (currentList) {
+      saveMasterListByContext(currentList.name, masterListItems);
+    }
+  }, [masterListItems, activeListId, lists]);
+
+  // Load master list when active list changes (Flexible Memory context switching)
+  // This ensures that switching to a list with a different context loads its own master list
+  useEffect(() => {
+    const currentList = lists[activeListId];
+    if (currentList) {
+      const contextItems = loadMasterListByContext(currentList.name);
+      setMasterListItems(contextItems.length > 0 ? contextItems : []);
+    }
+  }, [activeListId, lists]);
 
   // Shared utilities
   const capitalizeFirstLetter = (text: string): string => {
