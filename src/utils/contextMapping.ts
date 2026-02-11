@@ -22,6 +22,25 @@ export interface ContextDefinition {
 
 export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
 
+  'stock': {
+    keywords: [
+      'stock', 'supplies', 'household stock', 'storage', 'inventory'
+    ],
+    displayLabel: 'Stock Supplies',
+    items: [
+      { name: 'Batteries', listCategory: 'Cleaning' },
+      { name: 'Lightbulbs', listCategory: 'Cleaning' },
+      { name: 'Toilet Paper', listCategory: 'Cleaning' },
+      { name: 'Soap', listCategory: 'Cleaning' },
+      { name: 'Sponges', listCategory: 'Cleaning' },
+      { name: 'Paper Towels', listCategory: 'Cleaning' },
+      { name: 'Garbage Bags', listCategory: 'Cleaning' },
+      { name: 'Aluminum Foil', listCategory: 'Cleaning' },
+      { name: 'Trash Liners', listCategory: 'Cleaning' },
+      { name: 'Cleaning Supplies', listCategory: 'Cleaning' },
+    ]
+  },
+
   'grocery': {
     keywords: [
       'grocery', 'supermarket', 'groceries', 'food shopping', 'market',
@@ -249,18 +268,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
 
 /**
  * Detects the context of a Sub-Hub by matching keywords in its name
- * Returns the context key (e.g., 'camping', 'grocery') or null if no match
+ * Returns the context key (e.g., 'camping', 'grocery', 'stock') or null if no match
  *
- * Priority: Exact then partial matches across all contexts
+ * Searches through all defined contexts and matches against their keywords.
  */
 export function detectContext(subHubName: string): string | null {
   const lowerName = subHubName.toLowerCase().trim();
 
   // Try to find a matching context by keyword
-  for (const [contextKey, definition] of Object.entries(CONTEXT_RECOGNITION_MAPPING)) {
-    for (const keyword of definition.keywords) {
-      if (lowerName.includes(keyword)) {
-        return contextKey;
+  // Higher priority contexts are checked first based on keyword specificity
+  const priorityOrder = ['stock', 'pharmacy', 'camping', 'abroad', 'baby', 'home-renovation', 'baking', 'party', 'pets', 'gardening', 'home-decor', 'grocery'];
+
+  for (const contextKey of priorityOrder) {
+    const definition = CONTEXT_RECOGNITION_MAPPING[contextKey];
+    if (definition) {
+      for (const keyword of definition.keywords) {
+        if (lowerName.includes(keyword)) {
+          return contextKey;
+        }
       }
     }
   }
