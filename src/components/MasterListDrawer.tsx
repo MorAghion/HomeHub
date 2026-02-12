@@ -280,9 +280,39 @@ function MasterListDrawer({
               </div>
             ) : Object.values(groupedMasterItems()).every(arr => arr.length === 0) ? (
               <div className="text-center py-12">
-                <p className="text-sm opacity-50" style={{ color: '#8E806A' }}>
-                  No items match "{masterListSearch}"
-                </p>
+                {masterListSearch.trim() ? (
+                  // Quick-Add UI
+                  <>
+                    <p className="text-sm mb-4" style={{ color: '#8E806A' }}>
+                      Item not found. Add it?
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <button
+                        onClick={() => {
+                          const capitalizedText = capitalizeFirstLetter(masterListSearch.trim());
+                          const category = autoCategorize(capitalizedText);
+                          onAddToMasterList(capitalizedText, category);
+                          setMasterListSearch('');
+                        }}
+                        className="px-6 py-2 rounded-lg font-medium text-white"
+                        style={{ backgroundColor: '#630606' }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setMasterListSearch('')}
+                        className="px-6 py-2 rounded-lg font-medium hover:bg-gray-100"
+                        style={{ color: '#8E806A', border: '1px solid #8E806A33' }}
+                      >
+                        No
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm opacity-50" style={{ color: '#8E806A' }}>
+                    No items in master list
+                  </p>
+                )}
               </div>
             ) : (
               Object.entries(groupedMasterItems()).map(([category, categoryItems]) => {

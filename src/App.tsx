@@ -1,7 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
-import { loadMasterListByContext, saveMasterListByContext } from './utils/flexibleMemory'
+import {
+  loadMasterListById,
+  saveMasterListById,
+  clearMasterListById,
+  migrateContextBasedStorage
+} from './utils/flexibleMemory'
+
+// Hub ID constant for hierarchical Sub-Hub IDs
+const SHOPPING_HUB_ID = 'shopping-hub';
 
 export interface ShoppingItem {
   id: number;
@@ -30,6 +38,9 @@ interface ListInstance {
 function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping'>('dashboard');
 
+  // Track previous activeListId to save to correct context when switching
+  const prevActiveListIdRef = useRef<string>('');
+
   // Multi-list state
   const [lists, setLists] = useState<Record<string, ListInstance>>(() => {
     const saved = localStorage.getItem('homehub-lists');
@@ -43,20 +54,46 @@ function App() {
     ];
 
     return {
-      groceries: { id: 'groceries', name: 'Groceries', items: defaultItems },
-      general: { id: 'general', name: 'General Household', items: [] }
+      'shopping-hub_groceries': {
+        id: 'shopping-hub_groceries',
+        name: 'Groceries',
+        items: defaultItems
+      },
+      'shopping-hub_general': {
+        id: 'shopping-hub_general',
+        name: 'General Household',
+        items: []
+      }
     };
   });
 
-  const [activeListId, setActiveListId] = useState<string>('groceries');
+  // Persist active list ID across refreshes
+  const [activeListId, setActiveListId] = useState<string>(() => {
+    const saved = localStorage.getItem('homehub-active-list');
+    return saved || 'shopping-hub_groceries';
+  });
 
-  // Master list (context-based with Flexible Memory)
-  // Loads from context-based localStorage keys
+  // Master list (ID-based with Flexible Memory V2)
+  // Loads from ID-based localStorage keys - fully isolated per Sub-Hub
   // Starts empty to show suggestion bubbles for new lists
   const [masterListItems, setMasterListItems] = useState<MasterListItem[]>(() => {
-    // Load from context of the default active list (groceries)
-    const contextItems = loadMasterListByContext('Groceries');
-    return contextItems; // Returns empty array if nothing saved in context
+    // Load lists from localStorage first
+    const savedLists = localStorage.getItem('homehub-lists');
+    if (savedLists) {
+      const parsedLists = JSON.parse(savedLists);
+      const savedActiveId = localStorage.getItem('homehub-active-list') || 'shopping-hub_groceries';
+      const activeList = parsedLists[savedActiveId];
+
+      if (activeList) {
+        // Load from Sub-Hub ID (V2)
+        const items = loadMasterListById(activeList.id);
+        return items; // Returns empty array if nothing saved
+      }
+    }
+
+    // Fallback: load from default 'shopping-hub_groceries' ID
+    const items = loadMasterListById('shopping-hub_groceries');
+    return items;
   });
 
   const categories = [
@@ -80,29 +117,51 @@ function App() {
     'Home Decor',
   ];
 
+  // Run migration on mount (V1 → V2)
+  useEffect(() => {
+    migrateContextBasedStorage(lists);
+  }, []);
+
   // Auto-save multi-list state to localStorage
   useEffect(() => {
     localStorage.setItem('homehub-lists', JSON.stringify(lists));
   }, [lists]);
 
-  // Auto-save master list to context-based localStorage (Flexible Memory)
-  // Saves based on the active list's context
+  // Auto-save active list ID to localStorage
+  useEffect(() => {
+    localStorage.setItem('homehub-active-list', activeListId);
+  }, [activeListId]);
+
+  // Handle Sub-Hub switching: save to OLD Sub-Hub, load from NEW Sub-Hub
+  useEffect(() => {
+    const prevListId = prevActiveListIdRef.current;
+    const currentList = lists[activeListId];
+
+    if (!currentList) return;
+
+    // If switching Sub-Hubs (not initial load)
+    if (prevListId && prevListId !== activeListId) {
+      // Save current masterListItems to PREVIOUS Sub-Hub by ID before switching
+      saveMasterListById(prevListId, masterListItems);
+    }
+
+    // Load items from NEW Sub-Hub by ID
+    const items = loadMasterListById(activeListId);
+    setMasterListItems(items);
+
+    // Update ref to track current Sub-Hub
+    prevActiveListIdRef.current = activeListId;
+  }, [activeListId, lists]);
+
+  // Auto-save when master list items change (user adds/removes/edits items)
   useEffect(() => {
     const currentList = lists[activeListId];
-    if (currentList) {
-      saveMasterListByContext(currentList.name, masterListItems);
+
+    // Only save if we have a valid list and we're not on initial load
+    if (currentList && prevActiveListIdRef.current === activeListId) {
+      saveMasterListById(activeListId, masterListItems);
     }
   }, [masterListItems, activeListId, lists]);
-
-  // Load master list when active list changes (Flexible Memory context switching)
-  // This ensures that switching to a list with a different context loads its own master list
-  useEffect(() => {
-    const currentList = lists[activeListId];
-    if (currentList) {
-      const contextItems = loadMasterListByContext(currentList.name);
-      setMasterListItems(contextItems.length > 0 ? contextItems : []);
-    }
-  }, [activeListId]);
 
   // Shared utilities
   const capitalizeFirstLetter = (text: string): string => {
@@ -126,7 +185,7 @@ function App() {
     for (const [category, keywords] of Object.entries(categoryMap)) {
       if (keywords.some(keyword => name.includes(keyword))) return category;
     }
-    return 'Pantry';
+    return 'Other';
   };
 
   // Router: Dashboard
@@ -177,11 +236,60 @@ function App() {
           setCurrentScreen('shopping');
         }}
         onCreateList={(name) => {
-          const id = `list-${Date.now()}`;
+          const id = `${SHOPPING_HUB_ID}_list-${Date.now()}`;
           setLists({
             ...lists,
             [id]: { id, name: name.trim(), items: [] }
           });
+        }}
+        onEditList={(listId, newName) => {
+          const list = lists[listId];
+          if (list) {
+            setLists({
+              ...lists,
+              [listId]: { ...list, name: newName.trim() }
+            });
+          }
+        }}
+        onDeleteList={(listId) => {
+          const list = lists[listId];
+          if (list) {
+            // Remove list from state first
+            const newLists = { ...lists };
+            delete newLists[listId];
+
+            // Clear associated Master List by ID (V2)
+            clearMasterListById(listId);
+
+            setLists(newLists);
+
+            // If deleting the active list, reset to default
+            if (activeListId === listId) {
+              const remainingIds = Object.keys(newLists);
+              setActiveListId(remainingIds[0] || 'shopping-hub_groceries');
+            }
+          }
+        }}
+        onDeleteLists={(listIds) => {
+          const newLists = { ...lists };
+
+          // Remove all selected lists from state
+          listIds.forEach(listId => {
+            delete newLists[listId];
+          });
+
+          // Clear Master Lists by ID (V2)
+          listIds.forEach(listId => {
+            clearMasterListById(listId);
+          });
+
+          setLists(newLists);
+
+          // If active list was deleted, reset to default
+          if (listIds.includes(activeListId)) {
+            const remainingIds = Object.keys(newLists);
+            setActiveListId(remainingIds[0] || 'shopping-hub_groceries');
+          }
         }}
         onBack={() => setCurrentScreen('dashboard')}
       />

@@ -1,0 +1,56 @@
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+/**
+ * Reusable Modal component matching the Burgundy theme
+ */
+function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in"
+        onClick={onClose}
+      >
+        {/* Modal Container */}
+        <div
+          className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-scale-in"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Title */}
+          <h3 className="text-xl font-bold mb-4" style={{ color: '#630606' }}>
+            {title}
+          </h3>
+
+          {/* Content */}
+          {children}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scale-in {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+        .animate-scale-in {
+          animation: scale-in 0.2s ease-out;
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default Modal;
