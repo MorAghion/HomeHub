@@ -1,22 +1,33 @@
 import { useState, useEffect, useRef } from 'react'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
+import TasksHub from './components/TasksHub'
+import TaskList from './components/TaskList'
 import {
   loadMasterListById,
   saveMasterListById,
   clearMasterListById,
   migrateContextBasedStorage
 } from './utils/flexibleMemory'
+import {
+  loadTaskMasterListById,
+  saveTaskMasterListById,
+  clearTaskMasterListById,
+  getUrgentTasks,
+  type TaskListInstance
+} from './utils/taskMemory'
 import type {
   MasterListItem,
-  ListInstance
+  ListInstance,
+  Task
 } from './types/base'
 
-// Hub ID constant for hierarchical Sub-Hub IDs
+// Hub ID constants for hierarchical Sub-Hub IDs
 const SHOPPING_HUB_ID = 'shopping-hub';
+const HOME_TASKS_HUB_ID = 'home-tasks';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping'>('dashboard');
+  const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks'>('dashboard');
 
   // Track previous activeListId to save to correct context when switching
   const prevActiveListIdRef = useRef<string>('');
@@ -96,6 +107,125 @@ function App() {
     'Gardening',
     'Home Decor',
   ];
+
+  // =====================================================================
+  // TASK LISTS STATE & MANAGEMENT
+  // =====================================================================
+
+  // Track previous active task list ID
+  const prevActiveTaskListIdRef = useRef<string>('');
+
+  // Multi-task-list state
+  const [taskLists, setTaskLists] = useState<Record<string, TaskListInstance>>(() => {
+    const saved = localStorage.getItem('homehub-task-lists');
+    if (saved) return JSON.parse(saved);
+
+    // Initialize with Urgent Tasks sub-hub
+    return {
+      'home-tasks_urgent': {
+        id: 'home-tasks_urgent',
+        name: 'Urgent Tasks',
+        tasks: []
+      }
+    };
+  });
+
+  // Persist active task list ID across refreshes
+  const [activeTaskListId, setActiveTaskListId] = useState<string>(() => {
+    const saved = localStorage.getItem('homehub-active-task-list');
+    return saved || 'home-tasks_urgent';
+  });
+
+  // Task master list (ID-based storage)
+  const [masterListTasks, setMasterListTasks] = useState<Task[]>(() => {
+    const savedLists = localStorage.getItem('homehub-task-lists');
+    if (savedLists) {
+      const parsedLists = JSON.parse(savedLists);
+      const savedActiveId = localStorage.getItem('homehub-active-task-list') || 'home-tasks_urgent';
+      const activeList = parsedLists[savedActiveId];
+
+      if (activeList && activeList.id !== 'home-tasks_urgent') {
+        const items = loadTaskMasterListById(activeList.id);
+        return items;
+      }
+    }
+
+    return [];
+  });
+
+  // Auto-save task lists to localStorage
+  useEffect(() => {
+    localStorage.setItem('homehub-task-lists', JSON.stringify(taskLists));
+  }, [taskLists]);
+
+  // Auto-save active task list ID to localStorage
+  useEffect(() => {
+    localStorage.setItem('homehub-active-task-list', activeTaskListId);
+  }, [activeTaskListId]);
+
+  // Handle Task Sub-Hub switching: save to OLD, load from NEW
+  useEffect(() => {
+    const prevTaskListId = prevActiveTaskListIdRef.current;
+    const currentTaskList = taskLists[activeTaskListId];
+
+    if (!currentTaskList) return;
+
+    // Skip for urgent view
+    if (currentTaskList.id === 'home-tasks_urgent') {
+      prevActiveTaskListIdRef.current = activeTaskListId;
+      setMasterListTasks([]);
+      return;
+    }
+
+    // If switching Sub-Hubs (not initial load)
+    if (prevTaskListId && prevTaskListId !== activeTaskListId && prevTaskListId !== 'home-tasks_urgent') {
+      saveTaskMasterListById(prevTaskListId, masterListTasks);
+    }
+
+    // Load items from NEW Sub-Hub by ID
+    const items = loadTaskMasterListById(activeTaskListId);
+    setMasterListTasks(items);
+
+    // Update ref to track current Sub-Hub
+    prevActiveTaskListIdRef.current = activeTaskListId;
+  }, [activeTaskListId, taskLists]);
+
+  // Auto-save when task master list changes
+  useEffect(() => {
+    const currentTaskList = taskLists[activeTaskListId];
+
+    // Only save if we have a valid list and we're not on initial load or urgent view
+    if (currentTaskList &&
+        currentTaskList.id !== 'home-tasks_urgent' &&
+        prevActiveTaskListIdRef.current === activeTaskListId) {
+      saveTaskMasterListById(activeTaskListId, masterListTasks);
+    }
+  }, [masterListTasks, activeTaskListId, taskLists]);
+
+  // Update urgent tasks whenever task lists change
+  useEffect(() => {
+    const urgentTasks = getUrgentTasks(taskLists);
+
+    // Only update if the urgent tasks have actually changed
+    const currentUrgent = taskLists['home-tasks_urgent'];
+    const hasChanged = !currentUrgent ||
+      JSON.stringify(currentUrgent.tasks) !== JSON.stringify(urgentTasks);
+
+    if (hasChanged) {
+      setTaskLists(prev => ({
+        ...prev,
+        'home-tasks_urgent': {
+          id: 'home-tasks_urgent',
+          name: 'Urgent Tasks',
+          tasks: urgentTasks
+        }
+      }));
+    }
+  }, [JSON.stringify(Object.values(taskLists).filter(list => list.id !== 'home-tasks_urgent').map(list => list.tasks))]);
+
+  // =====================================================================
+  // END TASK LISTS STATE & MANAGEMENT
+  // =====================================================================
 
   // Run migration on mount (V1 → V2)
   useEffect(() => {
@@ -187,10 +317,13 @@ function App() {
             <p className="text-sm mt-1" style={{ color: '#8E806A', opacity: 0.6 }}>Manage your shopping lists</p>
           </button>
 
-          <button className="bg-white p-10 rounded-[40px] shadow-sm text-left opacity-80 flex flex-col border border-transparent">
-            <span className="text-3xl mb-4 grayscale">🏠</span>
+          <button
+            onClick={() => setCurrentScreen('home-tasks-hub')}
+            className="bg-white p-10 rounded-[40px] shadow-sm text-left hover:shadow-md transition-all active:scale-[0.95] flex flex-col border border-transparent"
+          >
+            <span className="text-4xl mb-4">📋</span>
             <h2 className="text-2xl font-semibold" style={{ color: '#8E806A' }}>Home Tasks</h2>
-            <p className="text-sm mt-1" style={{ color: '#8E806A', opacity: 0.6 }}>Coming soon...</p>
+            <p className="text-sm mt-1" style={{ color: '#8E806A', opacity: 0.6 }}>Manage your tasks</p>
           </button>
 
           <div className="bg-white/50 p-10 rounded-[40px] border border-dashed border-[#8E806A33] flex flex-col relative overflow-hidden">
@@ -300,6 +433,112 @@ function App() {
         categories={categories}
         capitalizeFirstLetter={capitalizeFirstLetter}
         autoCategorize={autoCategorize}
+      />
+    );
+  }
+
+  // Router: Home Tasks Hub
+  if (currentScreen === 'home-tasks-hub') {
+    const urgentTasks = getUrgentTasks(taskLists);
+
+    return (
+      <TasksHub
+        taskLists={taskLists}
+        urgentTaskCount={urgentTasks.length}
+        onSelectList={(id) => {
+          setActiveTaskListId(id);
+          setCurrentScreen('home-tasks');
+        }}
+        onCreateList={(name) => {
+          const id = `${HOME_TASKS_HUB_ID}_list-${Date.now()}`;
+          setTaskLists({
+            ...taskLists,
+            [id]: { id, name: name.trim(), tasks: [] }
+          });
+        }}
+        onEditList={(listId, newName) => {
+          const list = taskLists[listId];
+          if (list) {
+            setTaskLists({
+              ...taskLists,
+              [listId]: { ...list, name: newName.trim() }
+            });
+          }
+        }}
+        onDeleteList={(listId) => {
+          const list = taskLists[listId];
+          if (list) {
+            // Remove list from state first
+            const newLists = { ...taskLists };
+            delete newLists[listId];
+
+            // Clear associated Task Master List by ID
+            clearTaskMasterListById(listId);
+
+            setTaskLists(newLists);
+
+            // If deleting the active list, reset to urgent
+            if (activeTaskListId === listId) {
+              setActiveTaskListId('home-tasks_urgent');
+            }
+          }
+        }}
+        onDeleteLists={(listIds) => {
+          const newLists = { ...taskLists };
+
+          // Remove all selected lists from state
+          listIds.forEach(listId => {
+            delete newLists[listId];
+          });
+
+          // Clear Task Master Lists by ID
+          listIds.forEach(listId => {
+            clearTaskMasterListById(listId);
+          });
+
+          setTaskLists(newLists);
+
+          // If active list was deleted, reset to urgent
+          if (listIds.includes(activeTaskListId)) {
+            setActiveTaskListId('home-tasks_urgent');
+          }
+        }}
+        onBack={() => setCurrentScreen('dashboard')}
+      />
+    );
+  }
+
+  // Router: Home Tasks List
+  if (currentScreen === 'home-tasks') {
+    const currentTaskList = taskLists[activeTaskListId];
+    if (!currentTaskList) {
+      setCurrentScreen('home-tasks-hub');
+      return null;
+    }
+
+    const isUrgentView = currentTaskList.id === 'home-tasks_urgent';
+
+    return (
+      <TaskList
+        listName={currentTaskList.name}
+        listId={currentTaskList.id}
+        isUrgentView={isUrgentView}
+        tasks={currentTaskList.tasks}
+        onUpdateTasks={(newTasks) => {
+          if (!isUrgentView) {
+            setTaskLists({
+              ...taskLists,
+              [activeTaskListId]: { ...currentTaskList, tasks: newTasks }
+            });
+          }
+        }}
+        onBack={() => setCurrentScreen('home-tasks-hub')}
+        onNavigateToSource={(sourceSubHubId) => {
+          setActiveTaskListId(sourceSubHubId);
+          // Stay on same screen to show the source list
+        }}
+        masterListTasks={masterListTasks}
+        onUpdateMasterList={setMasterListTasks}
       />
     );
   }

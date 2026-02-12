@@ -92,3 +92,23 @@ Styling: Tailwind CSS.
 Persistence: LocalStorage (Context-based keys).
 
 Architecture: Component-based (src/components/) to ensure scalability.
+
+🚀 Future Roadmap (Post-MVP)
+
+Automated Billing Hub (Gmail Integration): * Developing a dedicated "Bills" Sub-Hub that syncs with the user's Gmail API.
+
+Automatically extracting due dates and amounts from utility/service provider emails and displaying a preview of the bill directly within the task.
+
+Enhanced Navigation ("Flashlight" Mode): * Improving the Deep-Link experience: when redirecting from the Urgent Sub-Hub, the target task will not only be displayed but also highlighted visually (pulsing border or background) to help the user find it immediately in a long list.
+
+Smart Price Comparison (Supermarket Sync):
+
+Integrating a price-comparison engine within the Shopping Hub.
+
+Connecting items to local supermarket databases/APIs to show real-time price totals and help the user choose the cheapest store for their current list.
+
+Multi-User Collaboration & Push Notifications:
+
+Implementing a shared-hub model with real-time updates.
+
+Adding Push Notifications to alert users when a task is completed, a new item is added, or when a "High Urgency" task is approaching its deadline.
