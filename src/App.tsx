@@ -7,33 +7,13 @@ import {
   clearMasterListById,
   migrateContextBasedStorage
 } from './utils/flexibleMemory'
+import type {
+  MasterListItem,
+  ListInstance
+} from './types/base'
 
 // Hub ID constant for hierarchical Sub-Hub IDs
 const SHOPPING_HUB_ID = 'shopping-hub';
-
-export interface ShoppingItem {
-  id: number;
-  text: string;
-  completed: boolean;
-  category?: string;
-}
-
-export interface MasterListItem {
-  id: number;
-  text: string;
-  category?: string;
-}
-
-export interface DuplicateCheck {
-  name: string;
-  onConfirm: () => void;
-}
-
-interface ListInstance {
-  id: string;
-  name: string;
-  items: ShoppingItem[];
-}
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping'>('dashboard');

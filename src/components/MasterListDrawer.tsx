@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MasterListItem } from '../App';
+import type { MasterListItem } from '../types/base';
 import {
   getSuggestedContexts,
   getContextItems,

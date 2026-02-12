@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
-
-interface ListInstance {
-  id: string;
-  name: string;
-  items: Array<{ id: number; text: string; completed: boolean; category?: string }>;
-}
+import type { ListInstance } from '../types/base';
 
 interface ShoppingHubProps {
   lists: Record<string, ListInstance>;

@@ -1,4 +1,4 @@
-import type { MasterListItem } from '../App';
+import type { MasterListItem } from '../types/base';
 
 export interface SuggestedItem {
   text: string;

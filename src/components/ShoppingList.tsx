@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ShoppingItem, MasterListItem, DuplicateCheck } from '../App';
+import type { ShoppingItem, MasterListItem, DuplicateCheck } from '../types/base';
 import MasterListDrawer from './MasterListDrawer';
 
 interface ShoppingListProps {

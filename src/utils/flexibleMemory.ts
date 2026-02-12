@@ -13,7 +13,7 @@
  * - V1: homehub-masterlist-camping, homehub-masterlist-grocery (legacy)
  */
 
-import type { MasterListItem } from '../App';
+import type { MasterListItem } from '../types/base';
 import { detectContext } from './contextMapping';
 
 const MASTER_LIST_PREFIX = 'homehub-masterlist';
