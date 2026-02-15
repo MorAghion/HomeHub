@@ -3,6 +3,8 @@ import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
 import TasksHub from './components/TasksHub'
 import TaskList from './components/TaskList'
+import VouchersHub from './components/VouchersHub'
+import VoucherList from './components/VoucherList'
 import {
   loadMasterListById,
   saveMasterListById,
@@ -16,18 +18,33 @@ import {
   getUrgentTasks,
   type TaskListInstance
 } from './utils/taskMemory'
+import {
+  loadVoucherLists,
+  saveVoucherLists,
+  createVoucherSubHub,
+  getVouchersFromSubHub,
+  saveVouchersToSubHub,
+  generateVoucherSubHubId
+} from './utils/voucherMemory'
 import type {
   MasterListItem,
   ListInstance,
-  Task
+  Task,
+  VoucherListInstance,
+  VoucherItem
 } from './types/base'
 
 // Hub ID constants for hierarchical Sub-Hub IDs
 const SHOPPING_HUB_ID = 'shopping-hub';
 const HOME_TASKS_HUB_ID = 'home-tasks';
+const VOUCHERS_HUB_ID = 'vouchers';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks'>('dashboard');
+  const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
+
+  // Mobile Card Stack Navigation
+  const [activeHub, setActiveHub] = useState<'shopping' | 'tasks' | 'vouchers'>('shopping');
+  const cardStackRef = useRef<HTMLDivElement>(null);
 
   // Track previous activeListId to save to correct context when switching
   const prevActiveListIdRef = useRef<string>('');
@@ -230,6 +247,53 @@ function App() {
   // END TASK LISTS STATE & MANAGEMENT
   // =====================================================================
 
+  // =====================================================================
+  // VOUCHER LISTS STATE & MANAGEMENT
+  // =====================================================================
+
+  // Voucher lists state
+  const [voucherLists, setVoucherLists] = useState<Record<string, VoucherListInstance>>(() => {
+    return loadVoucherLists();
+  });
+
+  // Active voucher list ID
+  const [activeVoucherListId, setActiveVoucherListId] = useState<string>('');
+
+  // Current vouchers for the active list
+  const [currentVouchers, setCurrentVouchers] = useState<VoucherItem[]>([]);
+
+  // Auto-save voucher lists to localStorage
+  useEffect(() => {
+    saveVoucherLists(voucherLists);
+  }, [voucherLists]);
+
+  // Load vouchers when active voucher list changes
+  useEffect(() => {
+    if (activeVoucherListId) {
+      const vouchers = getVouchersFromSubHub(activeVoucherListId);
+      setCurrentVouchers(vouchers);
+    }
+  }, [activeVoucherListId]);
+
+  // Save vouchers when they change
+  useEffect(() => {
+    if (activeVoucherListId && currentVouchers.length >= 0) {
+      saveVouchersToSubHub(activeVoucherListId, currentVouchers);
+      // Update the voucher list state
+      setVoucherLists(prev => ({
+        ...prev,
+        [activeVoucherListId]: {
+          ...prev[activeVoucherListId],
+          items: currentVouchers
+        }
+      }));
+    }
+  }, [currentVouchers, activeVoucherListId]);
+
+  // =====================================================================
+  // END VOUCHER LISTS STATE & MANAGEMENT
+  // =====================================================================
+
   // Run migration on mount (V1 → V2)
   useEffect(() => {
     migrateContextBasedStorage(lists);
@@ -276,6 +340,51 @@ function App() {
     }
   }, [masterListItems, activeListId, lists]);
 
+  // Card Stack Navigation Functions
+  const scrollToHub = (hub: 'shopping' | 'tasks' | 'vouchers') => {
+    if (!cardStackRef.current) return;
+
+    const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[hub];
+    const cards = cardStackRef.current.children;
+    const targetCard = cards[hubIndex] as HTMLElement;
+
+    if (targetCard) {
+      targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      setActiveHub(hub);
+    }
+  };
+
+  // Detect active card from scroll position
+  useEffect(() => {
+    if (!cardStackRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const hubId = entry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
+            if (hubId) setActiveHub(hubId);
+          }
+        });
+      },
+      { threshold: [0.5], root: null }
+    );
+
+    Array.from(cardStackRef.current.children).forEach((card) => {
+      observer.observe(card);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll to initial hub on mount
+  useEffect(() => {
+    if (cardStackRef.current && (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub')) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => scrollToHub(activeHub), 100);
+    }
+  }, []);
+
   // Shared utilities
   const capitalizeFirstLetter = (text: string): string => {
     if (!text) return text;
@@ -302,43 +411,235 @@ function App() {
     return 'Other';
   };
 
-  // Router: Dashboard
-  if (currentScreen === 'dashboard') {
+  // Render Bottom Navigation
+  const renderBottomNav = () => (
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t"
+      style={{ borderColor: '#8E806A22' }}
+    >
+      <div className="flex items-center justify-around px-4 py-3 max-w-md mx-auto">
+        <button
+          onClick={() => scrollToHub('shopping')}
+          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          style={{
+            color: activeHub === 'shopping' ? '#630606' : '#8E806A',
+            backgroundColor: activeHub === 'shopping' ? '#63060611' : 'transparent'
+          }}
+        >
+          <span className="text-2xl">🛒</span>
+          <span className="text-xs font-medium">Shopping</span>
+        </button>
+
+        <button
+          onClick={() => scrollToHub('tasks')}
+          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          style={{
+            color: activeHub === 'tasks' ? '#630606' : '#8E806A',
+            backgroundColor: activeHub === 'tasks' ? '#63060611' : 'transparent'
+          }}
+        >
+          <span className="text-2xl">📋</span>
+          <span className="text-xs font-medium">Tasks</span>
+        </button>
+
+        <button
+          onClick={() => scrollToHub('vouchers')}
+          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          style={{
+            color: activeHub === 'vouchers' ? '#630606' : '#8E806A',
+            backgroundColor: activeHub === 'vouchers' ? '#63060611' : 'transparent'
+          }}
+        >
+          <span className="text-2xl">🎟️</span>
+          <span className="text-xs font-medium">Vouchers</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  // Router: Mobile Card Stack (Hub Level)
+  if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
-      <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
-        <header className="mb-12 max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight" style={{ color: '#630606' }}>HomeHub</h1>
-          <p className="text-lg mt-2" style={{ color: '#8E806A', opacity: 0.8 }}>Welcome home, Mor.</p>
+      <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2E7' }}>
+        {/* Header */}
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b px-6 py-4" style={{ borderColor: '#8E806A22' }}>
+          <h1 className="text-2xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#8E806A', opacity: 0.7 }}>Welcome home, Mor.</p>
         </header>
 
-        <main className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          <button
-            onClick={() => setCurrentScreen('shopping-hub')}
-            className="bg-white p-10 rounded-[40px] shadow-sm text-left hover:shadow-md transition-all active:scale-[0.95] flex flex-col border border-transparent"
+        {/* Card Stack Container */}
+        <div
+          ref={cardStackRef}
+          className="flex overflow-x-scroll snap-x snap-mandatory hide-scrollbar touch-pan-y"
+          style={{
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          {/* Shopping Hub Card */}
+          <div
+            data-hub="shopping"
+            className="flex-shrink-0 snap-center transition-all duration-500"
+            style={{
+              width: '90vw',
+              marginLeft: '5vw',
+              marginRight: '0',
+              opacity: activeHub === 'shopping' ? 1 : 0.5,
+              transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.95)'
+            }}
           >
-            <span className="text-4xl mb-4">🛒</span>
-            <h2 className="text-2xl font-semibold" style={{ color: '#8E806A' }}>Shopping Lists</h2>
-            <p className="text-sm mt-1" style={{ color: '#8E806A', opacity: 0.6 }}>Manage your shopping lists</p>
-          </button>
-
-          <button
-            onClick={() => setCurrentScreen('home-tasks-hub')}
-            className="bg-white p-10 rounded-[40px] shadow-sm text-left hover:shadow-md transition-all active:scale-[0.95] flex flex-col border border-transparent"
-          >
-            <span className="text-4xl mb-4">📋</span>
-            <h2 className="text-2xl font-semibold" style={{ color: '#8E806A' }}>Home Tasks</h2>
-            <p className="text-sm mt-1" style={{ color: '#8E806A', opacity: 0.6 }}>Manage your tasks</p>
-          </button>
-
-          <div className="bg-white/50 p-10 rounded-[40px] border border-dashed border-[#8E806A33] flex flex-col relative overflow-hidden">
-            <div className="absolute top-4 right-4 bg-[#8E806A11] px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold" style={{ color: '#8E806A' }}>
-              Soon
+            <div className="h-full px-2 py-6">
+              <ShoppingHub
+                lists={lists}
+                onSelectList={(id) => {
+                  setActiveListId(id);
+                  setCurrentScreen('shopping');
+                }}
+                onCreateList={(name) => {
+                  const id = `${SHOPPING_HUB_ID}_${name.toLowerCase().replace(/\s+/g, '-')}`;
+                  setLists({
+                    ...lists,
+                    [id]: { id, name, items: [] }
+                  });
+                }}
+                onEditList={(listId, newName) => {
+                  setLists({
+                    ...lists,
+                    [listId]: { ...lists[listId], name: newName }
+                  });
+                }}
+                onDeleteList={(listId) => {
+                  const newLists = { ...lists };
+                  delete newLists[listId];
+                  setLists(newLists);
+                  if (activeListId === listId) {
+                    setActiveListId(Object.keys(newLists)[0] || '');
+                  }
+                }}
+                onDeleteLists={(listIds) => {
+                  const newLists = { ...lists };
+                  listIds.forEach(listId => {
+                    delete newLists[listId];
+                  });
+                  setLists(newLists);
+                  if (listIds.includes(activeListId)) {
+                    setActiveListId(Object.keys(newLists)[0] || '');
+                  }
+                }}
+                onBack={() => setCurrentScreen('dashboard')}
+              />
             </div>
-            <span className="text-3xl mb-4 grayscale opacity-50">🎟️</span>
-            <h2 className="text-2xl font-semibold opacity-40" style={{ color: '#8E806A' }}>Vouchers</h2>
-            <p className="text-sm mt-1 opacity-30" style={{ color: '#8E806A' }}>Future rewards & surprises</p>
           </div>
-        </main>
+
+          {/* Tasks Hub Card */}
+          <div
+            data-hub="tasks"
+            className="flex-shrink-0 snap-center transition-all duration-500"
+            style={{
+              width: '90vw',
+              marginLeft: '0',
+              marginRight: '0',
+              opacity: activeHub === 'tasks' ? 1 : 0.5,
+              transform: activeHub === 'tasks' ? 'scale(1)' : 'scale(0.95)'
+            }}
+          >
+            <div className="h-full px-2 py-6">
+              <TasksHub
+                taskLists={taskLists}
+                urgentTaskCount={taskLists['home-tasks_urgent']?.tasks.length || 0}
+                onSelectList={(id) => {
+                  setActiveTaskListId(id);
+                  setCurrentScreen('home-tasks');
+                }}
+                onCreateList={(name) => {
+                  const id = `${HOME_TASKS_HUB_ID}_${name.toLowerCase().replace(/\s+/g, '-')}`;
+                  setTaskLists({
+                    ...taskLists,
+                    [id]: { id, name, tasks: [] }
+                  });
+                }}
+                onEditList={(listId, newName) => {
+                  setTaskLists({
+                    ...taskLists,
+                    [listId]: { ...taskLists[listId], name: newName }
+                  });
+                }}
+                onDeleteList={(listId) => {
+                  const newLists = { ...taskLists };
+                  delete newLists[listId];
+                  setTaskLists(newLists);
+                  if (activeTaskListId === listId) {
+                    setActiveTaskListId(Object.keys(newLists).filter(id => id !== 'home-tasks_urgent')[0] || '');
+                  }
+                }}
+                onDeleteLists={(listIds) => {
+                  const newLists = { ...taskLists };
+                  listIds.forEach(listId => {
+                    delete newLists[listId];
+                  });
+                  setTaskLists(newLists);
+                  if (listIds.includes(activeTaskListId)) {
+                    setActiveTaskListId(Object.keys(newLists).filter(id => id !== 'home-tasks_urgent')[0] || '');
+                  }
+                }}
+                onBack={() => setCurrentScreen('dashboard')}
+              />
+            </div>
+          </div>
+
+          {/* Vouchers Hub Card */}
+          <div
+            data-hub="vouchers"
+            className="flex-shrink-0 snap-center transition-all duration-500"
+            style={{
+              width: '90vw',
+              marginLeft: '0',
+              marginRight: '5vw',
+              opacity: activeHub === 'vouchers' ? 1 : 0.5,
+              transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.95)'
+            }}
+          >
+            <div className="h-full px-2 py-6">
+              <VouchersHub
+                voucherLists={voucherLists}
+                onSelectList={(id) => {
+                  setActiveVoucherListId(id);
+                  setCurrentScreen('vouchers');
+                }}
+                onCreateList={(templateId, displayName, defaultType) => {
+                  const id = generateVoucherSubHubId(templateId);
+                  const newList = createVoucherSubHub(templateId, displayName, defaultType);
+                  setVoucherLists({
+                    ...voucherLists,
+                    [id]: newList
+                  });
+                }}
+                onDeleteList={(listId) => {
+                  const newLists = { ...voucherLists };
+                  delete newLists[listId];
+                  setVoucherLists(newLists);
+                  if (activeVoucherListId === listId) {
+                    setActiveVoucherListId('');
+                  }
+                }}
+                onDeleteLists={(listIds) => {
+                  const newLists = { ...voucherLists };
+                  listIds.forEach(listId => {
+                    delete newLists[listId];
+                  });
+                  setVoucherLists(newLists);
+                  if (listIds.includes(activeVoucherListId)) {
+                    setActiveVoucherListId('');
+                  }
+                }}
+                onBack={() => setCurrentScreen('dashboard')}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        {renderBottomNav()}
       </div>
     );
   }
@@ -563,6 +864,69 @@ function App() {
         onUpdateMasterList={setMasterListTasks}
         highlightedTaskId={highlightedTaskId}
         onClearHighlight={() => setHighlightedTaskId(null)}
+      />
+    );
+  }
+
+  // Router: Vouchers Hub
+  if (currentScreen === 'vouchers-hub') {
+    return (
+      <VouchersHub
+        voucherLists={voucherLists}
+        onSelectList={(id) => {
+          setActiveVoucherListId(id);
+          setCurrentScreen('vouchers');
+        }}
+        onCreateList={(templateId, displayName, defaultType) => {
+          const id = generateVoucherSubHubId(templateId);
+          const newList = createVoucherSubHub(templateId, displayName, defaultType);
+          setVoucherLists({
+            ...voucherLists,
+            [id]: newList
+          });
+        }}
+        onDeleteList={(listId) => {
+          const newLists = { ...voucherLists };
+          delete newLists[listId];
+          setVoucherLists(newLists);
+
+          // If deleting the active list, clear active state
+          if (activeVoucherListId === listId) {
+            setActiveVoucherListId('');
+          }
+        }}
+        onDeleteLists={(listIds) => {
+          const newLists = { ...voucherLists };
+          listIds.forEach(listId => {
+            delete newLists[listId];
+          });
+          setVoucherLists(newLists);
+
+          // If active list was deleted, clear active state
+          if (listIds.includes(activeVoucherListId)) {
+            setActiveVoucherListId('');
+          }
+        }}
+        onBack={() => setCurrentScreen('dashboard')}
+      />
+    );
+  }
+
+  // Router: Voucher List
+  if (currentScreen === 'vouchers') {
+    const currentVoucherList = voucherLists[activeVoucherListId];
+    if (!currentVoucherList) {
+      setCurrentScreen('vouchers-hub');
+      return null;
+    }
+
+    return (
+      <VoucherList
+        listName={currentVoucherList.name}
+        listId={currentVoucherList.id}
+        vouchers={currentVouchers}
+        onUpdateVouchers={setCurrentVouchers}
+        onBack={() => setCurrentScreen('vouchers-hub')}
       />
     );
   }

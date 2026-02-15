@@ -30,3 +30,31 @@ body {
   animation: flashlight-pulse 3s ease-in-out;
   border: 2px solid rgba(99, 6, 6, 0.7);
 }
+
+/* Mobile Card Stack Navigation */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+.touch-pan-y {
+  touch-action: pan-y;
+}
+
+/* Smooth scroll snap */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* Prevent accidental horizontal swipes in lists */
+.prevent-swipe {
+  touch-action: pan-y;
+}
