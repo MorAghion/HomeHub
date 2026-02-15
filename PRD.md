@@ -93,6 +93,47 @@ Persistence: LocalStorage (Context-based keys).
 
 Architecture: Component-based (src/components/) to ensure scalability.
 
+🎟️ Vouchers & Reservations Hub (The "Digital Wallet")
+A unified space for home assets (Vouchers) and scheduled events (Reservations).
+
+Polymorphic Data Model:
+All items in this hub extend BaseItem but are categorized into two distinct types:
+
+Voucher Type: For monetary assets like Gift Cards and store credit.
+
+Unique Fields: value (amount), issuer (provider), expiryDate, code/barcode.
+
+Reservation Type: For time-bound events like restaurant bookings or shows.
+
+Unique Fields: eventDate (replaces expiry), time, address.
+
+Common Fields: id, name, imageUrl, notes.
+
+UI - Smart Card Rendering:
+The Grid View adapts its display based on the item type to minimize clicks:
+
+Voucher Cards: Display Name, Value (e.g., ₪500), and Expiry Date prominently on the card.
+
+Reservation Cards: Display Name, Event Date/Time, and Address directly on the card for quick reference.
+
+Deep Access (Option A): All cards feature a "Photo" icon (if an image is attached) and a "Copy/Link" icon. Full details and the original screenshot are accessible via a Modal view.
+
+Smart Creation & Templates:
+When creating a new Sub-Hub, the system maps it to a default type:
+
+Reservation Templates: Ontopo, Movies & Shows.
+
+Voucher Templates: BuyMe, Shopping Vouchers, Digital Cards, Physical Cards.
+
+Custom Hubs: User selects type via Radio Buttons during creation.
+
+Data Entry Automation:
+
+Smart Paste: Detects URLs (buyme/ontopo) to auto-fill fields and select the correct item type.
+
+Screenshot OCR: Scans uploaded images for voucher codes and values to auto-populate the form.
+----------
+
 🚀 Future Roadmap (Post-MVP)
 
 Automated Billing Hub (Gmail Integration): * Developing a dedicated "Bills" Sub-Hub that syncs with the user's Gmail API.
@@ -112,3 +153,17 @@ Multi-User Collaboration & Push Notifications:
 Implementing a shared-hub model with real-time updates.
 
 Adding Push Notifications to alert users when a task is completed, a new item is added, or when a "High Urgency" task is approaching its deadline.
+
+
+
+
+
+Cloud Sync & Persistent Database (Post-MVP):
+
+Transition from LocalStorage: Migrating the data layer from client-side storage to a cloud-based Database-as-a-Service (e.g., Firebase, Supabase, or MongoDB Atlas).
+
+Real-time Synchronization: Implementing WebSockets or Real-time listeners to ensure that updates (new shopping items, task completions, or voucher additions) reflect instantly across all connected devices in the household.
+
+User Authentication: Adding a secure login system (Google Auth / Magic Links) to associate data with a specific household ID.
+
+Image Hosting: Moving Base64 images from LocalStorage to a dedicated Storage Bucket (S3/Firebase Storage) to handle high-resolution photos of vouchers without performance degradation.

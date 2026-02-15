@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
+import { getContextIcon } from '../utils/iconMapping';
 import type { TaskListInstance } from '../utils/taskMemory';
 
 interface TasksHubProps {
@@ -219,7 +220,12 @@ function TasksHub({
                   </div>
 
                   <div className="flex-1" onClick={() => toggleListSelection(list.id)}>
-                    <span className="text-3xl mb-3 block">📋</span>
+                    <div className="mb-3">
+                      {(() => {
+                        const Icon = getContextIcon(list.name);
+                        return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
+                      })()}
+                    </div>
                     <h2 className="text-xl font-semibold mb-1" style={{ color: '#630606' }}>
                       {list.name}
                     </h2>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { ShoppingCart, ListTodo, Gift } from 'lucide-react'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
 import TasksHub from './components/TasksHub'
@@ -426,7 +427,7 @@ function App() {
             backgroundColor: activeHub === 'shopping' ? '#63060611' : 'transparent'
           }}
         >
-          <span className="text-2xl">🛒</span>
+          <ShoppingCart size={24} strokeWidth={2} />
           <span className="text-xs font-medium">Shopping</span>
         </button>
 
@@ -438,7 +439,7 @@ function App() {
             backgroundColor: activeHub === 'tasks' ? '#63060611' : 'transparent'
           }}
         >
-          <span className="text-2xl">📋</span>
+          <ListTodo size={24} strokeWidth={2} />
           <span className="text-xs font-medium">Tasks</span>
         </button>
 
@@ -450,7 +451,7 @@ function App() {
             backgroundColor: activeHub === 'vouchers' ? '#63060611' : 'transparent'
           }}
         >
-          <span className="text-2xl">🎟️</span>
+          <Gift size={24} strokeWidth={2} />
           <span className="text-xs font-medium">Vouchers</span>
         </button>
       </div>
@@ -461,16 +462,22 @@ function App() {
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
       <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2E7' }}>
-        {/* Header */}
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b px-6 py-4" style={{ borderColor: '#8E806A22' }}>
-          <h1 className="text-2xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#8E806A', opacity: 0.7 }}>Welcome home, Mor.</p>
+        {/* Header - Compact with Glass-morphism */}
+        <header
+          className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md border-b px-6 py-2.5"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            borderColor: '#8E806A22'
+          }}
+        >
+          <h1 className="text-xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
+          <p className="text-xs mt-0.5" style={{ color: '#8E806A', opacity: 0.7 }}>Welcome home, Mor.</p>
         </header>
 
-        {/* Card Stack Container */}
+        {/* Card Stack Container - 85% width cards with 7.5% margins */}
         <div
           ref={cardStackRef}
-          className="flex overflow-x-scroll snap-x snap-mandatory hide-scrollbar touch-pan-y"
+          className="flex overflow-x-scroll snap-x snap-mandatory hide-scrollbar touch-pan-y pt-20"
           style={{
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch'
@@ -481,8 +488,8 @@ function App() {
             data-hub="shopping"
             className="flex-shrink-0 snap-center transition-all duration-500"
             style={{
-              width: '90vw',
-              marginLeft: '5vw',
+              width: '85vw',
+              marginLeft: '7.5vw',
               marginRight: '0',
               opacity: activeHub === 'shopping' ? 1 : 0.5,
               transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.95)'
@@ -536,7 +543,7 @@ function App() {
             data-hub="tasks"
             className="flex-shrink-0 snap-center transition-all duration-500"
             style={{
-              width: '90vw',
+              width: '85vw',
               marginLeft: '0',
               marginRight: '0',
               opacity: activeHub === 'tasks' ? 1 : 0.5,
@@ -592,9 +599,9 @@ function App() {
             data-hub="vouchers"
             className="flex-shrink-0 snap-center transition-all duration-500"
             style={{
-              width: '90vw',
+              width: '85vw',
               marginLeft: '0',
-              marginRight: '5vw',
+              marginRight: '7.5vw',
               opacity: activeHub === 'vouchers' ? 1 : 0.5,
               transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.95)'
             }}

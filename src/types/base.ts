@@ -56,6 +56,48 @@ export interface DuplicateCheck {
 }
 
 /**
+ * Base Voucher Item (Common Fields)
+ *
+ * Foundation for both Voucher and Reservation types.
+ */
+export interface BaseVoucherItem extends BaseItem {
+  itemType: 'voucher' | 'reservation';  // Discriminator field
+  imageUrl?: string;     // URL or base64 for physical card photos
+  notes?: string;        // Additional notes or description
+}
+
+/**
+ * Voucher Item
+ *
+ * Represents a voucher or gift card with value and expiry tracking.
+ */
+export interface Voucher extends BaseVoucherItem {
+  itemType: 'voucher';
+  value?: string;        // Monetary amount or description (e.g., "₪200", "Double Movie Ticket")
+  issuer?: string;       // Entity that provided the voucher (e.g., "BuyMe", "Azrieli")
+  expiryDate?: string;   // Expiration date for countdown/alerts
+  code?: string;         // Digital code or barcode
+}
+
+/**
+ * Reservation Item
+ *
+ * Represents a reservation or event ticket with date/time and location.
+ */
+export interface Reservation extends BaseVoucherItem {
+  itemType: 'reservation';
+  eventDate?: string;    // Date of the event/reservation
+  time?: string;         // Time of the event/reservation
+  address?: string;      // Location/venue address
+  code?: string;         // Confirmation code or ticket number
+}
+
+/**
+ * Union type for all voucher-like items
+ */
+export type VoucherItem = Voucher | Reservation;
+
+/**
  * List Instance
  *
  * Represents a collection of items (shopping list, task list, etc.)
@@ -64,4 +106,16 @@ export interface ListInstance {
   id: string;
   name: string;
   items: ShoppingItem[];  // Can be extended to support Task[] in the future
+}
+
+/**
+ * Voucher List Instance
+ *
+ * Represents a collection of vouchers and/or reservations
+ */
+export interface VoucherListInstance {
+  id: string;
+  name: string;
+  defaultType?: 'voucher' | 'reservation';  // Default item type for this list
+  items: VoucherItem[];
 }

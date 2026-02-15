@@ -22,7 +22,10 @@ None at the moment!
 - [ ] Price comparison engine for supermarkets.
 - [ ] Push notifications for hub users.
 - [ ] Urgent task reminder button - if theres an Asignee, bell icon that suggest "Remind <Asignee> about the task?" > push notification to the asignee.
-
+- [ ] Google calender itegration -> show "Today" and "Tomorrow" at the top of the main screen.
+- [ ] Whatsapp integration - create a whatsapp group with the relevant users of HomeHub. this group will be the basis of communication about frequent changes in the subhubs. Ideally, a user can write down things there that will eventually be shown in the app itself e.g. "buy bananas" will add "bananas" to groceries list automatically.
+- [ ] Hebrew support
+- identify the username to welcome in the main screen
 ---
 ## ✅ Completed
 *Moved here after verification.*

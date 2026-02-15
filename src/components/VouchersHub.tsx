@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Gift, Calendar } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
+import { getContextIcon } from '../utils/iconMapping';
 import type { VoucherListInstance } from '../types/base';
 import { VOUCHER_TEMPLATES } from '../utils/voucherMemory';
 
@@ -175,7 +177,12 @@ function VouchersHub({
         {/* Empty State */}
         {listArray.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🎟️</div>
+            <div className="mb-4 flex justify-center">
+              {(() => {
+                const Icon = getContextIcon('vouchers');
+                return <Icon size={64} strokeWidth={2} style={{ color: '#630606' }} />;
+              })()}
+            </div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#630606' }}>
               No Vouchers Yet
             </h2>
@@ -219,6 +226,12 @@ function VouchersHub({
                   style={{ border: selectedListsForDeletion.has(list.id) ? '2px solid #630606' : '1px solid #8E806A22' }}
                   disabled={isEditMode}
                 >
+                  <div className="mb-3">
+                    {(() => {
+                      const Icon = getContextIcon(list.name);
+                      return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
+                    })()}
+                  </div>
                   <div className="flex items-start justify-between mb-3">
                     <h2 className="text-xl font-semibold flex-1" style={{ color: '#630606' }}>
                       {list.name}
@@ -319,7 +332,7 @@ function VouchersHub({
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">🎁</span>
+                        <Gift size={20} strokeWidth={2} style={{ color: '#630606' }} />
                         <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
                           Vouchers & Gift Cards
                         </h3>
@@ -346,7 +359,7 @@ function VouchersHub({
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">📅</span>
+                        <Calendar size={20} strokeWidth={2} style={{ color: '#630606' }} />
                         <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
                           Reservations & Events
                         </h3>
