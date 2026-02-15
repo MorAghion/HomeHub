@@ -35,6 +35,11 @@ import {
   Clock,
   Zap,
   AlertCircle,
+  Map,
+  Sparkles,
+  Receipt,
+  Flame,
+  LayoutList,
   type LucideIcon
 } from 'lucide-react';
 
@@ -43,8 +48,15 @@ import {
  */
 
 const iconMap: Record<string, LucideIcon> = {
+  // Global Priority Mappings (as specified in requirements)
+  vacation: Map,
+  party: Sparkles,
+  shopping: ShoppingBag,
+  bills: Receipt,
+  home: Home,
+  urgent: Flame,
+
   // Shopping contexts
-  shopping: ShoppingCart,
   groceries: ShoppingBag,
   grocery: ShoppingBag,
   supermarket: Store,
@@ -57,7 +69,6 @@ const iconMap: Record<string, LucideIcon> = {
   drugstore: Pill,
 
   // Home & DIY
-  home: Home,
   house: Home,
   renovation: Hammer,
   diy: Hammer,
@@ -76,8 +87,7 @@ const iconMap: Record<string, LucideIcon> = {
   dog: Dog,
   cat: Cat,
   baking: Cake,
-  party: PartyPopper,
-  celebration: PartyPopper,
+  celebration: Sparkles,
 
   // Vouchers & Gifts
   gift: Gift,
@@ -93,7 +103,6 @@ const iconMap: Record<string, LucideIcon> = {
 
   // Travel
   travel: Plane,
-  vacation: Palmtree,
   trip: Plane,
   flight: Plane,
   abroad: Plane,
@@ -110,14 +119,14 @@ const iconMap: Record<string, LucideIcon> = {
   tasks: ListTodo,
   todo: ListTodo,
   checklist: ClipboardList,
-  urgent: AlertCircle,
   calendar: Calendar,
   schedule: Clock,
   quick: Zap,
 
   // Default fallback
-  general: ShoppingCart,
-  other: CheckSquare
+  general: LayoutList,
+  other: LayoutList,
+  default: LayoutList
 };
 
 /**
@@ -141,7 +150,7 @@ export const getContextIcon = (name: string): LucideIcon => {
 
   // Default fallback based on context
   if (lowerName.includes('shop') || lowerName.includes('buy')) {
-    return ShoppingCart;
+    return ShoppingBag;
   }
   if (lowerName.includes('task') || lowerName.includes('do')) {
     return ListTodo;
@@ -151,7 +160,7 @@ export const getContextIcon = (name: string): LucideIcon => {
   }
 
   // Ultimate fallback
-  return ShoppingCart;
+  return LayoutList;
 };
 
 /**
@@ -160,12 +169,17 @@ export const getContextIcon = (name: string): LucideIcon => {
 export const getHubIcon = (hubType: 'shopping' | 'tasks' | 'vouchers'): LucideIcon => {
   switch (hubType) {
     case 'shopping':
-      return ShoppingCart;
+      return ShoppingBag;
     case 'tasks':
       return ListTodo;
     case 'vouchers':
       return Gift;
     default:
-      return ShoppingCart;
+      return LayoutList;
   }
 };
+
+/**
+ * Centralized function to get icon by context name (main export)
+ */
+export const getIconByContext = getContextIcon;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Gift, Calendar } from 'lucide-react';
+import { Gift, Calendar, Plus } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
 import type { VoucherListInstance } from '../types/base';
@@ -109,15 +109,20 @@ function VouchersHub({
             </h1>
           </div>
 
-          {/* Header Action Buttons - Compact for Mobile */}
+          {/* Header Action Buttons - Ghost UI */}
           <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsTemplateModalOpen(true)}
-                className="px-3 py-1 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#630606' }}
+                className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-all hover:bg-[#63060611]"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#630606',
+                  border: '1px solid #630606'
+                }}
               >
-                + New
+                <Plus size={16} strokeWidth={2} />
+                <span>New</span>
               </button>
             )}
             {listArray.length > 0 && (

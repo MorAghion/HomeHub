@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ShoppingCart, ListTodo, Gift } from 'lucide-react'
+import { ShoppingBag, ListTodo, Gift } from 'lucide-react'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
 import TasksHub from './components/TasksHub'
@@ -427,7 +427,7 @@ function App() {
             backgroundColor: activeHub === 'shopping' ? '#63060611' : 'transparent'
           }}
         >
-          <ShoppingCart size={24} strokeWidth={2} />
+          <ShoppingBag size={24} strokeWidth={2} />
           <span className="text-xs font-medium">Shopping</span>
         </button>
 
@@ -462,32 +462,34 @@ function App() {
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
       <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2E7' }}>
-        {/* Fixed Header - Compact with Glass-morphism */}
+        {/* Fixed Header - Ghost UI with Centered Logo */}
         <header
-          className="fixed top-0 left-0 w-full z-50 h-16 backdrop-blur-md border-b px-6 py-3"
+          className="fixed top-0 left-0 w-full z-50 h-16 backdrop-blur-md border-b flex items-center justify-center"
           style={{
-            backgroundColor: 'rgba(245, 242, 231, 0.9)',
+            backgroundColor: 'rgba(245, 242, 231, 0.8)',
             borderColor: '#8E806A22'
           }}
         >
-          <h1 className="text-xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
-          <p className="text-xs mt-0.5" style={{ color: '#8E806A', opacity: 0.7 }}>Welcome home, Mor.</p>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
+          </div>
         </header>
 
-        {/* Unified Carousel - Full-screen Hub Cards */}
+        {/* Unified Carousel - Full-screen Hub Cards with Smooth Transitions */}
         <div
           ref={cardStackRef}
-          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-y"
+          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-y transition-all duration-500"
           style={{
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch',
+            scrollBehavior: 'smooth',
             height: 'calc(100vh - 8rem)' // Account for header (4rem) and bottom nav (4rem)
           }}
         >
           {/* Shopping Hub Card - Full Screen */}
           <div
             data-hub="shopping"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
           >
             <div className="h-full overflow-y-auto">
               <ShoppingHub
@@ -535,7 +537,7 @@ function App() {
           {/* Tasks Hub Card - Full Screen */}
           <div
             data-hub="tasks"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
           >
             <div className="h-full overflow-y-auto">
               <TasksHub
@@ -584,7 +586,7 @@ function App() {
           {/* Vouchers Hub Card - Full Screen */}
           <div
             data-hub="vouchers"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
           >
             <div className="h-full overflow-y-auto">
               <VouchersHub

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
@@ -96,15 +97,20 @@ function TasksHub({
             </h1>
           </div>
 
-          {/* Header Action Buttons - Compact for Mobile */}
+          {/* Header Action Buttons - Ghost UI */}
           <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="px-3 py-1 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#630606' }}
+                className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-all hover:bg-[#63060611]"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#630606',
+                  border: '1px solid #630606'
+                }}
               >
-                + New
+                <Plus size={16} strokeWidth={2} />
+                <span>New</span>
               </button>
             )}
             {editableLists.length > 0 && (
