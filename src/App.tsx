@@ -462,11 +462,11 @@ function App() {
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
       <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2E7' }}>
-        {/* Header - Compact with Glass-morphism */}
+        {/* Fixed Header - Compact with Glass-morphism */}
         <header
-          className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md border-b px-6 py-2.5"
+          className="fixed top-0 left-0 w-full z-50 h-16 backdrop-blur-md border-b px-6 py-3"
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
           }}
         >
@@ -474,28 +474,22 @@ function App() {
           <p className="text-xs mt-0.5" style={{ color: '#8E806A', opacity: 0.7 }}>Welcome home, Mor.</p>
         </header>
 
-        {/* Card Stack Container - 85% width cards with 7.5% margins */}
+        {/* Unified Carousel - Full-screen Hub Cards */}
         <div
           ref={cardStackRef}
-          className="flex overflow-x-scroll snap-x snap-mandatory hide-scrollbar touch-pan-y pt-20"
+          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-y"
           style={{
             scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            height: 'calc(100vh - 8rem)' // Account for header (4rem) and bottom nav (4rem)
           }}
         >
-          {/* Shopping Hub Card */}
+          {/* Shopping Hub Card - Full Screen */}
           <div
             data-hub="shopping"
-            className="flex-shrink-0 snap-center transition-all duration-500"
-            style={{
-              width: '85vw',
-              marginLeft: '7.5vw',
-              marginRight: '0',
-              opacity: activeHub === 'shopping' ? 1 : 0.5,
-              transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.95)'
-            }}
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
           >
-            <div className="h-full px-2 py-6">
+            <div className="h-full overflow-y-auto">
               <ShoppingHub
                 lists={lists}
                 onSelectList={(id) => {
@@ -538,19 +532,12 @@ function App() {
             </div>
           </div>
 
-          {/* Tasks Hub Card */}
+          {/* Tasks Hub Card - Full Screen */}
           <div
             data-hub="tasks"
-            className="flex-shrink-0 snap-center transition-all duration-500"
-            style={{
-              width: '85vw',
-              marginLeft: '0',
-              marginRight: '0',
-              opacity: activeHub === 'tasks' ? 1 : 0.5,
-              transform: activeHub === 'tasks' ? 'scale(1)' : 'scale(0.95)'
-            }}
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
           >
-            <div className="h-full px-2 py-6">
+            <div className="h-full overflow-y-auto">
               <TasksHub
                 taskLists={taskLists}
                 urgentTaskCount={taskLists['home-tasks_urgent']?.tasks.length || 0}
@@ -594,19 +581,12 @@ function App() {
             </div>
           </div>
 
-          {/* Vouchers Hub Card */}
+          {/* Vouchers Hub Card - Full Screen */}
           <div
             data-hub="vouchers"
-            className="flex-shrink-0 snap-center transition-all duration-500"
-            style={{
-              width: '85vw',
-              marginLeft: '0',
-              marginRight: '7.5vw',
-              opacity: activeHub === 'vouchers' ? 1 : 0.5,
-              transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.95)'
-            }}
+            className="snap-center min-w-full flex-shrink-0 px-4 pt-24"
           >
-            <div className="h-full px-2 py-6">
+            <div className="h-full overflow-y-auto">
               <VouchersHub
                 voucherLists={voucherLists}
                 onSelectList={(id) => {

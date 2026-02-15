@@ -41,6 +41,16 @@ body {
   display: none;  /* Chrome, Safari, Opera */
 }
 
+/* Hide scrollbars globally for carousel containers */
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.overflow-x-auto {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .touch-pan-y {
   touch-action: pan-y;
 }

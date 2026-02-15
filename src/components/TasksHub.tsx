@@ -96,15 +96,15 @@ function TasksHub({
             </h1>
           </div>
 
-          {/* Header Action Buttons */}
-          <div className="flex items-center gap-3">
+          {/* Header Action Buttons - Compact for Mobile */}
+          <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+                className="px-3 py-1 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
                 style={{ backgroundColor: '#630606' }}
               >
-                + New List
+                + New
               </button>
             )}
             {editableLists.length > 0 && (
@@ -115,7 +115,7 @@ function TasksHub({
                     cancelEditMode();
                   }
                 }}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
                 style={{
                   backgroundColor: isEditMode ? '#630606' : 'transparent',
                   color: isEditMode ? 'white' : '#630606',
