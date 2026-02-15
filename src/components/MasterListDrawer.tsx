@@ -42,6 +42,7 @@ function MasterListDrawer({
   const [masterListEditText, setMasterListEditText] = useState('');
   const [masterListEditCategory, setMasterListEditCategory] = useState('');
   const [newMasterItem, setNewMasterItem] = useState('');
+  const [isTemplatesSectionCollapsed, setIsTemplatesSectionCollapsed] = useState(false);
 
   const startEditingMasterItem = (item: MasterListItem) => {
     setMasterListEditingId(item.id);
@@ -234,6 +235,54 @@ function MasterListDrawer({
             </form>
           )}
 
+          {/* Suggestion Bubbles - Show when items exist and not in edit mode */}
+          {!isMasterListEditMode && masterListItems.length > 0 && getSuggestedContexts(currentListName).length > 0 && (
+            <div className="mb-6 p-4 bg-[#63060608] rounded-xl">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-medium uppercase tracking-wide" style={{ color: '#630606' }}>
+                  Quick Add from Templates
+                </p>
+                <button
+                  onClick={() => setIsTemplatesSectionCollapsed(!isTemplatesSectionCollapsed)}
+                  className="p-1 hover:opacity-70 transition-opacity"
+                  aria-label={isTemplatesSectionCollapsed ? "Expand templates" : "Collapse templates"}
+                >
+                  <svg
+                    className="w-4 h-4 transition-transform"
+                    style={{
+                      transform: isTemplatesSectionCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                      color: '#630606'
+                    }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {!isTemplatesSectionCollapsed && (
+                <div className="flex flex-wrap gap-2">
+                  {getSuggestedContexts(currentListName).map(suggestion => (
+                    <button
+                      key={suggestion.contextKey}
+                      onClick={() => handleApplyContext(suggestion.contextKey)}
+                      className="px-4 py-2 rounded-full text-xs font-medium transition-all hover:shadow-md active:scale-95"
+                      style={{
+                        backgroundColor: 'rgba(99, 6, 6, 0.1)',
+                        border: `1px solid #630606`,
+                        color: '#630606'
+                      }}
+                      title={`Add ${suggestion.itemCount} items`}
+                    >
+                      {suggestion.displayLabel}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Master List Items */}
           <div className="space-y-6">
             {masterListItems.length === 0 ? (
@@ -247,25 +296,27 @@ function MasterListDrawer({
                 </p>
 
                 {/* Suggestion Bubbles */}
-                <div className="flex flex-wrap gap-3 justify-center mb-6">
-                  {getSuggestedContexts(currentListName).map(suggestion => (
-                    <button
-                      key={suggestion.contextKey}
-                      onClick={() => handleApplyContext(suggestion.contextKey)}
-                      className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:shadow-md active:scale-95"
-                      style={{
-                        backgroundColor: 'rgba(99, 6, 6, 0.1)',
-                        border: `1px solid #630606`,
-                        color: '#630606'
-                      }}
-                      title={`${suggestion.itemCount} items`}
-                    >
-                      {suggestion.displayLabel}
-                    </button>
-                  ))}
-                </div>
+                {getSuggestedContexts(currentListName).length > 0 && (
+                  <div className="flex flex-wrap gap-3 justify-center mb-6">
+                    {getSuggestedContexts(currentListName).map(suggestion => (
+                      <button
+                        key={suggestion.contextKey}
+                        onClick={() => handleApplyContext(suggestion.contextKey)}
+                        className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:shadow-md active:scale-95"
+                        style={{
+                          backgroundColor: 'rgba(99, 6, 6, 0.1)',
+                          border: `1px solid #630606`,
+                          color: '#630606'
+                        }}
+                        title={`${suggestion.itemCount} items`}
+                      >
+                        {suggestion.displayLabel}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-                {/* Keep Empty Bubble */}
+                {/* Keep Empty Button */}
                 <button
                   onClick={() => setIsMasterListEditMode(true)}
                   className="px-6 py-3 rounded-full text-sm font-medium transition-all hover:shadow-md active:scale-95"

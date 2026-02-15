@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Task } from '../types/base';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -9,9 +9,12 @@ interface TaskListProps {
   tasks: Array<Task & { sourceSubHubId?: string; sourceSubHubName?: string }>;
   onUpdateTasks: (tasks: Task[]) => void;
   onBack: () => void;
-  onNavigateToSource?: (sourceSubHubId: string) => void;
+  onNavigateToSource?: (sourceSubHubId: string, taskId: number) => void;
+  onUpdateUrgentTask?: (sourceSubHubId: string, taskId: number) => void;
   masterListTasks: Task[];
   onUpdateMasterList: (tasks: Task[]) => void;
+  highlightedTaskId?: number | null;
+  onClearHighlight?: () => void;
 }
 
 function TaskList({
@@ -22,8 +25,11 @@ function TaskList({
   onUpdateTasks,
   onBack,
   onNavigateToSource,
+  onUpdateUrgentTask,
   masterListTasks: _masterListTasks,
   onUpdateMasterList: _onUpdateMasterList,
+  highlightedTaskId,
+  onClearHighlight,
 }: TaskListProps) {
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
@@ -37,10 +43,29 @@ function TaskList({
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
   const [selectedTasksForDeletion, setSelectedTasksForDeletion] = useState<Set<number>>(new Set());
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
-    type: 'single' | 'bulk';
+    type: 'single' | 'bulk' | 'completed';
     taskId?: number;
   } | null>(null);
   const [isMasterListOpen, setIsMasterListOpen] = useState(false);
+
+  // Ref for task elements (for flashlight effect)
+  const taskRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  // Flashlight effect when navigating from Urgent view
+  useEffect(() => {
+    if (highlightedTaskId && taskRefs.current[highlightedTaskId]) {
+      const element = taskRefs.current[highlightedTaskId];
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('flashlight-highlight');
+
+      const timeout = setTimeout(() => {
+        element.classList.remove('flashlight-highlight');
+        onClearHighlight?.();
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [highlightedTaskId, onClearHighlight]);
 
   const addTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +119,16 @@ function TaskList({
   };
 
   const toggleComplete = (id: number) => {
+    // If in urgent view, find the task's source and update it there
+    if (isUrgentView && onUpdateUrgentTask) {
+      const task = tasks.find(t => t.id === id);
+      if (task && task.sourceSubHubId) {
+        onUpdateUrgentTask(task.sourceSubHubId, id);
+        return;
+      }
+    }
+
+    // Otherwise, update tasks normally
     const updatedTasks = tasks.map(task => {
       if (task.id === id) {
         const newStatus = task.status === 'Completed' ? 'In Progress' : 'Completed';
@@ -132,6 +167,15 @@ function TaskList({
     setSelectedTasksForDeletion(new Set());
     setDeleteConfirmation(null);
     setIsBulkDeleteMode(false);
+  };
+
+  const deleteCompletedTasks = () => {
+    const completedIds = tasks
+      .filter(task => task.status === 'Completed')
+      .map(task => task.id);
+
+    onUpdateTasks(tasks.filter(task => !completedIds.includes(task.id)));
+    setDeleteConfirmation(null);
   };
 
   const getUrgencyColor = (urgency?: string) => {
@@ -216,6 +260,15 @@ function TaskList({
                 style={{ backgroundColor: '#630606' }}
               >
                 Master List
+              </button>
+            )}
+            {!isUrgentView && tasks.filter(t => t.status === 'Completed').length > 0 && (
+              <button
+                onClick={() => setDeleteConfirmation({ type: 'completed' })}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-red-50"
+                style={{ color: '#630606', border: '1px solid #63060633' }}
+              >
+                Clear Completed
               </button>
             )}
           </div>
@@ -308,6 +361,7 @@ function TaskList({
             tasks.map((task) => (
               <div
                 key={task.id}
+                ref={(el) => taskRefs.current[task.id] = el}
                 className="bg-white p-4 rounded-xl shadow-sm transition-all hover:shadow-md"
                 style={{ border: isBulkDeleteMode && selectedTasksForDeletion.has(task.id) ? '2px solid #630606' : '1px solid transparent' }}
               >
@@ -378,7 +432,7 @@ function TaskList({
                   </div>
                 ) : (
                   // View Mode
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6">
                     {isBulkDeleteMode && !isUrgentView ? (
                       <div
                         onClick={() => toggleTaskSelection(task.id)}
@@ -394,10 +448,8 @@ function TaskList({
                       </div>
                     ) : (
                       <button
-                        onClick={() => !isUrgentView && toggleComplete(task.id)}
-                        className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
-                          !isUrgentView ? 'cursor-pointer hover:border-[#630606]' : 'cursor-default'
-                        }`}
+                        onClick={() => toggleComplete(task.id)}
+                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer hover:border-[#630606]"
                         style={{
                           borderColor: task.status === 'Completed' ? '#630606' : '#8E806A33',
                           backgroundColor: task.status === 'Completed' ? '#630606' : 'transparent',
@@ -429,7 +481,7 @@ function TaskList({
                           {task.urgency || 'Medium'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-sm" style={{ color: '#8E806A' }}>
+                      <div className="flex items-center gap-6 text-sm" style={{ color: '#8E806A' }}>
                         {task.status && (
                           <span className="flex items-center gap-1">
                             <span className="opacity-70">Status:</span>
@@ -452,7 +504,7 @@ function TaskList({
                         )}
                         {isUrgentView && task.sourceSubHubName && (
                           <button
-                            onClick={() => onNavigateToSource?.(task.sourceSubHubId!)}
+                            onClick={() => onNavigateToSource?.(task.sourceSubHubId!, task.id)}
                             className="flex items-center gap-1 hover:underline"
                             style={{ color: '#630606' }}
                           >
@@ -515,14 +567,24 @@ function TaskList({
         onConfirm={() => {
           if (deleteConfirmation?.type === 'bulk') {
             deleteSelectedTasks();
+          } else if (deleteConfirmation?.type === 'completed') {
+            deleteCompletedTasks();
           } else if (deleteConfirmation?.taskId) {
             deleteSingleTask(deleteConfirmation.taskId);
           }
         }}
-        title={deleteConfirmation?.type === 'bulk' ? 'Delete Selected Tasks?' : 'Delete Task?'}
+        title={
+          deleteConfirmation?.type === 'bulk'
+            ? 'Delete Selected Tasks?'
+            : deleteConfirmation?.type === 'completed'
+            ? 'Clear Completed Tasks?'
+            : 'Delete Task?'
+        }
         message={
           deleteConfirmation?.type === 'bulk'
             ? `Are you sure you want to delete ${selectedTasksForDeletion.size} task${selectedTasksForDeletion.size !== 1 ? 's' : ''}?`
+            : deleteConfirmation?.type === 'completed'
+            ? `Are you sure you want to delete ${tasks.filter(t => t.status === 'Completed').length} completed task${tasks.filter(t => t.status === 'Completed').length !== 1 ? 's' : ''}?`
             : 'Are you sure you want to delete this task?'
         }
         confirmText="Delete"

@@ -24,7 +24,9 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
 
   'stock': {
     keywords: [
-      'stock', 'supplies', 'household stock', 'storage', 'inventory'
+      'stock', 'supplies', 'household stock', 'storage', 'inventory',
+      'bulk', 'essentials', 'home supplies', 'pantry stock', 'restock',
+      'replenish', 'stockpile', 'stocking up', 'staples', 'necessities'
     ],
     displayLabel: 'Stock Supplies',
     items: [
@@ -38,13 +40,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Aluminum Foil', listCategory: 'Cleaning' },
       { name: 'Trash Liners', listCategory: 'Cleaning' },
       { name: 'Cleaning Supplies', listCategory: 'Cleaning' },
+      { name: 'Tissues', listCategory: 'Cleaning' },
+      { name: 'Plastic Wrap', listCategory: 'Cleaning' },
+      { name: 'Ziploc Bags', listCategory: 'Cleaning' },
+      { name: 'Dish Soap', listCategory: 'Cleaning' },
+      { name: 'Laundry Detergent', listCategory: 'Cleaning' },
+      { name: 'Bleach', listCategory: 'Cleaning' },
+      { name: 'Air Freshener', listCategory: 'Cleaning' },
+      { name: 'Disinfectant Wipes', listCategory: 'Cleaning' },
+      { name: 'Vacuum Bags', listCategory: 'Cleaning' },
+      { name: 'Light Switch Covers', listCategory: 'Cleaning' },
     ]
   },
 
   'grocery': {
     keywords: [
       'grocery', 'supermarket', 'groceries', 'food shopping', 'market',
-      'shopping', 'store', 'whole foods', 'costco', 'trader joe'
+      'shopping', 'store', 'whole foods', 'costco', 'trader joe',
+      'walmart', 'target', 'food', 'weekly shop', 'safeway'
     ],
     displayLabel: 'Grocery List',
     items: [
@@ -62,13 +75,20 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Broccoli', listCategory: 'Vegetables' },
       { name: 'Apples', listCategory: 'Fruit' },
       { name: 'Bananas', listCategory: 'Fruit' },
+      { name: 'Butter', listCategory: 'Dairy' },
+      { name: 'Orange Juice', listCategory: 'Dairy' },
+      { name: 'Cereal', listCategory: 'Pantry' },
+      { name: 'Potatoes', listCategory: 'Vegetables' },
+      { name: 'Carrots', listCategory: 'Vegetables' },
+      { name: 'Oranges', listCategory: 'Fruit' },
     ]
   },
 
   'pharmacy': {
     keywords: [
       'pharmacy', 'pharma', 'drugstore', 'medicine', 'medications',
-      'health', 'wellness', 'supplement', 'vitamin'
+      'health', 'wellness', 'supplement', 'vitamin', 'cvs',
+      'walgreens', 'rite aid', 'prescription', 'medical', 'first aid'
     ],
     displayLabel: 'Pharmacy',
     items: [
@@ -82,13 +102,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Deodorant', listCategory: 'Pharma & Hygiene' },
       { name: 'Sunscreen', listCategory: 'Pharma & Hygiene' },
       { name: 'Hand Sanitizer', listCategory: 'Pharma & Hygiene' },
+      { name: 'Cough Syrup', listCategory: 'Pharma & Hygiene' },
+      { name: 'Allergy Medicine', listCategory: 'Pharma & Hygiene' },
+      { name: 'Cold Medicine', listCategory: 'Pharma & Hygiene' },
+      { name: 'Contact Lens Solution', listCategory: 'Pharma & Hygiene' },
+      { name: 'Cotton Swabs', listCategory: 'Pharma & Hygiene' },
+      { name: 'Rubbing Alcohol', listCategory: 'Pharma & Hygiene' },
+      { name: 'Thermometer', listCategory: 'Pharma & Hygiene' },
+      { name: 'Gauze Pads', listCategory: 'Pharma & Hygiene' },
+      { name: 'Heating Pad', listCategory: 'Pharma & Hygiene' },
+      { name: 'Facial Tissues', listCategory: 'Pharma & Hygiene' },
     ]
   },
 
   'camping': {
     keywords: [
       'camping', 'camp', 'outdoor', 'hike', 'trail', 'trek',
-      'backpack', 'wilderness', 'adventure', 'nature'
+      'backpack', 'wilderness', 'adventure', 'nature', 'vacation',
+      'rv', 'glamping', 'fishing', 'outdoors'
     ],
     displayLabel: 'Camping Trip',
     items: [
@@ -102,13 +133,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Water Bottle', listCategory: 'Camping' },
       { name: 'Sleeping Pad', listCategory: 'Camping' },
       { name: 'Flashlight', listCategory: 'Camping' },
+      { name: 'First Aid Kit', listCategory: 'Camping' },
+      { name: 'Matches/Lighter', listCategory: 'Camping' },
+      { name: 'Camping Chair', listCategory: 'Camping' },
+      { name: 'Bug Spray', listCategory: 'Camping' },
+      { name: 'Hiking Boots', listCategory: 'Camping' },
+      { name: 'Map & Compass', listCategory: 'Camping' },
+      { name: 'Firewood', listCategory: 'Camping' },
+      { name: 'Camping Knife', listCategory: 'Camping' },
+      { name: 'Hammock', listCategory: 'Camping' },
+      { name: 'Portable Charger', listCategory: 'Camping' },
     ]
   },
 
   'abroad': {
     keywords: [
       'abroad', 'travel', 'vacation', 'trip', 'holiday', 'flight',
-      'journey', 'international', 'overseas', 'getaway', 'adventure'
+      'journey', 'international', 'overseas', 'getaway', 'adventure',
+      'tourism', 'sightseeing', 'backpacking', 'cruise'
     ],
     displayLabel: 'Travel Abroad',
     items: [
@@ -122,13 +164,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Travel Pillow', listCategory: 'Camping' },
       { name: 'Travel Documents Organizer', listCategory: 'Documents & Money' },
       { name: 'Money Converter', listCategory: 'Documents & Money' },
+      { name: 'Travel Guidebook', listCategory: 'Documents & Money' },
+      { name: 'Phone Charger', listCategory: 'Cleaning' },
+      { name: 'Travel Toiletries', listCategory: 'Pharma & Hygiene' },
+      { name: 'Camera', listCategory: 'Cleaning' },
+      { name: 'Travel Lock', listCategory: 'Camping' },
+      { name: 'Snacks for Flight', listCategory: 'Pantry' },
+      { name: 'Earplugs', listCategory: 'Pharma & Hygiene' },
+      { name: 'Eye Mask', listCategory: 'Pharma & Hygiene' },
+      { name: 'Reusable Water Bottle', listCategory: 'Camping' },
+      { name: 'Travel Backpack', listCategory: 'Camping' },
     ]
   },
 
   'baby': {
     keywords: [
       'baby', 'newborn', 'infant', 'nursery', 'pregnancy',
-      'maternity', 'child', 'toddler', 'baby shower'
+      'maternity', 'child', 'toddler', 'baby shower', 'kids',
+      'children', 'pediatric', 'infant care', 'parenting', 'babies'
     ],
     displayLabel: 'Baby Items',
     items: [
@@ -142,13 +195,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Diaper Cream', listCategory: 'Pharma & Hygiene' },
       { name: 'Baby Blanket', listCategory: 'Baby' },
       { name: 'Crib Sheets', listCategory: 'Baby' },
+      { name: 'Baby Lotion', listCategory: 'Pharma & Hygiene' },
+      { name: 'Teething Toys', listCategory: 'Baby' },
+      { name: 'Burp Cloths', listCategory: 'Baby' },
+      { name: 'Baby Monitor', listCategory: 'Baby' },
+      { name: 'Diaper Bag', listCategory: 'Baby' },
+      { name: 'Baby Clothes', listCategory: 'Baby' },
+      { name: 'Sippy Cups', listCategory: 'Baby' },
+      { name: 'Baby Socks', listCategory: 'Baby' },
+      { name: 'Nursing Pads', listCategory: 'Baby' },
+      { name: 'Baby Thermometer', listCategory: 'Pharma & Hygiene' },
     ]
   },
 
   'home-renovation': {
     keywords: [
       'renovation', 'remodel', 'paint', 'drywall', 'construction',
-      'build', 'fix', 'repair', 'home improvement', 'upgrade'
+      'build', 'fix', 'repair', 'home improvement', 'upgrade',
+      'diy', 'hardware', 'tools', 'makeover', 'refinish'
     ],
     displayLabel: 'Home Renovation',
     items: [
@@ -162,13 +226,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Safety Goggles', listCategory: 'Home Renovation' },
       { name: 'Work Gloves', listCategory: 'Home Renovation' },
       { name: 'Caulk', listCategory: 'Home Renovation' },
+      { name: 'Paint Roller', listCategory: 'Home Renovation' },
+      { name: 'Drop Cloth', listCategory: 'Home Renovation' },
+      { name: 'Primer', listCategory: 'Home Renovation' },
+      { name: 'Painter\'s Tape', listCategory: 'Home Renovation' },
+      { name: 'Drill Bits', listCategory: 'Home Renovation' },
+      { name: 'Hammer', listCategory: 'Home Renovation' },
+      { name: 'Level', listCategory: 'Home Renovation' },
+      { name: 'Spackle', listCategory: 'Home Renovation' },
+      { name: 'Wood Glue', listCategory: 'Home Renovation' },
+      { name: 'Lumber', listCategory: 'Home Renovation' },
     ]
   },
 
   'baking': {
     keywords: [
       'baking', 'baker', 'cake', 'bread', 'pastry', 'dessert',
-      'recipe', 'cookies', 'cupcake', 'cookie decorating'
+      'recipe', 'cookies', 'cupcake', 'cookie decorating', 'bake',
+      'muffin', 'brownie', 'pie', 'sweet'
     ],
     displayLabel: 'Baking Supplies',
     items: [
@@ -182,13 +257,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Honey', listCategory: 'Pantry' },
       { name: 'Baking Powder', listCategory: 'Pantry' },
       { name: 'Coconut Oil', listCategory: 'Pantry' },
+      { name: 'Brown Sugar', listCategory: 'Pantry' },
+      { name: 'Cocoa Powder', listCategory: 'Pantry' },
+      { name: 'Powdered Sugar', listCategory: 'Pantry' },
+      { name: 'Yeast', listCategory: 'Pantry' },
+      { name: 'Almond Extract', listCategory: 'Pantry' },
+      { name: 'Cream Cheese', listCategory: 'Dairy' },
+      { name: 'Heavy Cream', listCategory: 'Dairy' },
+      { name: 'Food Coloring', listCategory: 'Pantry' },
+      { name: 'Sprinkles', listCategory: 'Pantry' },
+      { name: 'Parchment Paper', listCategory: 'Pantry' },
     ]
   },
 
   'party': {
     keywords: [
       'party', 'celebration', 'event', 'gathering', 'birthday',
-      'wedding', 'festive', 'celebration', 'get-together'
+      'wedding', 'festive', 'get-together', 'reception', 'fiesta',
+      'anniversary', 'banquet', 'social', 'entertaining', 'host'
     ],
     displayLabel: 'Party Supplies',
     items: [
@@ -202,13 +288,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Gift Bags', listCategory: 'Party' },
       { name: 'Confetti', listCategory: 'Party' },
       { name: 'Party Favors', listCategory: 'Party' },
+      { name: 'Candles', listCategory: 'Party' },
+      { name: 'Tablecloth', listCategory: 'Party' },
+      { name: 'Plastic Utensils', listCategory: 'Party' },
+      { name: 'Party Banners', listCategory: 'Party' },
+      { name: 'Centerpieces', listCategory: 'Party' },
+      { name: 'Paper Straws', listCategory: 'Party' },
+      { name: 'Cake Toppers', listCategory: 'Party' },
+      { name: 'Party Games', listCategory: 'Party' },
+      { name: 'Thank You Cards', listCategory: 'Party' },
+      { name: 'Invitations', listCategory: 'Party' },
     ]
   },
 
   'pets': {
     keywords: [
       'pet', 'dog', 'cat', 'puppy', 'kitten', 'animal',
-      'aquarium', 'bird', 'rabbit', 'guinea pig'
+      'aquarium', 'bird', 'rabbit', 'guinea pig', 'pets',
+      'petco', 'petsmart', 'vet', 'veterinary'
     ],
     displayLabel: 'Pet Supplies',
     items: [
@@ -222,13 +319,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Pet Bedding', listCategory: 'Pets' },
       { name: 'Pet Shampoo', listCategory: 'Pharma & Hygiene' },
       { name: 'Dog Poop Bags', listCategory: 'Pets' },
+      { name: 'Pet Leash', listCategory: 'Pets' },
+      { name: 'Water Bowl', listCategory: 'Pets' },
+      { name: 'Food Bowl', listCategory: 'Pets' },
+      { name: 'Pet Carrier', listCategory: 'Pets' },
+      { name: 'Flea Treatment', listCategory: 'Pets' },
+      { name: 'Pet Nail Clippers', listCategory: 'Pets' },
+      { name: 'Pet ID Tag', listCategory: 'Pets' },
+      { name: 'Scratching Post', listCategory: 'Pets' },
+      { name: 'Bird Seed', listCategory: 'Pets' },
+      { name: 'Fish Tank Filter', listCategory: 'Pets' },
     ]
   },
 
   'gardening': {
     keywords: [
       'gardening', 'garden', 'plant', 'flower', 'vegetable', 'yard',
-      'lawn', 'outdoor', 'landscaping', 'herbs'
+      'lawn', 'outdoor', 'landscaping', 'herbs', 'greenhouse',
+      'nursery', 'horticulture', 'planting', 'greenery'
     ],
     displayLabel: 'Gardening',
     items: [
@@ -242,13 +350,24 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Mulch', listCategory: 'Gardening' },
       { name: 'Watering Can', listCategory: 'Gardening' },
       { name: 'Compost', listCategory: 'Gardening' },
+      { name: 'Garden Hose', listCategory: 'Gardening' },
+      { name: 'Trowel', listCategory: 'Gardening' },
+      { name: 'Rake', listCategory: 'Gardening' },
+      { name: 'Weed Killer', listCategory: 'Gardening' },
+      { name: 'Garden Stakes', listCategory: 'Gardening' },
+      { name: 'Potting Mix', listCategory: 'Gardening' },
+      { name: 'Plant Food', listCategory: 'Gardening' },
+      { name: 'Garden Sprayer', listCategory: 'Gardening' },
+      { name: 'Wheelbarrow', listCategory: 'Gardening' },
+      { name: 'Garden Kneeler', listCategory: 'Gardening' },
     ]
   },
 
   'home-decor': {
     keywords: [
       'decor', 'decoration', 'home decor', 'interior', 'furnish',
-      'design', 'furniture', 'aesthetic', 'style'
+      'design', 'furniture', 'aesthetic', 'style', 'ikea',
+      'home goods', 'decorating', 'accent', 'styling', 'ambiance'
     ],
     displayLabel: 'Home Decor',
     items: [
@@ -262,6 +381,16 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
       { name: 'Vase', listCategory: 'Home Decor' },
       { name: 'Mirror', listCategory: 'Home Decor' },
       { name: 'Plant Stand', listCategory: 'Home Decor' },
+      { name: 'Candle Holders', listCategory: 'Home Decor' },
+      { name: 'Decorative Tray', listCategory: 'Home Decor' },
+      { name: 'Wall Clock', listCategory: 'Home Decor' },
+      { name: 'Shelf Decor', listCategory: 'Home Decor' },
+      { name: 'Window Blinds', listCategory: 'Home Decor' },
+      { name: 'Floor Lamp', listCategory: 'Home Decor' },
+      { name: 'Accent Chair', listCategory: 'Home Decor' },
+      { name: 'Bookends', listCategory: 'Home Decor' },
+      { name: 'Decorative Bowls', listCategory: 'Home Decor' },
+      { name: 'Wall Shelves', listCategory: 'Home Decor' },
     ]
   }
 };
@@ -271,6 +400,7 @@ export const CONTEXT_RECOGNITION_MAPPING: Record<string, ContextDefinition> = {
  * Returns the context key (e.g., 'camping', 'grocery', 'stock') or null if no match
  *
  * Searches through all defined contexts and matches against their keywords.
+ * Uses word boundary matching for more precise detection.
  */
 export function detectContext(subHubName: string): string | null {
   const lowerName = subHubName.toLowerCase().trim();
@@ -283,7 +413,9 @@ export function detectContext(subHubName: string): string | null {
     const definition = CONTEXT_RECOGNITION_MAPPING[contextKey];
     if (definition) {
       for (const keyword of definition.keywords) {
-        if (lowerName.includes(keyword)) {
+        // Use word boundary matching for more specific detection
+        const wordBoundaryPattern = new RegExp(`\\b${keyword}\\b`, 'i');
+        if (wordBoundaryPattern.test(lowerName)) {
           return contextKey;
         }
       }
@@ -297,7 +429,8 @@ export function detectContext(subHubName: string): string | null {
  * Gets suggested contexts for a Sub-Hub name
  * Returns all matching contexts with their display labels and items
  *
- * Useful for showing multiple suggestion bubbles when applicable
+ * Useful for showing multiple suggestion bubbles when applicable.
+ * Uses word boundary matching for more precise detection.
  */
 export function getSuggestedContexts(subHubName: string): Array<{
   contextKey: string;
@@ -307,10 +440,11 @@ export function getSuggestedContexts(subHubName: string): Array<{
   const lowerName = subHubName.toLowerCase().trim();
   const suggestedContexts: Set<string> = new Set();
 
-  // Find all matching contexts
+  // Find all matching contexts using word boundary matching
   for (const [contextKey, definition] of Object.entries(CONTEXT_RECOGNITION_MAPPING)) {
     for (const keyword of definition.keywords) {
-      if (lowerName.includes(keyword)) {
+      const wordBoundaryPattern = new RegExp(`\\b${keyword}\\b`, 'i');
+      if (wordBoundaryPattern.test(lowerName)) {
         suggestedContexts.add(contextKey);
         break;
       }

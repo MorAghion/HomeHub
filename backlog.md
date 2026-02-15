@@ -3,22 +3,22 @@
 ## 🐞 Bugs to Fix
 *List of technical issues and glitches found during testing.*
 
-- [ ] **Shopping Hub:** "Baby Shampoo" incorrectly categorized under "Meat". (Mapping/Context issue)
-- [ ] **Shopping Hub:** Added "Vacation" SubHub and Master list suggested "Travel supplies" and "Pets supplies" - why?
-- [ ] **Shopping Hub:** MasterList cotains 2 list suggestions > I chose one of them > the other one disappeard and I couldnt add it for list merging.
-- [ ] **Home Tasks:** Urgent Tasks - cannot check a task
+None at the moment!
+
+## Context Bugs & Enhancements
+
+None at the moment!
+
 
 ## 🛠️ Minor Enhancements
 *Small UI/UX improvements that are not critical bugs.*
-- [ ] "Add new" button needs to move as a button in the header.
-- [ ] **Deep Link:** Add a "Flashlight" effect (visual highlight) when navigating from Urgent SH to a specific task.
-- [ ] **UI:** Improve spacing between table columns in Home Tasks.
-- [ ] **Context** - Needs to be enhanced with more sords and connections.
+
+None at the moment!
 
 ## 🚀 Future Features (Post-MVP)
 *Long-term ideas from the PRD roadmap.*
 
-- [ ] Gmail integration for Bill automation.
+- [ ] Gmail integration for Bill automation. + vouchers
 - [ ] Price comparison engine for supermarkets.
 - [ ] Push notifications for hub users.
 - [ ] Urgent task reminder button - if theres an Asignee, bell icon that suggest "Remind <Asignee> about the task?" > push notification to the asignee.
@@ -28,3 +28,14 @@
 *Moved here after verification.*
 - [x] Hierarchical ID logic implementation.
 - [x] Initial Home Tasks Hub & Urgent Aggregation.
+- [x] **Shopping Hub:** "Baby Shampoo" incorrectly categorized under "Meat" - Fixed by reordering autoCategorize to check 'Pharma & Hygiene' before 'Meat' and adding baby-specific keywords.
+- [x] **Shopping Hub:** "Vacation" SubHub suggested incorrect contexts - Fixed by implementing word boundary matching for more precise context detection.
+- [x] **Shopping Hub:** MasterList suggestions disappeared after selecting one - Fixed by keeping suggestions visible in a separate section for list merging.
+- [x] **Home Tasks:** Urgent Tasks checkbox was disabled - Fixed by enabling checkbox and implementing source sub-hub update logic for urgent tasks.
+- [x] **Context Enhancement** - Expanded all 12 context categories to have 15+ keywords and 20 items each. Improved recognition for grocery keywords (walmart, target, food, weekly shop, safeway) and added comprehensive items across all categories.
+- [x] **Vacation Context Bug** - Fixed "Vacation" only suggesting "travel abroad" by adding 'vacation' keyword to camping context. Now shows BOTH Camping and Travel Abroad suggestions.
+- [x] **Header Buttons** - Moved "+ New List" button from grid layout to page headers in both Shopping Hub and Tasks Hub for better accessibility and discoverability.
+- [x] **Deep Link Flashlight Effect** - Implemented visual highlight animation when navigating from Urgent Tasks to source task. Task scrolls into view and pulses with glowing effect for 3 seconds.
+- [x] **UI Spacing** - Improved spacing between columns in Home Tasks from gap-4 to gap-6 for better readability.
+- [x] **Clear Completed Tasks** - Added "Clear Completed" button in Task Hub header to quickly delete all completed tasks with confirmation modal showing count.
+- [x] **Quick Add Templates Minimizer** - Added collapsible section to Quick Add from Templates in Master List Drawer with animated chevron icon.

@@ -91,25 +91,36 @@ function ShoppingHub({
             </h1>
           </div>
 
-          {/* Edit Mode Toggle */}
-          {listArray.length > 0 && (
-            <button
-              onClick={() => {
-                setIsEditMode(!isEditMode);
-                if (isEditMode) {
-                  cancelEditMode();
-                }
-              }}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{
-                backgroundColor: isEditMode ? '#630606' : 'transparent',
-                color: isEditMode ? 'white' : '#630606',
-                border: isEditMode ? 'none' : '1px solid #63060633'
-              }}
-            >
-              {isEditMode ? 'Done' : 'Edit'}
-            </button>
-          )}
+          {/* Header Action Buttons */}
+          <div className="flex items-center gap-3">
+            {!isEditMode && (
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: '#630606' }}
+              >
+                + New List
+              </button>
+            )}
+            {listArray.length > 0 && (
+              <button
+                onClick={() => {
+                  setIsEditMode(!isEditMode);
+                  if (isEditMode) {
+                    cancelEditMode();
+                  }
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  backgroundColor: isEditMode ? '#630606' : 'transparent',
+                  color: isEditMode ? 'white' : '#630606',
+                  border: isEditMode ? 'none' : '1px solid #63060633'
+                }}
+              >
+                {isEditMode ? 'Done' : 'Edit'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Bulk Delete Actions */}
@@ -242,23 +253,6 @@ function ShoppingHub({
               )}
             </div>
           ))}
-
-          {/* Create New List Button */}
-          {!isEditMode && (
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-white/70 p-6 rounded-2xl shadow-sm text-left hover:bg-white hover:shadow-md transition-all active:scale-[0.98] border border-dashed flex flex-col items-center justify-center"
-              style={{ borderColor: '#8E806A33' }}
-            >
-              <span className="text-4xl mb-3">+</span>
-              <h2 className="text-lg font-semibold" style={{ color: '#630606' }}>
-                Create New List
-              </h2>
-              <p className="text-xs mt-2" style={{ color: '#8E806A', opacity: 0.6 }}>
-                Add a custom shopping list
-              </p>
-            </button>
-          )}
         </div>
       </main>
 

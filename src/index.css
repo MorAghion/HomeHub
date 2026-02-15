@@ -6,3 +6,27 @@ body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
 }
+
+/* Flashlight effect for deep linking to tasks */
+@keyframes flashlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 6, 6, 0.7);
+    border-color: rgba(99, 6, 6, 0.7);
+    background-color: rgba(99, 6, 6, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(99, 6, 6, 0.3);
+    border-color: rgba(99, 6, 6, 0.9);
+    background-color: rgba(99, 6, 6, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 6, 6, 0);
+    border-color: transparent;
+    background-color: white;
+  }
+}
+
+.flashlight-highlight {
+  animation: flashlight-pulse 3s ease-in-out;
+  border: 2px solid rgba(99, 6, 6, 0.7);
+}
