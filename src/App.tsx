@@ -45,6 +45,7 @@ function App() {
 
   // Mobile Card Stack Navigation
   const [activeHub, setActiveHub] = useState<'shopping' | 'tasks' | 'vouchers'>('shopping');
+  const [isLandingMode, setIsLandingMode] = useState(true); // Landing vs Active mode
   const cardStackRef = useRef<HTMLDivElement>(null);
 
   // Track previous activeListId to save to correct context when switching
@@ -350,12 +351,25 @@ function App() {
     const targetCard = cards[hubIndex] as HTMLElement;
 
     if (targetCard) {
+      // Exit landing mode and go to full-screen active mode
+      setIsLandingMode(false);
       targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       setActiveHub(hub);
     }
   };
 
-  // Detect active card from scroll position
+  // Return to Landing Mode (HomeView)
+  const returnToHome = () => {
+    setIsLandingMode(true);
+    // Scroll to center (shopping hub by default)
+    if (cardStackRef.current) {
+      const cards = cardStackRef.current.children;
+      const centerCard = cards[0] as HTMLElement; // Shopping is center
+      centerCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
+  // Detect active card from scroll position (sync with bottom nav)
   useEffect(() => {
     if (!cardStackRef.current) return;
 
@@ -364,7 +378,11 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
             const hubId = entry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
-            if (hubId) setActiveHub(hubId);
+            if (hubId) {
+              setActiveHub(hubId);
+              // If user manually swipes in landing mode, keep depth effect active
+              // Don't exit landing mode on manual swipe
+            }
           }
         });
       },
@@ -458,11 +476,11 @@ function App() {
     </div>
   );
 
-  // Router: Mobile Card Stack (Hub Level)
+  // Router: Mobile Card Stack (Hub Level) - HomeView Landing Page
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
-      <div className="min-h-screen pb-20" style={{ backgroundColor: '#F5F2E7' }}>
-        {/* Fixed Header - Ghost UI with Centered Logo */}
+      <div className="min-h-screen pb-20 bg-cream" style={{ backgroundColor: '#F5F2E7' }}>
+        {/* Fixed Header - Clickable Logo to Return Home */}
         <header
           className="fixed top-0 left-0 w-full z-50 h-16 backdrop-blur-md border-b flex items-center justify-center"
           style={{
@@ -470,12 +488,24 @@ function App() {
             borderColor: '#8E806A22'
           }}
         >
-          <div className="text-center">
+          <button
+            onClick={returnToHome}
+            className="text-center transition-all hover:opacity-70 active:scale-95"
+          >
             <h1 className="text-2xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
-          </div>
+          </button>
         </header>
 
-        {/* Unified Carousel - Full-screen Hub Cards with Smooth Transitions */}
+        {/* Hero Greeting - Only in Landing Mode */}
+        {isLandingMode && (
+          <div className="pt-20 pb-6 text-center">
+            <h2 className="text-3xl font-semibold" style={{ color: '#630606' }}>
+              Welcome home, Mor.
+            </h2>
+          </div>
+        )}
+
+        {/* Unified Carousel - Dual Mode: Landing (85vw) vs Active (100vw) */}
         <div
           ref={cardStackRef}
           className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-y transition-all duration-500"
@@ -483,13 +513,20 @@ function App() {
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch',
             scrollBehavior: 'smooth',
-            height: 'calc(100vh - 8rem)' // Account for header (4rem) and bottom nav (4rem)
+            height: isLandingMode ? 'calc(100vh - 12rem)' : 'calc(100vh - 8rem)', // Extra space for greeting in landing mode
+            paddingLeft: isLandingMode ? '7.5vw' : '0',
+            paddingRight: isLandingMode ? '7.5vw' : '0'
           }}
         >
-          {/* Shopping Hub Card - Full Screen */}
+          {/* Shopping Hub Card - Responsive Width */}
           <div
             data-hub="shopping"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
+            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
+            style={{
+              width: isLandingMode ? '85vw' : '100vw',
+              opacity: isLandingMode && activeHub !== 'shopping' ? 0.6 : 1,
+              transform: isLandingMode && activeHub !== 'shopping' ? 'scale(0.95)' : 'scale(1)'
+            }}
           >
             <div className="h-full overflow-y-auto">
               <ShoppingHub
@@ -534,10 +571,15 @@ function App() {
             </div>
           </div>
 
-          {/* Tasks Hub Card - Full Screen */}
+          {/* Tasks Hub Card - Responsive Width */}
           <div
             data-hub="tasks"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
+            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
+            style={{
+              width: isLandingMode ? '85vw' : '100vw',
+              opacity: isLandingMode && activeHub !== 'tasks' ? 0.6 : 1,
+              transform: isLandingMode && activeHub !== 'tasks' ? 'scale(0.95)' : 'scale(1)'
+            }}
           >
             <div className="h-full overflow-y-auto">
               <TasksHub
@@ -583,10 +625,15 @@ function App() {
             </div>
           </div>
 
-          {/* Vouchers Hub Card - Full Screen */}
+          {/* Vouchers Hub Card - Responsive Width */}
           <div
             data-hub="vouchers"
-            className="snap-center min-w-full flex-shrink-0 px-4 pt-28"
+            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
+            style={{
+              width: isLandingMode ? '85vw' : '100vw',
+              opacity: isLandingMode && activeHub !== 'vouchers' ? 0.6 : 1,
+              transform: isLandingMode && activeHub !== 'vouchers' ? 'scale(0.95)' : 'scale(1)'
+            }}
           >
             <div className="h-full overflow-y-auto">
               <VouchersHub
