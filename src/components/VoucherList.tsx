@@ -15,7 +15,7 @@ interface VoucherListProps {
 
 function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: VoucherListProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
+  const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [smartPaste, setSmartPaste] = useState('');
@@ -36,7 +36,6 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
   const isBuyMe = listId.includes('buyme');
   const isOntopo = listId.includes('ontopo');
   const isPhysical = listId.includes('physical');
-  const isMovies = listId.includes('movies');
   const prioritizeSmartPaste = isBuyMe || isOntopo;
 
   // Determine default item type from template (always use template as source of truth)
@@ -517,94 +516,6 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     });
     setSmartPaste('');
     setImageSize('');
-  };
-
-  // Smart Type Detection - Analyze text and URL to determine voucher vs reservation
-  const detectItemType = (text: string, url: string): 'voucher' | 'reservation' => {
-    let reservationScore = 0;
-    let voucherScore = 0;
-
-    // Keywords that indicate RESERVATIONS (Hebrew + English)
-    const reservationKeywords = [
-      // Hebrew
-      'כרטיס', 'כרטיסים', 'הזמנה', 'הזמנת', 'הזמנתך', 'הזמנתכם',
-      'ביקור', 'אירוע', 'מופע', 'הופעה', 'סרט', 'תיאטרון', 'קולנוע',
-      'מסעדה', 'שולחן', 'מקום', 'פסטיבל', 'כנס', 'ספורט',
-      // English
-      'ticket', 'tickets', 'booking', 'reservation', 'reservations',
-      'event', 'movie', 'show', 'concert', 'theater', 'cinema',
-      'restaurant', 'table', 'seat', 'venue', 'festival', 'conference', 'sport'
-    ];
-
-    // Keywords that indicate VOUCHERS (Hebrew + English)
-    const voucherKeywords = [
-      // Hebrew
-      'שובר', 'שוברים', 'כרטיס מתנה', 'מתנה', 'קוד', 'קופון',
-      'הנחה', 'זיכוי', 'קרדיט', 'מועדון', 'נקודות',
-      // English
-      'voucher', 'gift card', 'giftcard', 'coupon', 'discount',
-      'code', 'credit', 'balance', 'redeem', 'points', 'reward'
-    ];
-
-    // URL patterns for RESERVATIONS
-    const reservationUrlPatterns = [
-      'ticket', 'booking', 'reservation', 'event', 'concert',
-      'movie', 'show', 'venue', 'table', 'seat', 'edocument',
-      'כרטיס', 'הזמנה'
-    ];
-
-    // URL patterns for VOUCHERS
-    const voucherUrlPatterns = [
-      'voucher', 'gift', 'coupon', 'redeem', 'card', 'code',
-      'שובר', 'מתנה'
-    ];
-
-    // Analyze TEXT for keywords
-    const lowerText = text.toLowerCase();
-    reservationKeywords.forEach(keyword => {
-      if (lowerText.includes(keyword.toLowerCase())) {
-        reservationScore += 1;
-      }
-    });
-
-    voucherKeywords.forEach(keyword => {
-      if (lowerText.includes(keyword.toLowerCase())) {
-        voucherScore += 1;
-      }
-    });
-
-    // Analyze URL for patterns (URLs are stronger signals - worth 2 points each)
-    const lowerUrl = url.toLowerCase();
-    reservationUrlPatterns.forEach(pattern => {
-      if (lowerUrl.includes(pattern.toLowerCase())) {
-        reservationScore += 2;
-      }
-    });
-
-    voucherUrlPatterns.forEach(pattern => {
-      if (lowerUrl.includes(pattern.toLowerCase())) {
-        voucherScore += 2;
-      }
-    });
-
-    console.log('🧠 Smart Type Detection:', {
-      text: text.substring(0, 50) + '...',
-      url,
-      reservationScore,
-      voucherScore,
-      decision: reservationScore > voucherScore ? 'RESERVATION' : voucherScore > reservationScore ? 'VOUCHER' : 'TIE → use list default'
-    });
-
-    // Make decision based on scores
-    if (reservationScore > voucherScore) {
-      return 'reservation';
-    } else if (voucherScore > reservationScore) {
-      return 'voucher';
-    } else {
-      // Tie or both zero - use list's default type
-      console.log('⚖️ Score tied, using list default:', getDefaultType());
-      return getDefaultType();
-    }
   };
 
   // Smart Paste Logic - Detect URLs and determine type
@@ -1112,7 +1023,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
         }
 
         // Show completion message with accuracy warning
-        const extractedFields = [];
+        const extractedFields: string[] = [];
         if (urlMatches && urlMatches.length > 0) extractedFields.push('URL');
         if (digitMatches && digitMatches.length > 0) extractedFields.push('Code(s)');
         if (currencyMatches && currencyMatches.length > 0) extractedFields.push('Value');

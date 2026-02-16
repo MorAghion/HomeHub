@@ -354,7 +354,7 @@ function TaskList({
             tasks.map((task) => (
               <div
                 key={task.id}
-                ref={(el) => taskRefs.current[task.id] = el}
+                ref={(el) => { taskRefs.current[task.id] = el; }}
                 className="bg-white p-4 rounded-xl shadow-sm transition-all hover:shadow-md"
                 style={{ border: isBulkDeleteMode && selectedTasksForDeletion.has(task.id) ? '2px solid #630606' : '1px solid transparent' }}
               >

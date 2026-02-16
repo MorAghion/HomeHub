@@ -9,13 +9,11 @@ import VoucherList from './components/VoucherList'
 import {
   loadMasterListById,
   saveMasterListById,
-  clearMasterListById,
   migrateContextBasedStorage
 } from './utils/flexibleMemory'
 import {
   loadTaskMasterListById,
   saveTaskMasterListById,
-  clearTaskMasterListById,
   getUrgentTasks,
   type TaskListInstance
 } from './utils/taskMemory'
@@ -37,8 +35,7 @@ import type {
 
 // Hub ID constants for hierarchical Sub-Hub IDs
 const SHOPPING_HUB_ID = 'shopping-hub';
-const HOME_TASKS_HUB_ID = 'home-tasks';
-const VOUCHERS_HUB_ID = 'vouchers';
+const HOME_TASKS_HUB_ID = 'home-tasks-hub';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
@@ -388,7 +385,7 @@ function App() {
       let closestHub: 'shopping' | 'tasks' | 'vouchers' = 'shopping';
       let minDistance = Infinity;
 
-      Array.from(container.children).forEach((card, index) => {
+      Array.from(container.children).forEach((card) => {
         const element = card as HTMLElement;
         const cardLeft = element.offsetLeft;
         const cardCenter = cardLeft + element.clientWidth / 2;
@@ -812,76 +809,6 @@ function App() {
     );
   }
 
-  // Router: Shopping Hub
-  if (currentScreen === 'shopping-hub') {
-    return (
-      <ShoppingHub
-        lists={lists}
-        onSelectList={(id) => {
-          setActiveListId(id);
-          setCurrentScreen('shopping');
-        }}
-        onCreateList={(name) => {
-          const id = `${SHOPPING_HUB_ID}_list-${Date.now()}`;
-          setLists({
-            ...lists,
-            [id]: { id, name: name.trim(), items: [] }
-          });
-        }}
-        onEditList={(listId, newName) => {
-          const list = lists[listId];
-          if (list) {
-            setLists({
-              ...lists,
-              [listId]: { ...list, name: newName.trim() }
-            });
-          }
-        }}
-        onDeleteList={(listId) => {
-          const list = lists[listId];
-          if (list) {
-            // Remove list from state first
-            const newLists = { ...lists };
-            delete newLists[listId];
-
-            // Clear associated Master List by ID (V2)
-            clearMasterListById(listId);
-
-            setLists(newLists);
-
-            // If deleting the active list, reset to default
-            if (activeListId === listId) {
-              const remainingIds = Object.keys(newLists);
-              setActiveListId(remainingIds[0] || 'shopping-hub_groceries');
-            }
-          }
-        }}
-        onDeleteLists={(listIds) => {
-          const newLists = { ...lists };
-
-          // Remove all selected lists from state
-          listIds.forEach(listId => {
-            delete newLists[listId];
-          });
-
-          // Clear Master Lists by ID (V2)
-          listIds.forEach(listId => {
-            clearMasterListById(listId);
-          });
-
-          setLists(newLists);
-
-          // If active list was deleted, reset to default
-          if (listIds.includes(activeListId)) {
-            const remainingIds = Object.keys(newLists);
-            setActiveListId(remainingIds[0] || 'shopping-hub_groceries');
-          }
-        }}
-        onBack={() => setCurrentScreen('dashboard')}
-      />
-    );
-  }
-
   // Router: Shopping List
   if (currentScreen === 'shopping') {
     const currentList = lists[activeListId];
@@ -914,77 +841,6 @@ function App() {
         autoCategorize={autoCategorize}
       />
       </div>
-    );
-  }
-
-  // Router: Home Tasks Hub
-  if (currentScreen === 'home-tasks-hub') {
-    const urgentTasks = getUrgentTasks(taskLists);
-
-    return (
-      <TasksHub
-        taskLists={taskLists}
-        urgentTaskCount={urgentTasks.length}
-        onSelectList={(id) => {
-          setActiveTaskListId(id);
-          setCurrentScreen('home-tasks');
-        }}
-        onCreateList={(name) => {
-          const id = `${HOME_TASKS_HUB_ID}_list-${Date.now()}`;
-          setTaskLists({
-            ...taskLists,
-            [id]: { id, name: name.trim(), tasks: [] }
-          });
-        }}
-        onEditList={(listId, newName) => {
-          const list = taskLists[listId];
-          if (list) {
-            setTaskLists({
-              ...taskLists,
-              [listId]: { ...list, name: newName.trim() }
-            });
-          }
-        }}
-        onDeleteList={(listId) => {
-          const list = taskLists[listId];
-          if (list) {
-            // Remove list from state first
-            const newLists = { ...taskLists };
-            delete newLists[listId];
-
-            // Clear associated Task Master List by ID
-            clearTaskMasterListById(listId);
-
-            setTaskLists(newLists);
-
-            // If deleting the active list, reset to urgent
-            if (activeTaskListId === listId) {
-              setActiveTaskListId('home-tasks_urgent');
-            }
-          }
-        }}
-        onDeleteLists={(listIds) => {
-          const newLists = { ...taskLists };
-
-          // Remove all selected lists from state
-          listIds.forEach(listId => {
-            delete newLists[listId];
-          });
-
-          // Clear Task Master Lists by ID
-          listIds.forEach(listId => {
-            clearTaskMasterListById(listId);
-          });
-
-          setTaskLists(newLists);
-
-          // If active list was deleted, reset to urgent
-          if (listIds.includes(activeTaskListId)) {
-            setActiveTaskListId('home-tasks_urgent');
-          }
-        }}
-        onBack={() => setCurrentScreen('dashboard')}
-      />
     );
   }
 
@@ -1047,50 +903,6 @@ function App() {
         onClearHighlight={() => setHighlightedTaskId(null)}
       />
       </div>
-    );
-  }
-
-  // Router: Vouchers Hub
-  if (currentScreen === 'vouchers-hub') {
-    return (
-      <VouchersHub
-        voucherLists={voucherLists}
-        onSelectList={(id) => {
-          setActiveVoucherListId(id);
-          setCurrentScreen('vouchers');
-        }}
-        onCreateList={(templateId, displayName, defaultType) => {
-          const id = generateVoucherSubHubId(templateId);
-          const newList = createVoucherSubHub(templateId, displayName, defaultType);
-          setVoucherLists({
-            ...voucherLists,
-            [id]: newList
-          });
-        }}
-        onDeleteList={(listId) => {
-          const newLists = { ...voucherLists };
-          delete newLists[listId];
-          setVoucherLists(newLists);
-
-          // If deleting the active list, clear active state
-          if (activeVoucherListId === listId) {
-            setActiveVoucherListId('');
-          }
-        }}
-        onDeleteLists={(listIds) => {
-          const newLists = { ...voucherLists };
-          listIds.forEach(listId => {
-            delete newLists[listId];
-          });
-          setVoucherLists(newLists);
-
-          // If active list was deleted, clear active state
-          if (listIds.includes(activeVoucherListId)) {
-            setActiveVoucherListId('');
-          }
-        }}
-        onBack={() => setCurrentScreen('dashboard')}
-      />
     );
   }
 

@@ -1,5 +1,4 @@
 import {
-  ShoppingCart,
   ShoppingBag,
   Store,
   Package,
@@ -15,7 +14,6 @@ import {
   Dog,
   Cat,
   Cake,
-  PartyPopper,
   Gift,
   Ticket,
   CreditCard,
@@ -34,7 +32,6 @@ import {
   Calendar,
   Clock,
   Zap,
-  AlertCircle,
   Map,
   Sparkles,
   Receipt,
