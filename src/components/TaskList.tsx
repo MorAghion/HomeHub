@@ -46,7 +46,6 @@ function TaskList({
     type: 'single' | 'bulk' | 'completed';
     taskId?: number;
   } | null>(null);
-  const [isMasterListOpen, setIsMasterListOpen] = useState(false);
 
   // Ref for task elements (for flashlight effect)
   const taskRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -212,8 +211,8 @@ function TaskList({
   };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
-      <header className="mb-8 max-w-6xl mx-auto">
+    <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+      <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <button
@@ -251,15 +250,6 @@ function TaskList({
                 }}
               >
                 {isBulkDeleteMode ? 'Done' : 'Edit'}
-              </button>
-            )}
-            {!isUrgentView && (
-              <button
-                onClick={() => setIsMasterListOpen(true)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#630606' }}
-              >
-                Master List
               </button>
             )}
             {!isUrgentView && tasks.filter(t => t.status === 'Completed').length > 0 && (
@@ -306,45 +296,48 @@ function TaskList({
         )}
       </header>
 
-      <main className="max-w-6xl mx-auto">
+      <main className="max-w-4xl mx-auto">
         {/* Add New Task Form */}
         {!isUrgentView && (
           <form onSubmit={addTask} className="bg-white p-6 rounded-2xl shadow-sm mb-6">
-            <div className="flex gap-3 items-start">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={newTaskName}
-                  onChange={(e) => setNewTaskName(e.target.value)}
-                  placeholder="Add a new task..."
-                  className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
-                  style={{ borderColor: '#8E806A33' }}
-                />
-              </div>
+            <div className="flex flex-col gap-3">
+              {/* Task Name Input */}
               <input
-                type="date"
-                value={newTaskDueDate}
-                onChange={(e) => setNewTaskDueDate(e.target.value)}
-                className="px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
+                type="text"
+                value={newTaskName}
+                onChange={(e) => setNewTaskName(e.target.value)}
+                placeholder="Add a new task..."
+                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
-              <select
-                value={newTaskUrgency}
-                onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
-                className="px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
-                style={{ borderColor: '#8E806A33' }}
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
-                style={{ backgroundColor: '#630606' }}
-              >
-                Add
-              </button>
+
+              {/* Date, Urgency, and Button Row */}
+              <div className="flex gap-2 items-center">
+                <input
+                  type="date"
+                  value={newTaskDueDate}
+                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                  className="flex-1 px-3 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                  style={{ borderColor: '#8E806A33' }}
+                />
+                <select
+                  value={newTaskUrgency}
+                  onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
+                  className="px-3 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                  style={{ borderColor: '#8E806A33' }}
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Med</option>
+                  <option value="High">High</option>
+                </select>
+                <button
+                  type="submit"
+                  className="px-5 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 whitespace-nowrap"
+                  style={{ backgroundColor: '#630606' }}
+                >
+                  Add
+                </button>
+              </div>
             </div>
           </form>
         )}
@@ -449,7 +442,7 @@ function TaskList({
                     ) : (
                       <button
                         onClick={() => toggleComplete(task.id)}
-                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer hover:border-[#630606]"
+                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer hover:border-[#630606] flex-shrink-0"
                         style={{
                           borderColor: task.status === 'Completed' ? '#630606' : '#8E806A33',
                           backgroundColor: task.status === 'Completed' ? '#630606' : 'transparent',
@@ -590,33 +583,6 @@ function TaskList({
         confirmText="Delete"
         isDestructive
       />
-
-      {/* Master List Modal - Placeholder */}
-      {isMasterListOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setIsMasterListOpen(false)}
-        >
-          <div
-            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold mb-4" style={{ color: '#630606' }}>
-              Master List
-            </h2>
-            <p className="text-sm mb-4" style={{ color: '#8E806A' }}>
-              Task Master List coming soon...
-            </p>
-            <button
-              onClick={() => setIsMasterListOpen(false)}
-              className="px-4 py-2 rounded-lg font-medium text-white w-full"
-              style={{ backgroundColor: '#630606' }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

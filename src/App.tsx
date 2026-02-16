@@ -344,18 +344,22 @@ function App() {
 
   // Card Stack Navigation Functions
   const scrollToHub = (hub: 'shopping' | 'tasks' | 'vouchers') => {
-    if (!cardStackRef.current) return;
+    // Set active hub BEFORE switching modes
+    setActiveHub(hub);
+    // Exit landing mode
+    setIsLandingMode(false);
 
-    const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[hub];
-    const cards = cardStackRef.current.children;
-    const targetCard = cards[hubIndex] as HTMLElement;
+    // Wait for re-render to Active Mode, then scroll to correct hub
+    setTimeout(() => {
+      if (!cardStackRef.current) return;
+      const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[hub];
+      const cards = cardStackRef.current.children;
+      const targetCard = cards[hubIndex] as HTMLElement;
 
-    if (targetCard) {
-      // Exit landing mode and go to full-screen active mode
-      setIsLandingMode(false);
-      targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      setActiveHub(hub);
-    }
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }, 0);
   };
 
   // Return to Landing Mode (HomeView)
@@ -371,36 +375,87 @@ function App() {
 
   // Detect active card from scroll position (sync with bottom nav)
   useEffect(() => {
-    if (!cardStackRef.current) return;
+    const container = cardStackRef.current;
+    if (!container) return;
 
+    // Scroll-based detection for reliable active hub tracking
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      const centerPosition = scrollLeft + containerWidth / 2;
+
+      // Find which card's center is closest to viewport center
+      let closestHub: 'shopping' | 'tasks' | 'vouchers' = 'shopping';
+      let minDistance = Infinity;
+
+      Array.from(container.children).forEach((card, index) => {
+        const element = card as HTMLElement;
+        const cardLeft = element.offsetLeft;
+        const cardCenter = cardLeft + element.clientWidth / 2;
+        const distance = Math.abs(cardCenter - centerPosition);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          const hubId = element.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
+          if (hubId) closestHub = hubId;
+        }
+      });
+
+      if (closestHub !== activeHub) {
+        setActiveHub(closestHub);
+      }
+    };
+
+    // Initial detection
+    handleScroll();
+
+    // Listen to scroll events
+    container.addEventListener('scroll', handleScroll);
+
+    // Also use IntersectionObserver as backup
     const observer = new IntersectionObserver(
       (entries) => {
+        let maxEntry = entries[0];
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            const hubId = entry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
-            if (hubId) {
-              setActiveHub(hubId);
-              // If user manually swipes in landing mode, keep depth effect active
-              // Don't exit landing mode on manual swipe
-            }
+          if (entry.intersectionRatio > maxEntry.intersectionRatio) {
+            maxEntry = entry;
           }
         });
+
+        if (maxEntry && maxEntry.intersectionRatio > 0.5) {
+          const hubId = maxEntry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
+          if (hubId && hubId !== activeHub) {
+            setActiveHub(hubId);
+          }
+        }
       },
       { threshold: [0.5], root: null }
     );
 
-    Array.from(cardStackRef.current.children).forEach((card) => {
+    Array.from(container.children).forEach((card) => {
       observer.observe(card);
     });
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
+    };
+  }, [activeHub, isLandingMode]); // Re-run when mode changes
 
-  // Scroll to initial hub on mount
+  // Scroll to initial hub on mount - Start in Landing Mode
   useEffect(() => {
     if (cardStackRef.current && (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub')) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => scrollToHub(activeHub), 100);
+      // Small delay to ensure DOM is ready, then center on active hub
+      setTimeout(() => {
+        if (cardStackRef.current) {
+          const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[activeHub];
+          const cards = cardStackRef.current.children;
+          const targetCard = cards[hubIndex] as HTMLElement;
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+          }
+        }
+      }, 100);
     }
   }, []);
 
@@ -433,10 +488,13 @@ function App() {
   // Render Bottom Navigation
   const renderBottomNav = () => (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t"
-      style={{ borderColor: '#8E806A22' }}
+      className="absolute bottom-0 left-0 w-full h-20 z-50 border-t backdrop-blur-md"
+      style={{
+        backgroundColor: 'rgba(245, 242, 231, 0.9)',
+        borderColor: 'rgba(99, 6, 6, 0.1)'
+      }}
     >
-      <div className="flex items-center justify-around px-4 py-3 max-w-md mx-auto">
+      <div className="flex items-center justify-around h-full px-6 max-w-md mx-auto">
         <button
           onClick={() => scrollToHub('shopping')}
           className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
@@ -479,12 +537,18 @@ function App() {
   // Router: Mobile Card Stack (Hub Level) - HomeView Landing Page
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
-      <div className="min-h-screen pb-20 bg-cream" style={{ backgroundColor: '#F5F2E7' }}>
-        {/* Fixed Header - Clickable Logo to Return Home */}
+      <div
+        className="fixed inset-0 w-full h-[100dvh] overflow-hidden"
+        style={{
+          backgroundColor: '#F5F2E7',
+          touchAction: 'none'
+        }}
+      >
+        {/* Fixed Header - Clean Logo Only */}
         <header
-          className="fixed top-0 left-0 w-full z-50 h-16 backdrop-blur-md border-b flex items-center justify-center"
+          className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-center backdrop-blur-md border-b"
           style={{
-            backgroundColor: 'rgba(245, 242, 231, 0.8)',
+            backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
           }}
         >
@@ -496,39 +560,116 @@ function App() {
           </button>
         </header>
 
-        {/* Hero Greeting - Only in Landing Mode */}
-        {isLandingMode && (
-          <div className="pt-20 pb-6 text-center">
-            <h2 className="text-3xl font-semibold" style={{ color: '#630606' }}>
-              Welcome home, Mor.
-            </h2>
-          </div>
-        )}
+        {/* Landing Page Layout */}
+        {isLandingMode ? (
+          <div className="absolute top-16 left-0 right-0 bottom-0 overflow-hidden flex flex-col">
+            {/* Subtle Small Greeting */}
+            <div className="flex-shrink-0 flex items-center justify-center pt-8 pb-6">
+              <h2 className="text-xl font-medium" style={{ color: '#630606' }}>
+                Welcome home, Mor.
+              </h2>
+            </div>
 
-        {/* Unified Carousel - Dual Mode: Landing (85vw) vs Active (100vw) */}
-        <div
-          ref={cardStackRef}
-          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-y transition-all duration-500"
-          style={{
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-            scrollBehavior: 'smooth',
-            height: isLandingMode ? 'calc(100vh - 12rem)' : 'calc(100vh - 8rem)', // Extra space for greeting in landing mode
-            paddingLeft: isLandingMode ? '7.5vw' : '0',
-            paddingRight: isLandingMode ? '7.5vw' : '0'
-          }}
-        >
-          {/* Shopping Hub Card - Responsive Width */}
+            {/* Card Stack Carousel - 80vw with Deep Stack Effect */}
+            <div className="flex-1 flex items-center overflow-hidden">
+              <div
+                ref={cardStackRef}
+                className="w-full flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+                style={{
+                  scrollSnapType: 'x mandatory',
+                  WebkitOverflowScrolling: 'touch',
+                  scrollBehavior: 'smooth',
+                  paddingLeft: '10vw',
+                  paddingRight: '10vw',
+                  touchAction: 'pan-x'
+                }}
+              >
+                {/* Shopping Hub Card - Summary Mode */}
+                <div
+                  data-hub="shopping"
+                  onClick={() => scrollToHub('shopping')}
+                  className="snap-center flex-shrink-0 transition-all duration-300 cursor-pointer"
+                  style={{
+                    width: '80vw',
+                    opacity: activeHub === 'shopping' ? 1 : 0.4,
+                    transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.9)'
+                  }}
+                >
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
+                    <ShoppingBag size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
+                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                      Shopping Lists
+                    </h2>
+                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                      {Object.keys(lists).length} {Object.keys(lists).length === 1 ? 'active list' : 'active lists'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tasks Hub Card - Summary Mode */}
+                <div
+                  data-hub="tasks"
+                  onClick={() => scrollToHub('tasks')}
+                  className="snap-center flex-shrink-0 transition-all duration-300 cursor-pointer"
+                  style={{
+                    width: '80vw',
+                    opacity: activeHub === 'tasks' ? 1 : 0.4,
+                    transform: activeHub === 'tasks' ? 'scale(1)' : 'scale(0.9)'
+                  }}
+                >
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
+                    <ListTodo size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
+                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                      Home Tasks
+                    </h2>
+                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                      {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length} {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length === 1 ? 'active list' : 'active lists'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Vouchers Hub Card - Summary Mode */}
+                <div
+                  data-hub="vouchers"
+                  onClick={() => scrollToHub('vouchers')}
+                  className="snap-center flex-shrink-0 transition-all duration-300 cursor-pointer"
+                  style={{
+                    width: '80vw',
+                    opacity: activeHub === 'vouchers' ? 1 : 0.4,
+                    transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.9)'
+                  }}
+                >
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
+                    <Gift size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
+                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                      Vouchers & Cards
+                    </h2>
+                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                      {Object.keys(voucherLists).length} {Object.keys(voucherLists).length === 1 ? 'active list' : 'active lists'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Active Mode - Full Screen Hub */
           <div
-            data-hub="shopping"
-            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
+            ref={cardStackRef}
+            className="absolute top-16 left-0 right-0 bottom-20 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
             style={{
-              width: isLandingMode ? '85vw' : '100vw',
-              opacity: isLandingMode && activeHub !== 'shopping' ? 0.6 : 1,
-              transform: isLandingMode && activeHub !== 'shopping' ? 'scale(0.95)' : 'scale(1)'
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              scrollBehavior: 'smooth',
+              touchAction: 'pan-x'
             }}
           >
-            <div className="h-full overflow-y-auto">
+          {/* Shopping Hub Card - Full Screen Active Mode */}
+          <div
+            data-hub="shopping"
+            className="snap-center min-w-full max-w-full flex-shrink-0 h-full flex flex-col"
+          >
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ touchAction: 'pan-y' }}>
               <ShoppingHub
                 lists={lists}
                 onSelectList={(id) => {
@@ -566,22 +707,17 @@ function App() {
                     setActiveListId(Object.keys(newLists)[0] || '');
                   }
                 }}
-                onBack={() => setCurrentScreen('dashboard')}
+                onBack={returnToHome}
               />
             </div>
           </div>
 
-          {/* Tasks Hub Card - Responsive Width */}
+          {/* Tasks Hub Card - Full Screen Active Mode */}
           <div
             data-hub="tasks"
-            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
-            style={{
-              width: isLandingMode ? '85vw' : '100vw',
-              opacity: isLandingMode && activeHub !== 'tasks' ? 0.6 : 1,
-              transform: isLandingMode && activeHub !== 'tasks' ? 'scale(0.95)' : 'scale(1)'
-            }}
+            className="snap-center min-w-full max-w-full flex-shrink-0 h-full flex flex-col"
           >
-            <div className="h-full overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ touchAction: 'pan-y' }}>
               <TasksHub
                 taskLists={taskLists}
                 urgentTaskCount={taskLists['home-tasks_urgent']?.tasks.length || 0}
@@ -620,22 +756,17 @@ function App() {
                     setActiveTaskListId(Object.keys(newLists).filter(id => id !== 'home-tasks_urgent')[0] || '');
                   }
                 }}
-                onBack={() => setCurrentScreen('dashboard')}
+                onBack={returnToHome}
               />
             </div>
           </div>
 
-          {/* Vouchers Hub Card - Responsive Width */}
+          {/* Vouchers Hub Card - Full Screen Active Mode */}
           <div
             data-hub="vouchers"
-            className="snap-center flex-shrink-0 px-4 pt-32 transition-all duration-500"
-            style={{
-              width: isLandingMode ? '85vw' : '100vw',
-              opacity: isLandingMode && activeHub !== 'vouchers' ? 0.6 : 1,
-              transform: isLandingMode && activeHub !== 'vouchers' ? 'scale(0.95)' : 'scale(1)'
-            }}
+            className="snap-center min-w-full max-w-full flex-shrink-0 h-full flex flex-col"
           >
-            <div className="h-full overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ touchAction: 'pan-y' }}>
               <VouchersHub
                 voucherLists={voucherLists}
                 onSelectList={(id) => {
@@ -668,14 +799,15 @@ function App() {
                     setActiveVoucherListId('');
                   }
                 }}
-                onBack={() => setCurrentScreen('dashboard')}
+                onBack={returnToHome}
               />
             </div>
           </div>
         </div>
+        )}
 
-        {/* Bottom Navigation */}
-        {renderBottomNav()}
+        {/* Bottom Navigation - Only in Active Mode */}
+        {!isLandingMode && renderBottomNav()}
       </div>
     );
   }
@@ -759,7 +891,8 @@ function App() {
     }
 
     return (
-      <ShoppingList
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+        <ShoppingList
         listName={currentList.name}
         items={currentList.items}
         onUpdateItems={(newItems) => {
@@ -768,13 +901,19 @@ function App() {
             [activeListId]: { ...currentList, items: newItems }
           });
         }}
-        onBack={() => setCurrentScreen('shopping-hub')}
+        onBack={() => {
+          setCurrentScreen('shopping-hub');
+          setTimeout(() => {
+            scrollToHub('shopping');
+          }, 0);
+        }}
         masterListItems={masterListItems}
         onUpdateMasterList={setMasterListItems}
         categories={categories}
         capitalizeFirstLetter={capitalizeFirstLetter}
         autoCategorize={autoCategorize}
       />
+      </div>
     );
   }
 
@@ -860,7 +999,8 @@ function App() {
     const isUrgentView = currentTaskList.id === 'home-tasks_urgent';
 
     return (
-      <TaskList
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+        <TaskList
         listName={currentTaskList.name}
         listId={currentTaskList.id}
         isUrgentView={isUrgentView}
@@ -873,7 +1013,12 @@ function App() {
             });
           }
         }}
-        onBack={() => setCurrentScreen('home-tasks-hub')}
+        onBack={() => {
+          setCurrentScreen('home-tasks-hub');
+          setTimeout(() => {
+            scrollToHub('tasks');
+          }, 0);
+        }}
         onNavigateToSource={(sourceSubHubId, taskId) => {
           setActiveTaskListId(sourceSubHubId);
           setHighlightedTaskId(taskId);
@@ -901,6 +1046,7 @@ function App() {
         highlightedTaskId={highlightedTaskId}
         onClearHighlight={() => setHighlightedTaskId(null)}
       />
+      </div>
     );
   }
 
@@ -957,13 +1103,20 @@ function App() {
     }
 
     return (
-      <VoucherList
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+        <VoucherList
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}
         vouchers={currentVouchers}
         onUpdateVouchers={setCurrentVouchers}
-        onBack={() => setCurrentScreen('vouchers-hub')}
+        onBack={() => {
+          setCurrentScreen('vouchers-hub');
+          setTimeout(() => {
+            scrollToHub('vouchers');
+          }, 0);
+        }}
       />
+      </div>
     );
   }
 }

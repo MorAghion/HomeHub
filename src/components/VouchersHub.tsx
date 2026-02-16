@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Gift, Calendar, Plus } from 'lucide-react';
+import { Gift, Calendar, Plus, Pencil } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
 import type { VoucherListInstance } from '../types/base';
@@ -94,10 +94,10 @@ function VouchersHub({
   };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
+    <div className="px-6 py-8 overflow-x-hidden w-full" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-6">
             <button
               onClick={onBack}
               className="text-2xl hover:opacity-50 transition-opacity"
@@ -109,20 +109,20 @@ function VouchersHub({
             </h1>
           </div>
 
-          {/* Header Action Buttons - Ghost UI */}
-          <div className="flex items-center gap-2">
+          {/* Header Action Buttons - Circular Icon-Only Ghost UI */}
+          <div className="flex items-center gap-2 ml-4">
             {!isEditMode && (
               <button
                 onClick={() => setIsTemplateModalOpen(true)}
-                className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-all hover:bg-[#63060611]"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
                 style={{
                   backgroundColor: 'transparent',
                   color: '#630606',
-                  border: '1px solid #630606'
+                  border: '1.5px solid #630606'
                 }}
+                title="New Voucher List"
               >
-                <Plus size={16} strokeWidth={2} />
-                <span>New</span>
+                <Plus size={18} strokeWidth={2.5} />
               </button>
             )}
             {listArray.length > 0 && (
@@ -133,14 +133,19 @@ function VouchersHub({
                     cancelEditMode();
                   }
                 }}
-                className="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                 style={{
                   backgroundColor: isEditMode ? '#630606' : 'transparent',
                   color: isEditMode ? 'white' : '#630606',
-                  border: isEditMode ? 'none' : '1px solid #63060633'
+                  border: isEditMode ? 'none' : '1.5px solid #630606'
                 }}
+                title={isEditMode ? 'Done' : 'Edit'}
               >
-                {isEditMode ? 'Done' : 'Edit'}
+                {isEditMode ? (
+                  <span className="text-sm font-medium">✓</span>
+                ) : (
+                  <Pencil size={16} strokeWidth={2.5} />
+                )}
               </button>
             )}
           </div>
@@ -206,7 +211,7 @@ function VouchersHub({
 
         {/* Voucher Lists Grid */}
         {listArray.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {listArray.map((list) => (
               <div key={list.id} className="relative">
                 {isEditMode && (
@@ -237,25 +242,9 @@ function VouchersHub({
                       return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
                     })()}
                   </div>
-                  <div className="flex items-start justify-between mb-3">
-                    <h2 className="text-xl font-semibold flex-1" style={{ color: '#630606' }}>
-                      {list.name}
-                    </h2>
-                    {!isEditMode && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirmation({ type: 'single', listId: list.id });
-                        }}
-                        className="p-1 hover:bg-red-50 rounded-lg transition-colors"
-                        style={{ color: '#DC2626' }}
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+                  <h2 className="text-xl font-semibold mb-3" style={{ color: '#630606' }}>
+                    {list.name}
+                  </h2>
                   <p className="text-sm" style={{ color: '#8E806A' }}>
                     {list.items.length} {list.items.length === 1 ? 'voucher' : 'vouchers'}
                   </p>

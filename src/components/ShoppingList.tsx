@@ -251,7 +251,7 @@ function ShoppingList({
   };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
+    <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">

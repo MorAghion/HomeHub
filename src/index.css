@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
-/* נגדיר את הרקע בצורה פשוטה שלא תתנגש עם כלום */
-body {
-  background-color: #F5F2E7; /* הקרם המקורי והיפה */
+/* Lock viewport dimensions - prevent any body/html scroll */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100dvh;
   margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  background-color: #F5F2E7; /* הקרם המקורי והיפה */
   font-family: Inter, system-ui, sans-serif;
+  touch-action: none;
 }
 
 /* Flashlight effect for deep linking to tasks */

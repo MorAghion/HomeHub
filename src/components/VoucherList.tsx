@@ -1357,8 +1357,8 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
   };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
-      <header className="mb-8 max-w-7xl mx-auto">
+    <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+      <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <button
@@ -1387,7 +1387,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto">
+      <main className="max-w-4xl mx-auto">
         {/* Empty State */}
         {vouchers.length === 0 && (
           <div className="text-center py-16">

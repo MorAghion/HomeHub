@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Flame } from 'lucide-react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
@@ -82,7 +82,7 @@ function TasksHub({
   };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#F5F2E7' }}>
+    <div className="px-6 py-8 overflow-x-hidden w-full" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -97,20 +97,20 @@ function TasksHub({
             </h1>
           </div>
 
-          {/* Header Action Buttons - Ghost UI */}
+          {/* Header Action Buttons - Circular Icon-Only Ghost UI */}
           <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-all hover:bg-[#63060611]"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
                 style={{
                   backgroundColor: 'transparent',
                   color: '#630606',
-                  border: '1px solid #630606'
+                  border: '1.5px solid #630606'
                 }}
+                title="New List"
               >
-                <Plus size={16} strokeWidth={2} />
-                <span>New</span>
+                <Plus size={18} strokeWidth={2.5} />
               </button>
             )}
             {editableLists.length > 0 && (
@@ -121,14 +121,19 @@ function TasksHub({
                     cancelEditMode();
                   }
                 }}
-                className="px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                 style={{
                   backgroundColor: isEditMode ? '#630606' : 'transparent',
                   color: isEditMode ? 'white' : '#630606',
-                  border: isEditMode ? 'none' : '1px solid #63060633'
+                  border: isEditMode ? 'none' : '1.5px solid #630606'
                 }}
+                title={isEditMode ? 'Done' : 'Edit'}
               >
-                {isEditMode ? 'Done' : 'Edit'}
+                {isEditMode ? (
+                  <span className="text-sm font-medium">✓</span>
+                ) : (
+                  <Pencil size={16} strokeWidth={2.5} />
+                )}
               </button>
             )}
           </div>
@@ -183,7 +188,7 @@ function TasksHub({
             }`}
           >
             <div className="flex items-start justify-between mb-3">
-              <span className="text-3xl">🔥</span>
+              <Flame size={32} strokeWidth={2} className="text-white" />
               {urgentTaskCount > 0 && (
                 <span
                   className="px-3 py-1 rounded-full text-xs font-bold text-white"
@@ -284,7 +289,12 @@ function TasksHub({
                   onClick={() => onSelectList(list.id)}
                   className="w-full text-left"
                 >
-                  <span className="text-3xl mb-3 block">📋</span>
+                  <div className="mb-3">
+                    {(() => {
+                      const Icon = getContextIcon(list.name);
+                      return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
+                    })()}
+                  </div>
                   <h2 className="text-xl font-semibold mb-1" style={{ color: '#630606' }}>
                     {list.name}
                   </h2>
