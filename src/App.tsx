@@ -663,7 +663,7 @@ function App() {
             {/* Subtle Small Greeting */}
             <div className="flex-shrink-0 flex items-center justify-center pt-8 pb-6">
               <h2 className="text-xl font-medium" style={{ color: '#630606' }}>
-                Welcome home, Mor.
+                Welcome home, {profile?.display_name}.
               </h2>
             </div>
 
