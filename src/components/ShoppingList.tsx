@@ -26,12 +26,12 @@ function ShoppingList({
   autoCategorize,
 }: ShoppingListProps) {
   const [newItem, setNewItem] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
-  const [selectedItemsForDeletion, setSelectedItemsForDeletion] = useState<Set<number>>(new Set());
+  const [selectedItemsForDeletion, setSelectedItemsForDeletion] = useState<Set<string>>(new Set());
   const [duplicateCheck, setDuplicateCheck] = useState<DuplicateCheck | null>(null);
 
   const checkDuplicate = (itemName: string): boolean => {
@@ -52,7 +52,7 @@ function ShoppingList({
         onConfirm: () => {
           onUpdateItems([
             {
-              id: Date.now(),
+              id: crypto.randomUUID(),
               text: capitalizedText,
               completed: false,
               category: category,
@@ -68,7 +68,7 @@ function ShoppingList({
 
     onUpdateItems([
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         text: capitalizedText,
         completed: false,
         category: category,
@@ -78,13 +78,13 @@ function ShoppingList({
     setNewItem('');
   };
 
-  const toggleItem = (id: number) => {
+  const toggleItem = (id: string) => {
     onUpdateItems(
       items.map(item => (item.id === id ? { ...item, completed: !item.completed } : item))
     );
   };
 
-  const deleteItem = (id: number) => {
+  const deleteItem = (id: string) => {
     onUpdateItems(items.filter(item => item.id !== id));
   };
 
@@ -145,7 +145,7 @@ function ShoppingList({
 
     onUpdateItems([
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         text: capitalizedText,
         completed: false,
         category: masterItem.category,
@@ -174,7 +174,7 @@ function ShoppingList({
           .join(', ')}${duplicates.length > 3 ? '...' : ''})`,
         onConfirm: () => {
           const allItems = masterListItems.map(masterItem => ({
-            id: Date.now() + Math.random(),
+            id: crypto.randomUUID(),
             text: capitalizeFirstLetter(masterItem.text.trim()),
             completed: false,
             category: masterItem.category,
@@ -187,7 +187,7 @@ function ShoppingList({
     }
 
     const newItems = itemsToAdd.map(masterItem => ({
-      id: Date.now() + Math.random(),
+      id: crypto.randomUUID(),
       text: capitalizeFirstLetter(masterItem.text.trim()),
       completed: false,
       category: masterItem.category,
@@ -195,7 +195,7 @@ function ShoppingList({
     onUpdateItems([...newItems, ...items]);
   };
 
-  const toggleItemSelection = (id: number) => {
+  const toggleItemSelection = (id: string) => {
     const newSelected = new Set(selectedItemsForDeletion);
     if (newSelected.has(id)) {
       newSelected.delete(id);
@@ -569,7 +569,7 @@ function ShoppingList({
         onAddToMasterList={(text, category) => {
           onUpdateMasterList([
             {
-              id: Date.now(),
+              id: crypto.randomUUID(),
               text,
               category,
             },

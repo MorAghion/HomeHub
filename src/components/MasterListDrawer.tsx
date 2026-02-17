@@ -12,8 +12,8 @@ interface MasterListDrawerProps {
   onAddToActiveList: (item: MasterListItem) => void;
   onAddToMasterList: (text: string, category: string) => void;
   onUpdateMasterList: (items: MasterListItem[]) => void;
-  onUpdateMasterItem: (id: number, text: string, category: string) => void;
-  onDeleteMasterItem: (id: number) => void;
+  onUpdateMasterItem: (id: string, text: string, category: string) => void;
+  onDeleteMasterItem: (id: string) => void;
   onAddAllFromMasterList: () => void;
   categories: string[];
   capitalizeFirstLetter: (text: string) => string;
@@ -38,7 +38,7 @@ function MasterListDrawer({
 }: MasterListDrawerProps) {
   const [isMasterListEditMode, setIsMasterListEditMode] = useState(false);
   const [masterListSearch, setMasterListSearch] = useState('');
-  const [masterListEditingId, setMasterListEditingId] = useState<number | null>(null);
+  const [masterListEditingId, setMasterListEditingId] = useState<string | null>(null);
   const [masterListEditText, setMasterListEditText] = useState('');
   const [masterListEditCategory, setMasterListEditCategory] = useState('');
   const [newMasterItem, setNewMasterItem] = useState('');
@@ -93,7 +93,7 @@ function MasterListDrawer({
 
       if (!exists) {
         newItems.push({
-          id: Date.now() + Math.random(),
+          id: crypto.randomUUID(),
           text: capitalizedText,
           category: item.listCategory,
         });

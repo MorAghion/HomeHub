@@ -14,8 +14,10 @@ export interface BaseItem {
  *
  * Represents an item in a shopping list with completion tracking.
  * Note: Uses 'text' instead of 'name' for backward compatibility.
+ * id is a UUID string (from Supabase) rather than a number.
  */
-export interface ShoppingItem extends Omit<BaseItem, 'name'> {
+export interface ShoppingItem extends Omit<BaseItem, 'name' | 'id'> {
+  id: string;    // UUID string from Supabase
   text: string;  // Equivalent to BaseItem's 'name' - kept for backward compatibility
   completed: boolean;
   category?: string;
@@ -26,8 +28,10 @@ export interface ShoppingItem extends Omit<BaseItem, 'name'> {
  *
  * Represents a reusable item template in the master list.
  * Note: Uses 'text' instead of 'name' for backward compatibility.
+ * id is a UUID string (from Supabase).
  */
-export interface MasterListItem extends Omit<BaseItem, 'name'> {
+export interface MasterListItem extends Omit<BaseItem, 'name' | 'id'> {
+  id: string;    // UUID string from Supabase
   text: string;  // Equivalent to BaseItem's 'name' - kept for backward compatibility
   category?: string;
 }
@@ -36,9 +40,10 @@ export interface MasterListItem extends Omit<BaseItem, 'name'> {
  * Task Item
  *
  * Represents a task with scheduling and priority information.
- * Follows the standard BaseItem structure with 'name' property.
+ * id is a UUID string (from Supabase).
  */
-export interface Task extends BaseItem {
+export interface Task extends Omit<BaseItem, 'id'> {
+  id: string;    // UUID string from Supabase
   dueDate?: string | Date;
   status?: string;
   assignee?: string;
@@ -59,8 +64,10 @@ export interface DuplicateCheck {
  * Base Voucher Item (Common Fields)
  *
  * Foundation for both Voucher and Reservation types.
+ * id is a UUID string (from Supabase).
  */
-export interface BaseVoucherItem extends BaseItem {
+export interface BaseVoucherItem extends Omit<BaseItem, 'id'> {
+  id: string;            // UUID string from Supabase
   itemType: 'voucher' | 'reservation';  // Discriminator field
   imageUrl?: string;     // URL or base64 for physical card photos
   notes?: string;        // Additional notes or description
@@ -96,6 +103,17 @@ export interface Reservation extends BaseVoucherItem {
  * Union type for all voucher-like items
  */
 export type VoucherItem = Voucher | Reservation;
+
+/**
+ * Task List Instance
+ *
+ * Represents a Task Sub-Hub with its tasks.
+ */
+export interface TaskListInstance {
+  id: string;
+  name: string;
+  tasks: Task[];
+}
 
 /**
  * List Instance

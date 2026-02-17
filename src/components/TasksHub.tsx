@@ -3,7 +3,7 @@ import { Plus, Pencil, Flame } from 'lucide-react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
-import type { TaskListInstance } from '../utils/taskMemory';
+import type { TaskListInstance } from '../types/base';
 
 interface TasksHubProps {
   taskLists: Record<string, TaskListInstance>;

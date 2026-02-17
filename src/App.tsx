@@ -1,43 +1,34 @@
 import { useState, useEffect, useRef } from 'react'
-import { ShoppingBag, ListTodo, Gift } from 'lucide-react'
+import { ShoppingBag, ListTodo, Gift, Settings } from 'lucide-react'
+import { useAuth } from './contexts/AuthContext'
+import AuthScreen from './components/AuthScreen'
+import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
 import ShoppingList from './components/ShoppingList'
 import TasksHub from './components/TasksHub'
 import TaskList from './components/TaskList'
 import VouchersHub from './components/VouchersHub'
 import VoucherList from './components/VoucherList'
-import {
-  loadMasterListById,
-  saveMasterListById,
-  migrateContextBasedStorage
-} from './utils/flexibleMemory'
-import {
-  loadTaskMasterListById,
-  saveTaskMasterListById,
-  getUrgentTasks,
-  type TaskListInstance
-} from './utils/taskMemory'
-import {
-  loadVoucherLists,
-  saveVoucherLists,
-  createVoucherSubHub,
-  getVouchersFromSubHub,
-  saveVouchersToSubHub,
-  generateVoucherSubHubId
-} from './utils/voucherMemory'
+import { ShoppingService } from './utils/supabaseShoppingService'
+import { MasterListService } from './utils/supabaseMasterListService'
+import { TaskService } from './utils/supabaseTaskService'
+import { VoucherService } from './utils/supabaseVoucherService'
+import { supabase } from './supabaseClient'
+import { isTaskUrgent, getUrgentTasks } from './utils/supabaseTaskService'
+import { VOUCHER_TEMPLATES } from './utils/voucherMemory'
 import type {
   MasterListItem,
   ListInstance,
   Task,
+  TaskListInstance,
   VoucherListInstance,
   VoucherItem
 } from './types/base'
 
-// Hub ID constants for hierarchical Sub-Hub IDs
-const SHOPPING_HUB_ID = 'shopping-hub';
-const HOME_TASKS_HUB_ID = 'home-tasks-hub';
 
 function App() {
+  const { user, profile, loading } = useAuth();
+
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
 
   // Mobile Card Stack Navigation
@@ -45,63 +36,22 @@ function App() {
   const [isLandingMode, setIsLandingMode] = useState(true); // Landing vs Active mode
   const cardStackRef = useRef<HTMLDivElement>(null);
 
-  // Track previous activeListId to save to correct context when switching
-  const prevActiveListIdRef = useRef<string>('');
+  // Settings Modal
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Multi-list state
-  const [lists, setLists] = useState<Record<string, ListInstance>>(() => {
-    const saved = localStorage.getItem('homehub-lists');
-    if (saved) return JSON.parse(saved);
 
-    // Migration from legacy single-list
-    const legacyItems = localStorage.getItem('homehub-items');
-    const defaultItems = legacyItems ? JSON.parse(legacyItems) : [
-      { id: 1, text: 'Milk', completed: false },
-      { id: 2, text: 'Eggs', completed: false },
-    ];
+  // Shopping lists state — populated from Supabase on mount
+  const [lists, setLists] = useState<Record<string, ListInstance>>({});
+  const [isLoadingLists, setIsLoadingLists] = useState(true);
 
-    return {
-      'shopping-hub_groceries': {
-        id: 'shopping-hub_groceries',
-        name: 'Groceries',
-        items: defaultItems
-      },
-      'shopping-hub_general': {
-        id: 'shopping-hub_general',
-        name: 'General Household',
-        items: []
-      }
-    };
-  });
+  // Active list ID — persisted as UI preference only
+  const [activeListId, setActiveListId] = useState<string>(
+    () => localStorage.getItem('homehub-active-list') || ''
+  );
 
-  // Persist active list ID across refreshes
-  const [activeListId, setActiveListId] = useState<string>(() => {
-    const saved = localStorage.getItem('homehub-active-list');
-    return saved || 'shopping-hub_groceries';
-  });
-
-  // Master list (ID-based with Flexible Memory V2)
-  // Loads from ID-based localStorage keys - fully isolated per Sub-Hub
-  // Starts empty to show suggestion bubbles for new lists
-  const [masterListItems, setMasterListItems] = useState<MasterListItem[]>(() => {
-    // Load lists from localStorage first
-    const savedLists = localStorage.getItem('homehub-lists');
-    if (savedLists) {
-      const parsedLists = JSON.parse(savedLists);
-      const savedActiveId = localStorage.getItem('homehub-active-list') || 'shopping-hub_groceries';
-      const activeList = parsedLists[savedActiveId];
-
-      if (activeList) {
-        // Load from Sub-Hub ID (V2)
-        const items = loadMasterListById(activeList.id);
-        return items; // Returns empty array if nothing saved
-      }
-    }
-
-    // Fallback: load from default 'shopping-hub_groceries' ID
-    const items = loadMasterListById('shopping-hub_groceries');
-    return items;
-  });
+  // Master list (ID-based with Flexible Memory V2 — still in localStorage)
+  // Starts empty; loads when activeListId is set
+  const [masterListItems, setMasterListItems] = useState<MasterListItem[]>([]);
 
   const categories = [
     // Existing categories
@@ -128,119 +78,154 @@ function App() {
   // TASK LISTS STATE & MANAGEMENT
   // =====================================================================
 
-  // Track previous active task list ID
-  const prevActiveTaskListIdRef = useRef<string>('');
-
-  // Multi-task-list state
-  const [taskLists, setTaskLists] = useState<Record<string, TaskListInstance>>(() => {
-    const saved = localStorage.getItem('homehub-task-lists');
-    if (saved) return JSON.parse(saved);
-
-    // Initialize with Urgent Tasks sub-hub
-    return {
-      'home-tasks_urgent': {
-        id: 'home-tasks_urgent',
-        name: 'Urgent Tasks',
-        tasks: []
-      }
-    };
+  // Task lists — populated from Supabase on mount
+  const [taskLists, setTaskLists] = useState<Record<string, TaskListInstance>>({
+    'home-tasks_urgent': { id: 'home-tasks_urgent', name: 'Urgent Tasks', tasks: [] }
   });
 
-  // Persist active task list ID across refreshes
-  const [activeTaskListId, setActiveTaskListId] = useState<string>(() => {
-    const saved = localStorage.getItem('homehub-active-task-list');
-    return saved || 'home-tasks_urgent';
-  });
+  // Active task list ID — persisted as UI preference only
+  const [activeTaskListId, setActiveTaskListId] = useState<string>(
+    () => localStorage.getItem('homehub-active-task-list') || 'home-tasks_urgent'
+  );
 
   // Highlighted task ID for flashlight effect
-  const [highlightedTaskId, setHighlightedTaskId] = useState<number | null>(null);
+  const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
 
-  // Task master list (ID-based storage)
-  const [masterListTasks, setMasterListTasks] = useState<Task[]>(() => {
-    const savedLists = localStorage.getItem('homehub-task-lists');
-    if (savedLists) {
-      const parsedLists = JSON.parse(savedLists);
-      const savedActiveId = localStorage.getItem('homehub-active-task-list') || 'home-tasks_urgent';
-      const activeList = parsedLists[savedActiveId];
+  // Task master list items
+  const [masterListTasks, setMasterListTasks] = useState<Task[]>([]);
 
-      if (activeList && activeList.id !== 'home-tasks_urgent') {
-        const items = loadTaskMasterListById(activeList.id);
-        return items;
-      }
-    }
-
-    return [];
-  });
-
-  // Auto-save task lists to localStorage
+  // ── Supabase: load task lists + subscribe ──────────────────────────────────
   useEffect(() => {
-    localStorage.setItem('homehub-task-lists', JSON.stringify(taskLists));
-  }, [taskLists]);
+    if (!profile?.household_id) return;
 
-  // Auto-save active task list ID to localStorage
+    let isMounted = true;
+
+    const loadTaskData = async () => {
+      try {
+        const dbLists = await TaskService.fetchLists(profile.household_id);
+        const listsRecord: Record<string, TaskListInstance> = {};
+
+        await Promise.all(
+          dbLists.map(async (list) => {
+            const dbTasks = await TaskService.fetchTasks(list.id);
+            listsRecord[list.id] = {
+              id:    list.id,
+              name:  list.name,
+              tasks: dbTasks.map((t) => ({
+                id:       t.id,
+                name:     t.name,
+                status:   t.status,
+                urgency:  t.urgency,
+                dueDate:  t.dueDate,
+                assignee: t.assignee,
+              })),
+            };
+          })
+        );
+
+        if (isMounted) {
+          // Recompute urgent tasks from freshly loaded data
+          const urgentTasks = getUrgentTasks(listsRecord);
+          listsRecord['home-tasks_urgent'] = {
+            id: 'home-tasks_urgent', name: 'Urgent Tasks', tasks: urgentTasks,
+          };
+          setTaskLists(listsRecord);
+          setActiveTaskListId((prev) => {
+            if (prev === 'home-tasks_urgent') return prev;
+            if (prev && listsRecord[prev]) return prev;
+            return 'home-tasks_urgent';
+          });
+        }
+      } catch (err) {
+        console.error('[Tasks] Failed to load from Supabase:', err);
+      }
+    };
+
+    loadTaskData();
+
+    const channel = TaskService.subscribeToLists(profile.household_id, () => {
+      if (isMounted) loadTaskData();
+    });
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.household_id]);
+
+  // ── Supabase: subscribe to tasks while a list is open ─────────────────────
+  useEffect(() => {
+    if (currentScreen !== 'home-tasks' || !activeTaskListId || activeTaskListId === 'home-tasks_urgent') return;
+
+    const channel = TaskService.subscribeToTasks(activeTaskListId, (dbTasks) => {
+      setTaskLists((prev) => {
+        const updatedList: TaskListInstance = {
+          ...prev[activeTaskListId],
+          tasks: dbTasks.map((t) => ({
+            id:       t.id,
+            name:     t.name,
+            status:   t.status,
+            urgency:  t.urgency,
+            dueDate:  t.dueDate,
+            assignee: t.assignee,
+          })),
+        };
+        const next = { ...prev, [activeTaskListId]: updatedList };
+        // Recompute urgent tasks
+        next['home-tasks_urgent'] = {
+          id: 'home-tasks_urgent', name: 'Urgent Tasks',
+          tasks: getUrgentTasks(next),
+        };
+        return next;
+      });
+    });
+
+    return () => { supabase.removeChannel(channel); };
+  }, [currentScreen, activeTaskListId]);
+
+  // ── Master tasks: load from Supabase when active list changes ─────────────
+  useEffect(() => {
+    if (!activeTaskListId || activeTaskListId === 'home-tasks_urgent') {
+      setMasterListTasks([]);
+      return;
+    }
+    TaskService.fetchMasterItems(activeTaskListId)
+      .then((items) => setMasterListTasks(
+        items.map((i) => ({
+          id:       i.id,
+          name:     i.name,
+          status:   i.status,
+          urgency:  i.urgency,
+          dueDate:  i.dueDate,
+          assignee: i.assignee,
+        }))
+      ))
+      .catch((err) => console.error('[TaskMaster] Failed to load:', err));
+  }, [activeTaskListId]);
+
+  // ── UI preference: persist active task list ID ─────────────────────────────
   useEffect(() => {
     localStorage.setItem('homehub-active-task-list', activeTaskListId);
   }, [activeTaskListId]);
 
-  // Handle Task Sub-Hub switching: save to OLD, load from NEW
-  useEffect(() => {
-    const prevTaskListId = prevActiveTaskListIdRef.current;
-    const currentTaskList = taskLists[activeTaskListId];
-
-    if (!currentTaskList) return;
-
-    // Skip for urgent view
-    if (currentTaskList.id === 'home-tasks_urgent') {
-      prevActiveTaskListIdRef.current = activeTaskListId;
-      setMasterListTasks([]);
-      return;
-    }
-
-    // If switching Sub-Hubs (not initial load)
-    if (prevTaskListId && prevTaskListId !== activeTaskListId && prevTaskListId !== 'home-tasks_urgent') {
-      saveTaskMasterListById(prevTaskListId, masterListTasks);
-    }
-
-    // Load items from NEW Sub-Hub by ID
-    const items = loadTaskMasterListById(activeTaskListId);
-    setMasterListTasks(items);
-
-    // Update ref to track current Sub-Hub
-    prevActiveTaskListIdRef.current = activeTaskListId;
-  }, [activeTaskListId, taskLists]);
-
-  // Auto-save when task master list changes
-  useEffect(() => {
-    const currentTaskList = taskLists[activeTaskListId];
-
-    // Only save if we have a valid list and we're not on initial load or urgent view
-    if (currentTaskList &&
-        currentTaskList.id !== 'home-tasks_urgent' &&
-        prevActiveTaskListIdRef.current === activeTaskListId) {
-      saveTaskMasterListById(activeTaskListId, masterListTasks);
-    }
-  }, [masterListTasks, activeTaskListId, taskLists]);
-
-  // Update urgent tasks whenever task lists change
+  // ── Keep urgent tasks view in sync when task lists change ─────────────────
   useEffect(() => {
     const urgentTasks = getUrgentTasks(taskLists);
-
-    // Only update if the urgent tasks have actually changed
     const currentUrgent = taskLists['home-tasks_urgent'];
     const hasChanged = !currentUrgent ||
       JSON.stringify(currentUrgent.tasks) !== JSON.stringify(urgentTasks);
 
     if (hasChanged) {
-      setTaskLists(prev => ({
+      setTaskLists((prev) => ({
         ...prev,
-        'home-tasks_urgent': {
-          id: 'home-tasks_urgent',
-          name: 'Urgent Tasks',
-          tasks: urgentTasks
-        }
+        'home-tasks_urgent': { id: 'home-tasks_urgent', name: 'Urgent Tasks', tasks: urgentTasks },
       }));
     }
-  }, [JSON.stringify(Object.values(taskLists).filter(list => list.id !== 'home-tasks_urgent').map(list => list.tasks))]);
+  }, [JSON.stringify(
+    Object.values(taskLists)
+      .filter((l) => l.id !== 'home-tasks_urgent')
+      .map((l) => l.tasks)
+  )]);
 
   // =====================================================================
   // END TASK LISTS STATE & MANAGEMENT
@@ -250,10 +235,8 @@ function App() {
   // VOUCHER LISTS STATE & MANAGEMENT
   // =====================================================================
 
-  // Voucher lists state
-  const [voucherLists, setVoucherLists] = useState<Record<string, VoucherListInstance>>(() => {
-    return loadVoucherLists();
-  });
+  // Voucher lists — populated from Supabase on mount
+  const [voucherLists, setVoucherLists] = useState<Record<string, VoucherListInstance>>({});
 
   // Active voucher list ID
   const [activeVoucherListId, setActiveVoucherListId] = useState<string>('');
@@ -261,83 +244,166 @@ function App() {
   // Current vouchers for the active list
   const [currentVouchers, setCurrentVouchers] = useState<VoucherItem[]>([]);
 
-  // Auto-save voucher lists to localStorage
+  // ── Supabase: load voucher lists + subscribe ───────────────────────────────
   useEffect(() => {
-    saveVoucherLists(voucherLists);
-  }, [voucherLists]);
+    if (!profile?.household_id) return;
 
-  // Load vouchers when active voucher list changes
-  useEffect(() => {
-    if (activeVoucherListId) {
-      const vouchers = getVouchersFromSubHub(activeVoucherListId);
-      setCurrentVouchers(vouchers);
-    }
-  }, [activeVoucherListId]);
+    let isMounted = true;
 
-  // Save vouchers when they change
-  useEffect(() => {
-    if (activeVoucherListId && currentVouchers.length >= 0) {
-      saveVouchersToSubHub(activeVoucherListId, currentVouchers);
-      // Update the voucher list state
-      setVoucherLists(prev => ({
-        ...prev,
-        [activeVoucherListId]: {
-          ...prev[activeVoucherListId],
-          items: currentVouchers
+    const loadVoucherData = async () => {
+      try {
+        const dbLists = await VoucherService.fetchLists(profile.household_id);
+        const listsRecord: Record<string, VoucherListInstance> = {};
+        dbLists.forEach((list) => { listsRecord[list.id] = list; });
+
+        if (isMounted) {
+          setVoucherLists(listsRecord);
+          setActiveVoucherListId((prev) => {
+            if (prev && listsRecord[prev]) return prev;
+            return Object.keys(listsRecord)[0] || '';
+          });
         }
+      } catch (err) {
+        console.error('[Vouchers] Failed to load from Supabase:', err);
+      }
+    };
+
+    loadVoucherData();
+
+    const channel = VoucherService.subscribeToLists(profile.household_id, () => {
+      if (isMounted) loadVoucherData();
+    });
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.household_id]);
+
+  // ── Sync currentVouchers when active list changes ─────────────────────────
+  useEffect(() => {
+    if (!activeVoucherListId) return;
+    setCurrentVouchers(voucherLists[activeVoucherListId]?.items || []);
+  }, [activeVoucherListId, voucherLists]);
+
+  // ── Supabase: subscribe to voucher item changes while list is open ─────────
+  useEffect(() => {
+    if (currentScreen !== 'vouchers' || !activeVoucherListId) return;
+
+    const channel = VoucherService.subscribeToItems(activeVoucherListId, (items) => {
+      setCurrentVouchers(items);
+      setVoucherLists((prev) => ({
+        ...prev,
+        [activeVoucherListId]: { ...prev[activeVoucherListId], items },
       }));
-    }
-  }, [currentVouchers, activeVoucherListId]);
+    });
+
+    return () => { supabase.removeChannel(channel); };
+  }, [currentScreen, activeVoucherListId]);
 
   // =====================================================================
   // END VOUCHER LISTS STATE & MANAGEMENT
   // =====================================================================
 
-  // Run migration on mount (V1 → V2)
+  // ── Supabase: load shopping lists + subscribe to realtime changes ──────────
   useEffect(() => {
-    migrateContextBasedStorage(lists);
-  }, []);
+    if (!profile?.household_id) return;
 
-  // Auto-save multi-list state to localStorage
-  useEffect(() => {
-    localStorage.setItem('homehub-lists', JSON.stringify(lists));
-  }, [lists]);
+    let isMounted = true;
 
-  // Auto-save active list ID to localStorage
+    const loadShoppingData = async () => {
+      setIsLoadingLists(true);
+      try {
+        const dbLists = await ShoppingService.fetchLists(profile.household_id);
+        const listsRecord: Record<string, ListInstance> = {};
+
+        await Promise.all(
+          dbLists.map(async (list) => {
+            const dbItems = await ShoppingService.fetchItems(list.id);
+            listsRecord[list.id] = {
+              id: list.id,
+              name: list.name,
+              items: dbItems.map((item) => ({
+                id: item.id,
+                text: item.text,
+                completed: item.isCompleted,
+                category: item.category,
+              })),
+            };
+          })
+        );
+
+        if (isMounted) {
+          setLists(listsRecord);
+          // Keep saved activeListId if it still exists, else fall back to first list
+          setActiveListId((prev) => {
+            if (prev && listsRecord[prev]) return prev;
+            return Object.keys(listsRecord)[0] || '';
+          });
+          setIsLoadingLists(false);
+        }
+      } catch (err) {
+        console.error('[Shopping] Failed to load from Supabase:', err);
+        if (isMounted) setIsLoadingLists(false);
+      }
+    };
+
+    loadShoppingData();
+
+    // Realtime: re-fetch all shopping data when another device adds/deletes a list
+    const channel = ShoppingService.subscribeToLists(profile.household_id, () => {
+      if (isMounted) loadShoppingData();
+    });
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.household_id]);
+
+  // ── Supabase: subscribe to item changes while a list is open ───────────────
   useEffect(() => {
-    localStorage.setItem('homehub-active-list', activeListId);
+    if (currentScreen !== 'shopping' || !activeListId) return;
+
+    const channel = ShoppingService.subscribeToListItems(activeListId, (dbItems) => {
+      setLists((prev) => ({
+        ...prev,
+        [activeListId]: {
+          ...prev[activeListId],
+          items: dbItems.map((item) => ({
+            id: item.id,
+            text: item.text,
+            completed: item.isCompleted,
+            category: item.category,
+          })),
+        },
+      }));
+    });
+
+    return () => { supabase.removeChannel(channel); };
+  }, [currentScreen, activeListId]);
+
+  // ── UI preference: persist active list ID ─────────────────────────────────
+  useEffect(() => {
+    if (activeListId) localStorage.setItem('homehub-active-list', activeListId);
   }, [activeListId]);
 
-  // Handle Sub-Hub switching: save to OLD Sub-Hub, load from NEW Sub-Hub
+  // ── Master List: load from Supabase when active Sub-Hub changes ───────────
   useEffect(() => {
-    const prevListId = prevActiveListIdRef.current;
-    const currentList = lists[activeListId];
+    if (!activeListId) return;
 
-    if (!currentList) return;
-
-    // If switching Sub-Hubs (not initial load)
-    if (prevListId && prevListId !== activeListId) {
-      // Save current masterListItems to PREVIOUS Sub-Hub by ID before switching
-      saveMasterListById(prevListId, masterListItems);
-    }
-
-    // Load items from NEW Sub-Hub by ID
-    const items = loadMasterListById(activeListId);
-    setMasterListItems(items);
-
-    // Update ref to track current Sub-Hub
-    prevActiveListIdRef.current = activeListId;
-  }, [activeListId, lists]);
-
-  // Auto-save when master list items change (user adds/removes/edits items)
-  useEffect(() => {
-    const currentList = lists[activeListId];
-
-    // Only save if we have a valid list and we're not on initial load
-    if (currentList && prevActiveListIdRef.current === activeListId) {
-      saveMasterListById(activeListId, masterListItems);
-    }
-  }, [masterListItems, activeListId, lists]);
+    MasterListService.fetchItems(activeListId)
+      .then((dbItems) => {
+        setMasterListItems(
+          dbItems.map((item) => ({
+            id:       item.id,
+            text:     item.text,
+            category: item.category,
+          }))
+        );
+      })
+      .catch((err) => console.error('[MasterList] Failed to load:', err));
+  }, [activeListId]);
 
   // Card Stack Navigation Functions
   const scrollToHub = (hub: 'shopping' | 'tasks' | 'vouchers') => {
@@ -531,6 +597,25 @@ function App() {
     </div>
   );
 
+  // Auth Gate - Show loading or login screen
+  if (loading) {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        style={{ backgroundColor: '#F5F2E7' }}
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#63060633', borderTopColor: '#630606' }}></div>
+          <p className="text-sm" style={{ color: '#8E806A' }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return <AuthScreen />;
+  }
+
   // Router: Mobile Card Stack (Hub Level) - HomeView Landing Page
   if (currentScreen === 'dashboard' || currentScreen === 'shopping-hub' || currentScreen === 'home-tasks-hub' || currentScreen === 'vouchers-hub') {
     return (
@@ -541,19 +626,28 @@ function App() {
           touchAction: 'none'
         }}
       >
-        {/* Fixed Header - Clean Logo Only */}
+        {/* Fixed Header - Logo + Settings */}
         <header
-          className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-center backdrop-blur-md border-b"
+          className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
           style={{
             backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
           }}
         >
+          <div className="w-10"></div> {/* Spacer for centering */}
           <button
             onClick={returnToHome}
             className="text-center transition-all hover:opacity-70 active:scale-95"
           >
             <h1 className="text-2xl font-bold" style={{ color: '#630606' }}>HomeHub</h1>
+          </button>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
+            style={{ color: '#630606' }}
+            title="Settings"
+          >
+            <Settings size={20} />
           </button>
         </header>
 
@@ -674,35 +768,51 @@ function App() {
                   setCurrentScreen('shopping');
                 }}
                 onCreateList={(name) => {
-                  const id = `${SHOPPING_HUB_ID}_${name.toLowerCase().replace(/\s+/g, '-')}`;
-                  setLists({
-                    ...lists,
-                    [id]: { id, name, items: [] }
-                  });
+                  if (!profile?.household_id) return;
+                  ShoppingService.createList(profile.household_id, name)
+                    .then((newList) => {
+                      setLists((prev) => ({
+                        ...prev,
+                        [newList.id]: { id: newList.id, name: newList.name, items: [] },
+                      }));
+                      setActiveListId(newList.id);
+                    })
+                    .catch((err) => console.error('[Shopping] createList failed:', err));
                 }}
                 onEditList={(listId, newName) => {
-                  setLists({
-                    ...lists,
-                    [listId]: { ...lists[listId], name: newName }
-                  });
+                  // Optimistic update
+                  setLists((prev) => ({
+                    ...prev,
+                    [listId]: { ...prev[listId], name: newName },
+                  }));
+                  ShoppingService.updateList(listId, { name: newName })
+                    .catch((err) => console.error('[Shopping] updateList failed:', err));
                 }}
                 onDeleteList={(listId) => {
-                  const newLists = { ...lists };
-                  delete newLists[listId];
-                  setLists(newLists);
+                  // Optimistic update
+                  setLists((prev) => {
+                    const next = { ...prev };
+                    delete next[listId];
+                    return next;
+                  });
                   if (activeListId === listId) {
-                    setActiveListId(Object.keys(newLists)[0] || '');
+                    setActiveListId(Object.keys(lists).find((id) => id !== listId) || '');
                   }
+                  ShoppingService.deleteList(listId)
+                    .catch((err) => console.error('[Shopping] deleteList failed:', err));
                 }}
                 onDeleteLists={(listIds) => {
-                  const newLists = { ...lists };
-                  listIds.forEach(listId => {
-                    delete newLists[listId];
+                  // Optimistic update
+                  setLists((prev) => {
+                    const next = { ...prev };
+                    listIds.forEach((id) => delete next[id]);
+                    return next;
                   });
-                  setLists(newLists);
                   if (listIds.includes(activeListId)) {
-                    setActiveListId(Object.keys(newLists)[0] || '');
+                    setActiveListId(Object.keys(lists).find((id) => !listIds.includes(id)) || '');
                   }
+                  Promise.all(listIds.map((id) => ShoppingService.deleteList(id)))
+                    .catch((err) => console.error('[Shopping] deleteLists failed:', err));
                 }}
                 onBack={returnToHome}
               />
@@ -723,35 +833,52 @@ function App() {
                   setCurrentScreen('home-tasks');
                 }}
                 onCreateList={(name) => {
-                  const id = `${HOME_TASKS_HUB_ID}_${name.toLowerCase().replace(/\s+/g, '-')}`;
-                  setTaskLists({
-                    ...taskLists,
-                    [id]: { id, name, tasks: [] }
-                  });
+                  if (!profile?.household_id) return;
+                  TaskService.createList(profile.household_id, name)
+                    .then((newList) => {
+                      setTaskLists((prev) => ({
+                        ...prev,
+                        [newList.id]: { id: newList.id, name: newList.name, tasks: [] },
+                      }));
+                      setActiveTaskListId(newList.id);
+                    })
+                    .catch((err) => console.error('[Tasks] createList failed:', err));
                 }}
                 onEditList={(listId, newName) => {
-                  setTaskLists({
-                    ...taskLists,
-                    [listId]: { ...taskLists[listId], name: newName }
-                  });
+                  setTaskLists((prev) => ({
+                    ...prev,
+                    [listId]: { ...prev[listId], name: newName },
+                  }));
+                  TaskService.updateList(listId, newName)
+                    .catch((err) => console.error('[Tasks] updateList failed:', err));
                 }}
                 onDeleteList={(listId) => {
-                  const newLists = { ...taskLists };
-                  delete newLists[listId];
-                  setTaskLists(newLists);
+                  setTaskLists((prev) => {
+                    const next = { ...prev };
+                    delete next[listId];
+                    return next;
+                  });
                   if (activeTaskListId === listId) {
-                    setActiveTaskListId(Object.keys(newLists).filter(id => id !== 'home-tasks_urgent')[0] || '');
+                    setActiveTaskListId(
+                      Object.keys(taskLists).find((id) => id !== listId && id !== 'home-tasks_urgent') || 'home-tasks_urgent'
+                    );
                   }
+                  TaskService.deleteList(listId)
+                    .catch((err) => console.error('[Tasks] deleteList failed:', err));
                 }}
                 onDeleteLists={(listIds) => {
-                  const newLists = { ...taskLists };
-                  listIds.forEach(listId => {
-                    delete newLists[listId];
+                  setTaskLists((prev) => {
+                    const next = { ...prev };
+                    listIds.forEach((id) => delete next[id]);
+                    return next;
                   });
-                  setTaskLists(newLists);
                   if (listIds.includes(activeTaskListId)) {
-                    setActiveTaskListId(Object.keys(newLists).filter(id => id !== 'home-tasks_urgent')[0] || '');
+                    setActiveTaskListId(
+                      Object.keys(taskLists).find((id) => !listIds.includes(id) && id !== 'home-tasks_urgent') || 'home-tasks_urgent'
+                    );
                   }
+                  Promise.all(listIds.map((id) => TaskService.deleteList(id)))
+                    .catch((err) => console.error('[Tasks] deleteLists failed:', err));
                 }}
                 onBack={returnToHome}
               />
@@ -770,31 +897,36 @@ function App() {
                   setActiveVoucherListId(id);
                   setCurrentScreen('vouchers');
                 }}
-                onCreateList={(templateId, displayName, defaultType) => {
-                  const id = generateVoucherSubHubId(templateId);
-                  const newList = createVoucherSubHub(templateId, displayName, defaultType);
-                  setVoucherLists({
-                    ...voucherLists,
-                    [id]: newList
-                  });
+                onCreateList={(_templateId, displayName, defaultType) => {
+                  if (!profile?.household_id) return;
+                  const name = displayName || _templateId;
+                  VoucherService.createList(profile.household_id, name, defaultType)
+                    .then((newList) => {
+                      const full = { ...newList, items: [] };
+                      setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
+                      setActiveVoucherListId(newList.id);
+                    })
+                    .catch((err) => console.error('[Vouchers] createList failed:', err));
                 }}
                 onDeleteList={(listId) => {
-                  const newLists = { ...voucherLists };
-                  delete newLists[listId];
-                  setVoucherLists(newLists);
-                  if (activeVoucherListId === listId) {
-                    setActiveVoucherListId('');
-                  }
+                  setVoucherLists((prev) => {
+                    const next = { ...prev };
+                    delete next[listId];
+                    return next;
+                  });
+                  if (activeVoucherListId === listId) setActiveVoucherListId('');
+                  VoucherService.deleteList(listId)
+                    .catch((err) => console.error('[Vouchers] deleteList failed:', err));
                 }}
                 onDeleteLists={(listIds) => {
-                  const newLists = { ...voucherLists };
-                  listIds.forEach(listId => {
-                    delete newLists[listId];
+                  setVoucherLists((prev) => {
+                    const next = { ...prev };
+                    listIds.forEach((id) => delete next[id]);
+                    return next;
                   });
-                  setVoucherLists(newLists);
-                  if (listIds.includes(activeVoucherListId)) {
-                    setActiveVoucherListId('');
-                  }
+                  if (listIds.includes(activeVoucherListId)) setActiveVoucherListId('');
+                  Promise.all(listIds.map((id) => VoucherService.deleteList(id)))
+                    .catch((err) => console.error('[Vouchers] deleteLists failed:', err));
                 }}
                 onBack={returnToHome}
               />
@@ -805,6 +937,9 @@ function App() {
 
         {/* Bottom Navigation - Only in Active Mode */}
         {!isLandingMode && renderBottomNav()}
+
+        {/* Settings Modal */}
+        <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       </div>
     );
   }
@@ -822,11 +957,55 @@ function App() {
         <ShoppingList
         listName={currentList.name}
         items={currentList.items}
-        onUpdateItems={(newItems) => {
-          setLists({
-            ...lists,
-            [activeListId]: { ...currentList, items: newItems }
+        onUpdateItems={async (newItems) => {
+          const prevItems = currentList.items;
+
+          // Optimistic update — instant UI response
+          setLists((prev) => ({
+            ...prev,
+            [activeListId]: { ...prev[activeListId], items: newItems },
+          }));
+
+          // Diff to determine exact Supabase operations needed
+          const prevMap = new Map(prevItems.map((i) => [i.id, i]));
+          const newMap  = new Map(newItems.map((i) => [i.id, i]));
+
+          const added   = newItems.filter((i) => !prevMap.has(i.id));
+          const removed = prevItems.filter((i) => !newMap.has(i.id));
+          const changed = newItems.filter((i) => {
+            const p = prevMap.get(i.id);
+            return p && (p.completed !== i.completed || p.text !== i.text || p.category !== i.category);
           });
+
+          try {
+            // Insert new items using the client-generated UUID as the DB id
+            if (added.length > 0) {
+              await supabase.from('shopping_items').insert(
+                added.map((item) => ({
+                  id: item.id,
+                  list_id: activeListId,
+                  text: item.text,
+                  category: item.category ?? null,
+                  is_completed: item.completed,
+                }))
+              );
+            }
+            // Delete removed items
+            await Promise.all(removed.map((item) => ShoppingService.deleteItem(item.id)));
+            // Patch changed items
+            await Promise.all(
+              changed.map((item) => {
+                const prev = prevMap.get(item.id)!;
+                const patch: Record<string, unknown> = {};
+                if (prev.completed !== item.completed) patch['is_completed'] = item.completed;
+                if (prev.text !== item.text)           patch['text']         = item.text;
+                if (prev.category !== item.category)   patch['category']     = item.category ?? null;
+                return supabase.from('shopping_items').update(patch).eq('id', item.id);
+              })
+            );
+          } catch (err) {
+            console.error('[Shopping] Failed to sync items to Supabase:', err);
+          }
         }}
         onBack={() => {
           setCurrentScreen('shopping-hub');
@@ -835,7 +1014,40 @@ function App() {
           }, 0);
         }}
         masterListItems={masterListItems}
-        onUpdateMasterList={setMasterListItems}
+        onUpdateMasterList={async (newItems) => {
+          const prevItems = masterListItems;
+
+          // Optimistic update
+          setMasterListItems(newItems);
+
+          // Diff: sync only what changed to Supabase
+          const prevMap = new Map(prevItems.map((i) => [i.id, i]));
+          const newMap  = new Map(newItems.map((i) => [i.id, i]));
+
+          const added   = newItems.filter((i) => !prevMap.has(i.id));
+          const removed = prevItems.filter((i) => !newMap.has(i.id));
+          const changed = newItems.filter((i) => {
+            const p = prevMap.get(i.id);
+            return p && (p.text !== i.text || p.category !== i.category);
+          });
+
+          try {
+            if (added.length > 0) {
+              await MasterListService.addItems(
+                activeListId,
+                added.map((item) => ({ id: item.id, text: item.text, category: item.category }))
+              );
+            }
+            await Promise.all(removed.map((item) => MasterListService.deleteItem(item.id)));
+            await Promise.all(
+              changed.map((item) =>
+                MasterListService.updateItem(item.id, { text: item.text, category: item.category })
+              )
+            );
+          } catch (err) {
+            console.error('[MasterList] Failed to sync to Supabase:', err);
+          }
+        }}
         categories={categories}
         capitalizeFirstLetter={capitalizeFirstLetter}
         autoCategorize={autoCategorize}
@@ -861,12 +1073,44 @@ function App() {
         listId={currentTaskList.id}
         isUrgentView={isUrgentView}
         tasks={currentTaskList.tasks}
-        onUpdateTasks={(newTasks) => {
-          if (!isUrgentView) {
-            setTaskLists({
-              ...taskLists,
-              [activeTaskListId]: { ...currentTaskList, tasks: newTasks }
-            });
+        onUpdateTasks={async (newTasks) => {
+          if (isUrgentView) return;
+
+          const prevTasks = currentTaskList.tasks;
+
+          // Optimistic update
+          setTaskLists((prev) => ({
+            ...prev,
+            [activeTaskListId]: { ...prev[activeTaskListId], tasks: newTasks },
+          }));
+
+          // Diff and sync to Supabase
+          const prevMap = new Map(prevTasks.map((t) => [t.id, t]));
+          const newMap  = new Map(newTasks.map((t) => [t.id, t]));
+
+          const added   = newTasks.filter((t) => !prevMap.has(t.id));
+          const removed = prevTasks.filter((t) => !newMap.has(t.id));
+          const changed = newTasks.filter((t) => {
+            const p = prevMap.get(t.id);
+            return p && JSON.stringify(p) !== JSON.stringify(t);
+          });
+
+          try {
+            await Promise.all([
+              ...added.map((t) => TaskService.upsertTask(activeTaskListId, t.id, {
+                name: t.name, status: t.status || 'Not Started',
+                urgency: t.urgency, dueDate: t.dueDate as string | undefined,
+                assignee: t.assignee,
+              })),
+              ...removed.map((t) => TaskService.deleteTask(t.id)),
+              ...changed.map((t) => TaskService.upsertTask(activeTaskListId, t.id, {
+                name: t.name, status: t.status || 'Not Started',
+                urgency: t.urgency, dueDate: t.dueDate as string | undefined,
+                assignee: t.assignee,
+              })),
+            ]);
+          } catch (err) {
+            console.error('[Tasks] Failed to sync to Supabase:', err);
           }
         }}
         onBack={() => {
@@ -878,28 +1122,71 @@ function App() {
         onNavigateToSource={(sourceSubHubId, taskId) => {
           setActiveTaskListId(sourceSubHubId);
           setHighlightedTaskId(taskId);
-          // Stay on same screen to show the source list
         }}
-        onUpdateUrgentTask={(sourceSubHubId, taskId) => {
-          // Find the source sub-hub and toggle the task's completion status
+        onUpdateUrgentTask={async (sourceSubHubId, taskId) => {
           const sourceList = taskLists[sourceSubHubId];
-          if (sourceList) {
-            const updatedTasks = sourceList.tasks.map(task => {
-              if (task.id === taskId) {
-                const newStatus = task.status === 'Completed' ? 'In Progress' : 'Completed';
-                return { ...task, status: newStatus };
-              }
-              return task;
+          if (!sourceList) return;
+
+          const task = sourceList.tasks.find((t) => t.id === taskId);
+          if (!task) return;
+
+          const newStatus = task.status === 'Completed' ? 'In Progress' : 'Completed';
+          const updatedTask = { ...task, status: newStatus };
+
+          // Optimistic update
+          setTaskLists((prev) => ({
+            ...prev,
+            [sourceSubHubId]: {
+              ...prev[sourceSubHubId],
+              tasks: prev[sourceSubHubId].tasks.map((t) => t.id === taskId ? updatedTask : t),
+            },
+          }));
+
+          try {
+            await TaskService.upsertTask(sourceSubHubId, taskId, {
+              name: updatedTask.name, status: newStatus,
+              urgency: updatedTask.urgency,
+              dueDate: updatedTask.dueDate as string | undefined,
+              assignee: updatedTask.assignee,
             });
-            setTaskLists({
-              ...taskLists,
-              [sourceSubHubId]: { ...sourceList, tasks: updatedTasks }
-            });
+          } catch (err) {
+            console.error('[Tasks] Failed to update urgent task:', err);
           }
         }}
         masterListTasks={masterListTasks}
-        onUpdateMasterList={setMasterListTasks}
-        highlightedTaskId={highlightedTaskId}
+        onUpdateMasterList={async (newTasks) => {
+          const prevTasks = masterListTasks;
+          setMasterListTasks(newTasks);
+
+          const prevMap = new Map(prevTasks.map((t) => [t.id, t]));
+          const newMap  = new Map(newTasks.map((t) => [t.id, t]));
+
+          const added   = newTasks.filter((t) => !prevMap.has(t.id));
+          const removed = prevTasks.filter((t) => !newMap.has(t.id));
+          const changed = newTasks.filter((t) => {
+            const p = prevMap.get(t.id);
+            return p && JSON.stringify(p) !== JSON.stringify(t);
+          });
+
+          try {
+            await Promise.all([
+              ...added.map((t) => TaskService.upsertMasterItem(activeTaskListId, t.id, {
+                name: t.name, status: t.status || 'Not Started',
+                urgency: t.urgency, dueDate: t.dueDate as string | undefined,
+                assignee: t.assignee,
+              })),
+              ...removed.map((t) => TaskService.deleteMasterItem(t.id)),
+              ...changed.map((t) => TaskService.upsertMasterItem(activeTaskListId, t.id, {
+                name: t.name, status: t.status || 'Not Started',
+                urgency: t.urgency, dueDate: t.dueDate as string | undefined,
+                assignee: t.assignee,
+              })),
+            ]);
+          } catch (err) {
+            console.error('[TaskMaster] Failed to sync to Supabase:', err);
+          }
+        }}
+        highlightedTaskId={highlightedTaskId ?? null}
         onClearHighlight={() => setHighlightedTaskId(null)}
       />
       </div>
@@ -920,7 +1207,37 @@ function App() {
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}
         vouchers={currentVouchers}
-        onUpdateVouchers={setCurrentVouchers}
+        onUpdateVouchers={async (newVouchers) => {
+          const prevVouchers = currentVouchers;
+
+          // Optimistic update
+          setCurrentVouchers(newVouchers);
+          setVoucherLists((prev) => ({
+            ...prev,
+            [activeVoucherListId]: { ...prev[activeVoucherListId], items: newVouchers },
+          }));
+
+          // Diff and sync to Supabase
+          const prevMap = new Map(prevVouchers.map((v) => [v.id, v]));
+          const newMap  = new Map(newVouchers.map((v) => [v.id, v]));
+
+          const added   = newVouchers.filter((v) => !prevMap.has(v.id));
+          const removed = prevVouchers.filter((v) => !newMap.has(v.id));
+          const changed = newVouchers.filter((v) => {
+            const p = prevMap.get(v.id);
+            return p && JSON.stringify(p) !== JSON.stringify(v);
+          });
+
+          try {
+            await Promise.all([
+              ...added.map((v)   => VoucherService.upsertItem(activeVoucherListId, v.id, v)),
+              ...removed.map((v) => VoucherService.deleteItem(v.id)),
+              ...changed.map((v) => VoucherService.upsertItem(activeVoucherListId, v.id, v)),
+            ]);
+          } catch (err) {
+            console.error('[Vouchers] Failed to sync to Supabase:', err);
+          }
+        }}
         onBack={() => {
           setCurrentScreen('vouchers-hub');
           setTimeout(() => {

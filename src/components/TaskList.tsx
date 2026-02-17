@@ -9,11 +9,11 @@ interface TaskListProps {
   tasks: Array<Task & { sourceSubHubId?: string; sourceSubHubName?: string }>;
   onUpdateTasks: (tasks: Task[]) => void;
   onBack: () => void;
-  onNavigateToSource?: (sourceSubHubId: string, taskId: number) => void;
-  onUpdateUrgentTask?: (sourceSubHubId: string, taskId: number) => void;
+  onNavigateToSource?: (sourceSubHubId: string, taskId: string) => void;
+  onUpdateUrgentTask?: (sourceSubHubId: string, taskId: string) => void;
   masterListTasks: Task[];
   onUpdateMasterList: (tasks: Task[]) => void;
-  highlightedTaskId?: number | null;
+  highlightedTaskId?: string | null;
   onClearHighlight?: () => void;
 }
 
@@ -34,21 +34,21 @@ function TaskList({
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
   const [newTaskUrgency, setNewTaskUrgency] = useState<'Low' | 'Medium' | 'High'>('Medium');
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editStatus, setEditStatus] = useState('');
   const [editDueDate, setEditDueDate] = useState('');
   const [editAssignee, setEditAssignee] = useState('');
   const [editUrgency, setEditUrgency] = useState<'Low' | 'Medium' | 'High'>('Medium');
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
-  const [selectedTasksForDeletion, setSelectedTasksForDeletion] = useState<Set<number>>(new Set());
+  const [selectedTasksForDeletion, setSelectedTasksForDeletion] = useState<Set<string>>(new Set());
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     type: 'single' | 'bulk' | 'completed';
-    taskId?: number;
+    taskId?: string;
   } | null>(null);
 
   // Ref for task elements (for flashlight effect)
-  const taskRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const taskRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Flashlight effect when navigating from Urgent view
   useEffect(() => {
@@ -71,7 +71,7 @@ function TaskList({
     if (!newTaskName.trim()) return;
 
     const newTask: Task = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       name: newTaskName.trim(),
       status: 'Not Started',
       dueDate: newTaskDueDate || undefined,
@@ -143,7 +143,7 @@ function TaskList({
     setDeleteConfirmation(null);
   };
 
-  const toggleTaskSelection = (taskId: number) => {
+  const toggleTaskSelection = (taskId: string) => {
     const newSelected = new Set(selectedTasksForDeletion);
     if (newSelected.has(taskId)) {
       newSelected.delete(taskId);

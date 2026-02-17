@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Tesseract from 'tesseract.js';
 import type { VoucherItem, Voucher, Reservation } from '../types/base';
 import VoucherCard from './VoucherCard';
 import ConfirmationModal from './ConfirmationModal';
-import { generateVoucherId, VOUCHER_TEMPLATES } from '../utils/voucherMemory';
+import { VOUCHER_TEMPLATES } from '../utils/voucherMemory';
 
 interface VoucherListProps {
   listName: string;
@@ -16,7 +16,7 @@ interface VoucherListProps {
 function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: VoucherListProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [smartPaste, setSmartPaste] = useState('');
   const [imageSize, setImageSize] = useState<string>('');
@@ -53,63 +53,6 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     // Fallback to voucher if template not found or has no default
     return 'voucher';
   };
-
-  // Migration: Check if we need to update existing voucher cards to reservation type
-  // This happens when the template type was changed but cards were already created
-  useEffect(() => {
-    // Check if migration was already completed for this list (stored in localStorage)
-    const migrationKey = `migration_completed_${listId}`;
-    const alreadyMigrated = localStorage.getItem(migrationKey) === 'true';
-
-    if (alreadyMigrated) {
-      console.log('⏭️ Migration already completed for this list, skipping');
-      return;
-    }
-
-    const expectedType = getDefaultType();
-
-    // Check if any cards have the wrong type
-    const cardsNeedingMigration = vouchers.filter(v => v.itemType !== expectedType);
-    const needsMigration = cardsNeedingMigration.length > 0;
-
-    console.log('🔍 Migration check:', {
-      listId,
-      expectedType,
-      totalCards: vouchers.length,
-      cardsNeedingMigration: cardsNeedingMigration.length,
-      needsMigration
-    });
-
-    if (needsMigration && expectedType === 'reservation') {
-      console.log('🔄 Migration needed: Converting voucher cards to reservation cards');
-
-      const migratedVouchers = vouchers.map(v => {
-        if (v.itemType === 'voucher') {
-          // Convert voucher to reservation
-          const { value, issuer, expiryDate, ...baseFields } = v as Voucher;
-          return {
-            ...baseFields,
-            itemType: 'reservation' as const,
-            eventDate: '',
-            time: '',
-            address: ''
-          } as Reservation;
-        }
-        return v;
-      });
-
-      onUpdateVouchers(migratedVouchers);
-
-      // Mark migration as completed in localStorage
-      localStorage.setItem(migrationKey, 'true');
-
-      const cardWord = cardsNeedingMigration.length === 1 ? 'card' : 'cards';
-      alert(`✅ Migrated ${cardsNeedingMigration.length} ${cardWord} to Reservation type for ${listName}`);
-    } else if (!needsMigration) {
-      // No migration needed, mark as completed to prevent future checks
-      localStorage.setItem(migrationKey, 'true');
-    }
-  }, [listId, vouchers.length]); // Run when listId changes or voucher count changes
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -1079,7 +1022,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     if (!formData.name.trim()) return;
 
     const baseItem = {
-      id: generateVoucherId(),
+      id: crypto.randomUUID(),
       name: formData.name.trim(),
       imageUrl: formData.imageUrl.trim() || undefined,
       notes: formData.notes.trim() || undefined,
@@ -1182,7 +1125,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     setIsAddModalOpen(false);
   };
 
-  const handleDeleteVoucher = (voucherId: number) => {
+  const handleDeleteVoucher = (voucherId: string) => {
     onUpdateVouchers(vouchers.filter(v => v.id !== voucherId));
     setDeleteConfirmation(null);
   };
