@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Home } from 'lucide-react';
 
 function AuthScreen() {
-  const { signIn, signUp, joinHousehold } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'join'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,7 +52,7 @@ function AuthScreen() {
     setError(null);
     setMessage(null);
 
-    // Store invite code so it can be processed after email confirmation (if enabled)
+    // Store invite code — onAuthStateChange will process it once the session is ready
     localStorage.setItem('homehub-pending-invite', inviteCode.toUpperCase());
 
     const { error: signUpError } = await signUp(email, password, displayName);
@@ -60,19 +60,6 @@ function AuthScreen() {
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
       setError(signUpError.message || 'Failed to create account');
-      setLoading(false);
-      return;
-    }
-
-    // If email confirmation is disabled, the user is already signed in — join now
-    const { error: joinError } = await joinHousehold(inviteCode.toUpperCase());
-
-    if (joinError) {
-      // Join will be retried automatically after email confirmation via onAuthStateChange
-      setMessage('Account created! Check your email to confirm, then sign in to complete joining.');
-    } else {
-      localStorage.removeItem('homehub-pending-invite');
-      setMessage('Successfully joined household!');
     }
 
     setLoading(false);

@@ -64,12 +64,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
-        // Process a pending invite code stored before email confirmation
+        // Process a pending invite code (stored before signUp)
         const pendingCode = localStorage.getItem('homehub-pending-invite');
         if (pendingCode) {
           localStorage.removeItem('homehub-pending-invite');
-          await supabase.rpc('join_household_via_invite', { invite_code_param: pendingCode });
-          await fetchProfile(session.user.id);
+          // Retry up to 5 times — the profile trigger runs server-side and may
+          // not be visible immediately if there is any replication lag
+          let joined = false;
+          for (let attempt = 0; attempt < 5; attempt++) {
+            if (attempt > 0) {
+              await new Promise((r) => setTimeout(r, 500 * attempt));
+            }
+            const { error } = await supabase.rpc('join_household_via_invite', {
+              invite_code_param: pendingCode,
+            });
+            if (!error) { joined = true; break; }
+          }
+          if (joined) await fetchProfile(session.user.id);
         }
       } else {
         setProfile(null);
