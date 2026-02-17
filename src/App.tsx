@@ -14,8 +14,7 @@ import { MasterListService } from './utils/supabaseMasterListService'
 import { TaskService } from './utils/supabaseTaskService'
 import { VoucherService } from './utils/supabaseVoucherService'
 import { supabase } from './supabaseClient'
-import { isTaskUrgent, getUrgentTasks } from './utils/supabaseTaskService'
-import { VOUCHER_TEMPLATES } from './utils/voucherMemory'
+import { getUrgentTasks } from './utils/supabaseTaskService'
 import type {
   MasterListItem,
   ListInstance,
@@ -42,7 +41,6 @@ function App() {
 
   // Shopping lists state — populated from Supabase on mount
   const [lists, setLists] = useState<Record<string, ListInstance>>({});
-  const [isLoadingLists, setIsLoadingLists] = useState(true);
 
   // Active list ID — persisted as UI preference only
   const [activeListId, setActiveListId] = useState<string>(
@@ -312,7 +310,6 @@ function App() {
     let isMounted = true;
 
     const loadShoppingData = async () => {
-      setIsLoadingLists(true);
       try {
         const dbLists = await ShoppingService.fetchLists(profile.household_id);
         const listsRecord: Record<string, ListInstance> = {};
@@ -340,11 +337,9 @@ function App() {
             if (prev && listsRecord[prev]) return prev;
             return Object.keys(listsRecord)[0] || '';
           });
-          setIsLoadingLists(false);
         }
       } catch (err) {
         console.error('[Shopping] Failed to load from Supabase:', err);
-        if (isMounted) setIsLoadingLists(false);
       }
     };
 

@@ -117,7 +117,7 @@ function TaskList({
     setEditingId(null);
   };
 
-  const toggleComplete = (id: number) => {
+  const toggleComplete = (id: string) => {
     // If in urgent view, find the task's source and update it there
     if (isUrgentView && onUpdateUrgentTask) {
       const task = tasks.find(t => t.id === id);
@@ -138,7 +138,7 @@ function TaskList({
     onUpdateTasks(updatedTasks);
   };
 
-  const deleteSingleTask = (id: number) => {
+  const deleteSingleTask = (id: string) => {
     onUpdateTasks(tasks.filter(task => task.id !== id));
     setDeleteConfirmation(null);
   };

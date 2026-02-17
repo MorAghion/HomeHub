@@ -130,7 +130,7 @@ function ShoppingList({
         onConfirm: () => {
           onUpdateItems([
             {
-              id: Date.now(),
+              id: crypto.randomUUID(),
               text: capitalizedText,
               completed: false,
               category: masterItem.category,

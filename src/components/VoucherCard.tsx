@@ -4,7 +4,7 @@ import type { VoucherItem, Voucher, Reservation } from '../types/base';
 interface VoucherCardProps {
   voucher: VoucherItem;
   onEdit?: (voucher: VoucherItem) => void;
-  onDelete?: (voucherId: number) => void;
+  onDelete?: (voucherId: string) => void;
   onRefreshDetails?: (voucher: VoucherItem) => void;
 }
 
