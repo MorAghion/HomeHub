@@ -75,10 +75,10 @@ function AuthScreen() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen overflow-y-auto px-4 py-8"
       style={{ backgroundColor: '#F5F2E7' }}
     >
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md mx-auto">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4" style={{ backgroundColor: '#630606' }}>
