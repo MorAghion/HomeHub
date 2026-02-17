@@ -52,21 +52,26 @@ function AuthScreen() {
     setError(null);
     setMessage(null);
 
-    // First sign up
+    // Store invite code so it can be processed after email confirmation (if enabled)
+    localStorage.setItem('homehub-pending-invite', inviteCode.toUpperCase());
+
     const { error: signUpError } = await signUp(email, password, displayName);
 
     if (signUpError) {
+      localStorage.removeItem('homehub-pending-invite');
       setError(signUpError.message || 'Failed to create account');
       setLoading(false);
       return;
     }
 
-    // Then join household
+    // If email confirmation is disabled, the user is already signed in — join now
     const { error: joinError } = await joinHousehold(inviteCode.toUpperCase());
 
     if (joinError) {
-      setError('Invalid or expired invite code');
+      // Join will be retried automatically after email confirmation via onAuthStateChange
+      setMessage('Account created! Check your email to confirm, then sign in to complete joining.');
     } else {
+      localStorage.removeItem('homehub-pending-invite');
       setMessage('Successfully joined household!');
     }
 

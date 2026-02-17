@@ -59,11 +59,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
+        // Process a pending invite code stored before email confirmation
+        const pendingCode = localStorage.getItem('homehub-pending-invite');
+        if (pendingCode) {
+          localStorage.removeItem('homehub-pending-invite');
+          await supabase.rpc('join_household_via_invite', { invite_code_param: pendingCode });
+          await fetchProfile(session.user.id);
+        }
       } else {
         setProfile(null);
       }
@@ -79,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
         options: {
+          emailRedirectTo: window.location.origin,
           data: {
             display_name: displayName || email.split('@')[0],
           },
