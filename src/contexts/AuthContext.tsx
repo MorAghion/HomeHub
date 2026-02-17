@@ -59,28 +59,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
-        // Process a pending invite code (stored before signUp)
-        const pendingCode = localStorage.getItem('homehub-pending-invite');
-        if (pendingCode) {
-          localStorage.removeItem('homehub-pending-invite');
-          // Retry up to 5 times — the profile trigger runs server-side and may
-          // not be visible immediately if there is any replication lag
-          let joined = false;
-          for (let attempt = 0; attempt < 5; attempt++) {
-            if (attempt > 0) {
-              await new Promise((r) => setTimeout(r, 500 * attempt));
+        // Only process pending invite on a fresh sign-in, not on token
+        // refreshes or initial session restores (which would cause a retry
+        // loop on every page load if a stale key is in localStorage)
+        if (event === 'SIGNED_IN') {
+          const pendingCode = localStorage.getItem('homehub-pending-invite');
+          if (pendingCode) {
+            localStorage.removeItem('homehub-pending-invite');
+            try {
+              let joined = false;
+              for (let attempt = 0; attempt < 5; attempt++) {
+                if (attempt > 0) {
+                  await new Promise((r) => setTimeout(r, 500 * attempt));
+                }
+                const { error } = await supabase.rpc('join_household_via_invite', {
+                  invite_code_param: pendingCode,
+                });
+                if (!error) { joined = true; break; }
+              }
+              if (joined) await fetchProfile(session.user.id);
+            } catch (err) {
+              console.error('[Auth] Failed to process pending invite:', err);
             }
-            const { error } = await supabase.rpc('join_household_via_invite', {
-              invite_code_param: pendingCode,
-            });
-            if (!error) { joined = true; break; }
           }
-          if (joined) await fetchProfile(session.user.id);
         }
       } else {
         setProfile(null);
