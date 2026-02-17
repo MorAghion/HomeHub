@@ -1,18 +1,23 @@
 @import "tailwindcss";
 
-/* Lock viewport dimensions - prevent any body/html scroll */
+/* Base styles */
 html,
 body,
 #root {
   width: 100%;
-  height: 100dvh;
   margin: 0;
   padding: 0;
+  background-color: #F5F2E7;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Lock viewport only when the main app is active (not on auth screens) */
+body.app-locked,
+body.app-locked #root {
+  height: 100dvh;
   overflow: hidden;
   position: fixed;
   inset: 0;
-  background-color: #F5F2E7; /* הקרם המקורי והיפה */
-  font-family: Inter, system-ui, sans-serif;
   touch-action: none;
 }
 

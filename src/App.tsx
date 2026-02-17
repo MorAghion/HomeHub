@@ -28,6 +28,17 @@ import type {
 function App() {
   const { user, profile, loading } = useAuth();
 
+  // Lock body scroll when authenticated (app uses its own scroll containers)
+  // Release lock on auth screens so forms can scroll on small phones
+  useEffect(() => {
+    if (user && profile) {
+      document.body.classList.add('app-locked');
+    } else {
+      document.body.classList.remove('app-locked');
+    }
+    return () => document.body.classList.remove('app-locked');
+  }, [user, profile]);
+
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
 
   // Mobile Card Stack Navigation
