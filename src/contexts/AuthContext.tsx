@@ -46,15 +46,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    // Safety net: if nothing resolves within 8s, unblock the UI
+    const safetyTimer = setTimeout(() => setLoading(false), 8000);
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        }
+        clearTimeout(safetyTimer);
+        setLoading(false);
+      })
+      .catch(() => {
+        clearTimeout(safetyTimer);
+        setLoading(false);
+      });
 
     // Listen for auth changes
     const {
@@ -91,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setProfile(null);
       }
+      clearTimeout(safetyTimer);
       setLoading(false);
     });
 
