@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Pencil, CheckCheck } from 'lucide-react';
 import type { Task } from '../types/base';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -233,7 +234,21 @@ function TaskList({
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex items-center gap-2">
+            {!isUrgentView && tasks.filter(t => t.status === 'Completed').length > 0 && (
+              <button
+                onClick={() => setDeleteConfirmation({ type: 'completed' })}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#630606',
+                  border: '1.5px solid #630606'
+                }}
+                title="Clear Completed"
+              >
+                <CheckCheck size={16} strokeWidth={2.5} />
+              </button>
+            )}
             {!isUrgentView && tasks.length > 0 && (
               <button
                 onClick={() => {
@@ -242,23 +257,19 @@ function TaskList({
                     setSelectedTasksForDeletion(new Set());
                   }
                 }}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                 style={{
                   backgroundColor: isBulkDeleteMode ? '#630606' : 'transparent',
                   color: isBulkDeleteMode ? 'white' : '#630606',
-                  border: isBulkDeleteMode ? 'none' : '1px solid #63060633'
+                  border: isBulkDeleteMode ? 'none' : '1.5px solid #630606'
                 }}
+                title={isBulkDeleteMode ? 'Done' : 'Edit'}
               >
-                {isBulkDeleteMode ? 'Done' : 'Edit'}
-              </button>
-            )}
-            {!isUrgentView && tasks.filter(t => t.status === 'Completed').length > 0 && (
-              <button
-                onClick={() => setDeleteConfirmation({ type: 'completed' })}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-red-50"
-                style={{ color: '#630606', border: '1px solid #63060633' }}
-              >
-                Clear Completed
+                {isBulkDeleteMode ? (
+                  <span className="text-sm font-medium">✓</span>
+                ) : (
+                  <Pencil size={16} strokeWidth={2.5} />
+                )}
               </button>
             )}
           </div>
@@ -425,39 +436,42 @@ function TaskList({
                   </div>
                 ) : (
                   // View Mode
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-start gap-3">
+                    {/* Checkbox / selection toggle */}
                     {isBulkDeleteMode && !isUrgentView ? (
                       <div
                         onClick={() => toggleTaskSelection(task.id)}
-                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
+                        className="w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
                         style={{
-                          borderColor: selectedTasksForDeletion.has(task.id) ? '#630606' : '#8E806A33',
+                          borderColor: selectedTasksForDeletion.has(task.id) ? '#630606' : '#8E806A44',
                           backgroundColor: selectedTasksForDeletion.has(task.id) ? '#630606' : 'transparent',
                         }}
                       >
                         {selectedTasksForDeletion.has(task.id) && (
-                          <span className="text-white text-xs font-bold">✓</span>
+                          <span className="text-white text-xs font-bold leading-none">✓</span>
                         )}
                       </div>
                     ) : (
                       <button
                         onClick={() => toggleComplete(task.id)}
-                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer hover:border-[#630606] flex-shrink-0"
+                        className="w-5 h-5 mt-0.5 rounded border-2 flex items-center justify-center transition-all cursor-pointer hover:border-[#630606] flex-shrink-0"
                         style={{
-                          borderColor: task.status === 'Completed' ? '#630606' : '#8E806A33',
+                          borderColor: task.status === 'Completed' ? '#630606' : '#8E806A44',
                           backgroundColor: task.status === 'Completed' ? '#630606' : 'transparent',
                         }}
                       >
                         {task.status === 'Completed' && (
-                          <span className="text-white text-xs font-bold">✓</span>
+                          <span className="text-white text-xs font-bold leading-none">✓</span>
                         )}
                       </button>
                     )}
 
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Name + urgency badge */}
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span
-                          className={`text-lg font-medium ${
+                          className={`text-base font-medium leading-snug ${
                             task.status === 'Completed' ? 'line-through opacity-50' : ''
                           }`}
                           style={{ color: '#630606' }}
@@ -465,7 +479,7 @@ function TaskList({
                           {task.name}
                         </span>
                         <span
-                          className="px-2 py-0.5 rounded-full text-xs font-medium"
+                          className="px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
                           style={{
                             backgroundColor: `${getUrgencyColor(task.urgency)}22`,
                             color: getUrgencyColor(task.urgency)
@@ -474,31 +488,37 @@ function TaskList({
                           {task.urgency || 'Medium'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-6 text-sm" style={{ color: '#8E806A' }}>
-                        {task.status && (
-                          <span className="flex items-center gap-1">
-                            <span className="opacity-70">Status:</span>
-                            <span className="font-medium">{task.status}</span>
+
+                      {/* Metadata chips */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        {(task.status === 'In Progress' || task.status === 'On Hold') && (
+                          <span
+                            className="text-xs px-1.5 py-0.5 rounded font-medium"
+                            style={{
+                              backgroundColor: task.status === 'In Progress' ? '#2563EB18' : '#F59E0B18',
+                              color: task.status === 'In Progress' ? '#2563EB' : '#D97706'
+                            }}
+                          >
+                            {task.status}
                           </span>
                         )}
                         {task.dueDate && formatDueDate(task.dueDate) && (
                           <span
-                            className="flex items-center gap-1 font-medium"
+                            className="text-xs font-medium"
                             style={{ color: formatDueDate(task.dueDate)?.color }}
                           >
                             📅 {formatDueDate(task.dueDate)?.text}
                           </span>
                         )}
                         {task.assignee && (
-                          <span className="flex items-center gap-1">
-                            <span className="opacity-70">Assignee:</span>
-                            <span className="font-medium">{task.assignee}</span>
+                          <span className="text-xs" style={{ color: '#8E806A' }}>
+                            👤 {task.assignee}
                           </span>
                         )}
                         {isUrgentView && task.sourceSubHubName && (
                           <button
                             onClick={() => onNavigateToSource?.(task.sourceSubHubId!, task.id)}
-                            className="flex items-center gap-1 hover:underline"
+                            className="text-xs hover:underline"
                             style={{ color: '#630606' }}
                           >
                             📂 {task.sourceSubHubName}
@@ -507,40 +527,27 @@ function TaskList({
                       </div>
                     </div>
 
+                    {/* Edit / Delete actions */}
                     {!isBulkDeleteMode && !isUrgentView && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 flex-shrink-0">
                         <button
                           onClick={() => startEdit(task)}
-                          className="p-2 hover:bg-[#8E806A11] rounded-lg transition-colors"
+                          className="w-8 h-8 flex items-center justify-center hover:bg-[#8E806A11] rounded-lg transition-colors"
                           style={{ color: '#8E806A' }}
                           title="Edit task"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                           </svg>
                         </button>
                         <button
                           onClick={() => setDeleteConfirmation({ type: 'single', taskId: task.id })}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="w-8 h-8 flex items-center justify-center hover:bg-red-50 rounded-lg transition-colors"
                           style={{ color: '#630606' }}
                           title="Delete task"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </button>
                       </div>
