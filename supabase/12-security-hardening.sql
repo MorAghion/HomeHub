@@ -206,6 +206,10 @@ GRANT EXECUTE ON FUNCTION public.remove_household_member(UUID) TO authenticated;
 -- =====================================================
 -- STEP 6: Update get_household_members to include is_owner flag
 -- =====================================================
+-- Must DROP first because adding a column changes the return type,
+-- which CREATE OR REPLACE cannot do in PostgreSQL.
+
+DROP FUNCTION IF EXISTS public.get_household_members();
 
 CREATE OR REPLACE FUNCTION public.get_household_members()
 RETURNS TABLE (
