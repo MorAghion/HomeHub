@@ -275,52 +275,51 @@ function TaskList({
         {/* Bulk Edit Actions */}
         {isBulkDeleteMode && (
           <div className="p-3 bg-[#63060611] rounded-xl space-y-2">
-            {/* Row 1: selection controls + actions */}
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {selectedTasksForDeletion.size > 0 && (
-                  <span className="text-xs font-semibold" style={{ color: '#630606' }}>
-                    {selectedTasksForDeletion.size} selected
-                  </span>
-                )}
-                <button
-                  onClick={toggleSelectAll}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
-                  style={{ color: '#630606', border: '1px solid #63060633' }}
-                >
-                  {selectedTasksForDeletion.size === tasks.length ? 'Deselect All' : 'Select All'}
-                </button>
-              </div>
-              <div className="flex gap-1.5">
-                {selectedTasksForDeletion.size > 0 && (
-                  <button
-                    onClick={checkSelectedTasks}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90"
-                    style={{ backgroundColor: '#10B981', color: 'white' }}
-                  >
-                    ✓ Check Selected
-                  </button>
-                )}
-                {selectedTasksForDeletion.size > 0 && (
-                  <button
-                    onClick={() => setDeleteConfirmation({ type: 'bulk' })}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-90"
-                    style={{ backgroundColor: '#DC2626' }}
-                  >
-                    Delete Selected
-                  </button>
-                )}
-              </div>
-            </div>
-            {/* Row 2: Clear Completed (only if any exist) */}
-            {tasks.filter(t => t.status === 'Completed').length > 0 && (
+            {/* Count indicator */}
+            {selectedTasksForDeletion.size > 0 && (
+              <p className="text-xs font-semibold px-0.5" style={{ color: '#630606' }}>
+                {selectedTasksForDeletion.size} selected
+              </p>
+            )}
+
+            {/* Row 1: Select All + Clear Completed — equal width */}
+            <div className="flex gap-2">
               <button
-                onClick={() => setDeleteConfirmation({ type: 'completed' })}
-                className="w-full px-3 py-1.5 rounded-lg text-xs font-medium text-left transition-colors hover:bg-white"
+                onClick={toggleSelectAll}
+                className="flex-1 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
-                Clear Completed ({tasks.filter(t => t.status === 'Completed').length})
+                {selectedTasksForDeletion.size === tasks.length ? 'Deselect All' : 'Select All'}
               </button>
+              {tasks.filter(t => t.status === 'Completed').length > 0 && (
+                <button
+                  onClick={() => setDeleteConfirmation({ type: 'completed' })}
+                  className="flex-1 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
+                  style={{ color: '#630606', border: '1px solid #63060633' }}
+                >
+                  Clear Completed ({tasks.filter(t => t.status === 'Completed').length})
+                </button>
+              )}
+            </div>
+
+            {/* Row 2: Check Selected + Delete Selected — equal width, only when items selected */}
+            {selectedTasksForDeletion.size > 0 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={checkSelectedTasks}
+                  className="flex-1 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: '#10B981', color: 'white' }}
+                >
+                  ✓ Check Selected
+                </button>
+                <button
+                  onClick={() => setDeleteConfirmation({ type: 'bulk' })}
+                  className="flex-1 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: '#DC2626', color: 'white' }}
+                >
+                  Delete Selected
+                </button>
+              </div>
             )}
           </div>
         )}
@@ -341,9 +340,9 @@ function TaskList({
                 style={{ borderColor: '#8E806A33' }}
               />
 
-              {/* Date, Urgency, and Button Row */}
-              <div className="flex gap-2 items-end">
-                <div className="flex-1 flex flex-col gap-1">
+              {/* Date + Priority row */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
                     <Calendar size={11} strokeWidth={2} />
                     Due Date
@@ -352,28 +351,35 @@ function TaskList({
                     type="date"
                     value={newTaskDueDate}
                     onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
                     style={{ borderColor: '#8E806A33' }}
                   />
                 </div>
-                <select
-                  value={newTaskUrgency}
-                  onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
-                  className="px-3 py-2.5 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
-                  style={{ borderColor: '#8E806A33' }}
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Med</option>
-                  <option value="High">High</option>
-                </select>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-lg font-medium text-white transition-all hover:opacity-90 whitespace-nowrap"
-                  style={{ backgroundColor: '#630606' }}
-                >
-                  Add
-                </button>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
+                    Priority
+                  </label>
+                  <select
+                    value={newTaskUrgency}
+                    onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
+                    className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    style={{ borderColor: '#8E806A33' }}
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
               </div>
+
+              {/* Add button row */}
+              <button
+                type="submit"
+                className="w-full py-2 rounded-lg font-medium text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: '#630606' }}
+              >
+                Add Task
+              </button>
             </div>
           </form>
         )}
