@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Users, LogOut, UserMinus, Crown } from 'lucide-react';
+import { X, Copy, Check, Users, LogOut, UserMinus, Crown, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
 
@@ -15,7 +15,7 @@ interface HouseholdMember {
 }
 
 function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const { profile, signOut, createInvite, joinHousehold, removeMember, isOwner } = useAuth();
+  const { profile, signOut, createInvite, joinHousehold, removeMember, deleteHousehold, isOwner } = useAuth();
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,6 +29,11 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   // Remove member state
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+
+  // Delete household state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && profile) {
@@ -68,6 +73,18 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const handleDeleteHousehold = async () => {
+    if (deleteInput !== 'DELETE') return;
+    setDeleteLoading(true);
+    const { error } = await deleteHousehold();
+    if (error) {
+      const msg = (error as any)?.message || 'Failed to delete household.';
+      alert(msg);
+      setDeleteLoading(false);
+    }
+    // On success: AuthContext calls signOut → user/profile cleared → app shows auth screen
   };
 
   const handleSignOut = async () => {
@@ -284,6 +301,70 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </form>
           )}
         </div>
+
+        {/* Delete Household — owner only */}
+        {isOwner && (
+          <div className="mb-4">
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full py-3 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all hover:opacity-80"
+                style={{ backgroundColor: 'transparent', color: '#DC2626', border: '1.5px solid #DC2626' }}
+              >
+                <Trash2 size={16} />
+                Delete Household
+              </button>
+            ) : (
+              <div className="p-4 rounded-xl space-y-3" style={{ border: '1.5px solid #DC2626', backgroundColor: '#FEF2F2' }}>
+                <div className="flex items-start gap-2">
+                  <Trash2 size={18} style={{ color: '#DC2626', flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: '#DC2626' }}>
+                      Delete Household?
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: '#7F1D1D' }}>
+                      This action is <strong>irreversible</strong> and will permanently delete all data for all members — shopping lists, tasks, vouchers, and everything else.
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: '#7F1D1D' }}>
+                    Type <strong>DELETE</strong> to confirm
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteInput}
+                    onChange={(e) => setDeleteInput(e.target.value)}
+                    placeholder="DELETE"
+                    className="w-full px-3 py-2 rounded-lg border-2 text-sm font-mono focus:outline-none transition-colors"
+                    style={{ borderColor: deleteInput === 'DELETE' ? '#DC2626' : '#FCA5A5' }}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); }}
+                    className="flex-1 py-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100"
+                    style={{ color: '#6B7280', border: '1px solid #D1D5DB' }}
+                    disabled={deleteLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteHousehold}
+                    disabled={deleteInput !== 'DELETE' || deleteLoading}
+                    className="flex-1 py-2 rounded-lg text-sm font-medium text-white transition-all disabled:opacity-40"
+                    style={{ backgroundColor: '#DC2626' }}
+                  >
+                    {deleteLoading ? 'Deleting...' : 'Delete Everything'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Sign Out */}
         <button

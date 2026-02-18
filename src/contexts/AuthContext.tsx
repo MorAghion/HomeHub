@@ -27,6 +27,7 @@ interface AuthContextType {
   createInvite: () => Promise<{ code: string | null; error: any }>;
   joinHousehold: (inviteCode: string) => Promise<{ error: any }>;
   removeMember: (memberId: string) => Promise<{ error: any }>;
+  deleteHousehold: () => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -262,6 +263,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteHousehold = async () => {
+    try {
+      const { error } = await supabase.rpc('delete_household');
+
+      if (error) throw error;
+
+      // Profile is now cascade-deleted; sign out to reach a clean state
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting household:', error);
+      return { error };
+    }
+  };
+
   const value = {
     user,
     profile,
@@ -274,6 +294,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     createInvite,
     joinHousehold,
     removeMember,
+    deleteHousehold,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
