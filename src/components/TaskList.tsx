@@ -341,8 +341,8 @@ function TaskList({
               />
 
               {/* Date + Priority row */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col gap-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1 min-w-0">
                   <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
                     <Calendar size={11} strokeWidth={2} />
                     Due Date
@@ -351,18 +351,18 @@ function TaskList({
                     type="date"
                     value={newTaskDueDate}
                     onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    className="w-full min-w-0 px-2 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
                     style={{ borderColor: '#8E806A33' }}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 min-w-0">
                   <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
                     Priority
                   </label>
                   <select
                     value={newTaskUrgency}
                     onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
-                    className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    className="w-full min-w-0 px-2 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
                     style={{ borderColor: '#8E806A33' }}
                   >
                     <option value="Low">Low</option>
