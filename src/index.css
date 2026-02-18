@@ -18,7 +18,6 @@ body.app-locked #root {
   overflow: hidden;
   position: fixed;
   inset: 0;
-  touch-action: none;
 }
 
 /* Flashlight effect for deep linking to tasks */

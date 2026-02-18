@@ -49,13 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Safety net: if nothing resolves within 8s, unblock the UI
     const safetyTimer = setTimeout(() => setLoading(false), 8000);
 
-    // Get initial session
+    // Get initial session — await profile so we never flash the auth screen
     supabase.auth.getSession()
-      .then(({ data: { session } }) => {
+      .then(async ({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          fetchProfile(session.user.id);
+          await fetchProfile(session.user.id);
         }
         clearTimeout(safetyTimer);
         setLoading(false);

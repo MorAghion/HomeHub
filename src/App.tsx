@@ -150,12 +150,18 @@ function App() {
         );
 
         if (isMounted) {
+          // Rebuild in created_at order from DB (Promise.all resolves out of order)
+          const orderedRecord: Record<string, TaskListInstance> = {};
+          dbLists.forEach((list) => {
+            if (listsRecord[list.id]) orderedRecord[list.id] = listsRecord[list.id];
+          });
+
           // Recompute urgent tasks from freshly loaded data
-          const urgentTasks = getUrgentTasks(listsRecord);
-          listsRecord['home-tasks_urgent'] = {
+          const urgentTasks = getUrgentTasks(orderedRecord);
+          orderedRecord['home-tasks_urgent'] = {
             id: 'home-tasks_urgent', name: 'Urgent Tasks', tasks: urgentTasks,
           };
-          setTaskLists(listsRecord);
+          setTaskLists(orderedRecord);
           setActiveTaskListId((prev) => {
             if (prev === 'home-tasks_urgent') return prev;
             if (prev && listsRecord[prev]) return prev;
@@ -459,25 +465,27 @@ function App() {
     }
   };
 
+  // Keep a ref so scroll/scrollend handlers always read the latest activeHub
+  // without needing to be in the effect's dependency array
+  const activeHubRef = useRef(activeHub);
+  useEffect(() => { activeHubRef.current = activeHub; }, [activeHub]);
+
   // Detect active card from scroll position (sync with bottom nav)
   useEffect(() => {
     const container = cardStackRef.current;
     if (!container) return;
 
-    // Scroll-based detection for reliable active hub tracking
-    const handleScroll = () => {
+    const detectHub = () => {
       const scrollLeft = container.scrollLeft;
       const containerWidth = container.clientWidth;
       const centerPosition = scrollLeft + containerWidth / 2;
 
-      // Find which card's center is closest to viewport center
       let closestHub: 'shopping' | 'tasks' | 'vouchers' = 'shopping';
       let minDistance = Infinity;
 
       Array.from(container.children).forEach((card) => {
         const element = card as HTMLElement;
-        const cardLeft = element.offsetLeft;
-        const cardCenter = cardLeft + element.clientWidth / 2;
+        const cardCenter = element.offsetLeft + element.clientWidth / 2;
         const distance = Math.abs(cardCenter - centerPosition);
 
         if (distance < minDistance) {
@@ -487,46 +495,41 @@ function App() {
         }
       });
 
-      if (closestHub !== activeHub) {
+      if (closestHub !== activeHubRef.current) {
         setActiveHub(closestHub);
       }
     };
 
     // Initial detection
-    handleScroll();
+    detectHub();
 
-    // Listen to scroll events
-    container.addEventListener('scroll', handleScroll);
+    // scroll fires during swipe; scrollend fires once momentum stops (more reliable)
+    container.addEventListener('scroll', detectHub, { passive: true });
+    container.addEventListener('scrollend', detectHub);
 
-    // Also use IntersectionObserver as backup
+    // IntersectionObserver with the scroll container as root (not viewport)
     const observer = new IntersectionObserver(
       (entries) => {
         let maxEntry = entries[0];
         entries.forEach((entry) => {
-          if (entry.intersectionRatio > maxEntry.intersectionRatio) {
-            maxEntry = entry;
-          }
+          if (entry.intersectionRatio > maxEntry.intersectionRatio) maxEntry = entry;
         });
-
         if (maxEntry && maxEntry.intersectionRatio > 0.5) {
           const hubId = maxEntry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
-          if (hubId && hubId !== activeHub) {
-            setActiveHub(hubId);
-          }
+          if (hubId && hubId !== activeHubRef.current) setActiveHub(hubId);
         }
       },
-      { threshold: [0.5], root: null }
+      { threshold: [0.5], root: container }
     );
 
-    Array.from(container.children).forEach((card) => {
-      observer.observe(card);
-    });
+    Array.from(container.children).forEach((card) => observer.observe(card));
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener('scroll', detectHub);
+      container.removeEventListener('scrollend', detectHub);
       observer.disconnect();
     };
-  }, [activeHub, isLandingMode]); // Re-run when mode changes
+  }, [isLandingMode]); // activeHub removed — read via ref instead
 
   // Scroll to initial hub on mount - Start in Landing Mode
   useEffect(() => {
@@ -646,7 +649,6 @@ function App() {
         className="fixed inset-0 w-full h-[100dvh] overflow-hidden"
         style={{
           backgroundColor: '#F5F2E7',
-          touchAction: 'none'
         }}
       >
         {/* Fixed Header - Logo + Settings */}
