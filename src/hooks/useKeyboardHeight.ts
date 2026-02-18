@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 
 /**
  * Returns the current on-screen keyboard height in pixels (0 when closed).
- * Uses the Visual Viewport API which shrinks when the soft keyboard opens.
+ * Uses the Visual Viewport API resize event only — scroll events are excluded
+ * because they fire during page/carousel scrolling and cause excessive re-renders.
+ * A 120px threshold filters out iOS toolbar show/hide fluctuations.
  */
 export function useKeyboardHeight(): number {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -12,17 +14,13 @@ export function useKeyboardHeight(): number {
     if (!vv) return;
 
     const update = () => {
-      // Keyboard height = total window height minus the visible viewport height and its offset
       const kh = window.innerHeight - vv.height - vv.offsetTop;
-      setKeyboardHeight(Math.max(0, kh));
+      // Only report keyboard if it's substantial — ignores iOS toolbar noise (<120px)
+      setKeyboardHeight(kh > 120 ? kh : 0);
     };
 
     vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    return () => {
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
-    };
+    return () => vv.removeEventListener('resize', update);
   }, []);
 
   return keyboardHeight;
