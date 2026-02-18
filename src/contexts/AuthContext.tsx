@@ -2,10 +2,17 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 
+// Rate-limit constants for join-household attempts (client-side, sessionStorage)
+const JOIN_ATTEMPTS_KEY = 'homehub-join-attempts';
+const JOIN_LOCK_KEY = 'homehub-join-lock-until';
+const MAX_JOIN_ATTEMPTS = 5;
+const JOIN_LOCK_MS = 15 * 60 * 1000; // 15 minutes
+
 interface UserProfile {
   id: string;
   household_id: string;
   display_name: string | null;
+  household_owner_id: string | null; // owner_id from the households table
 }
 
 interface AuthContextType {
@@ -13,11 +20,13 @@ interface AuthContextType {
   profile: UserProfile | null;
   session: Session | null;
   loading: boolean;
+  isOwner: boolean; // true if current user is the household owner
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   createInvite: () => Promise<{ code: string | null; error: any }>;
   joinHousehold: (inviteCode: string) => Promise<{ error: any }>;
+  removeMember: (memberId: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,17 +37,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile
+  const isOwner = profile !== null && profile.id === profile.household_owner_id;
+
+  // Fetch user profile + household owner_id in one round-trip
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (profileError) throw profileError;
+
+      // Also fetch the household to get owner_id
+      const { data: householdData } = await supabase
+        .from('households')
+        .select('owner_id')
+        .eq('id', profileData.household_id)
+        .single();
+
+      setProfile({
+        id: profileData.id,
+        household_id: profileData.household_id,
+        display_name: profileData.display_name,
+        household_owner_id: householdData?.owner_id ?? null,
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);
@@ -162,7 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const createInvite = async () => {
     try {
       const { data, error } = await supabase.rpc('create_household_invite', {
-        days_valid: 7,
+        days_valid: 1, // 24-hour invite codes
       });
 
       if (error) throw error;
@@ -175,6 +199,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const joinHousehold = async (inviteCode: string) => {
+    // ── Rate-limit check ────────────────────────────────────────────────────
+    const lockUntilStr = sessionStorage.getItem(JOIN_LOCK_KEY);
+    if (lockUntilStr) {
+      const lockUntil = parseInt(lockUntilStr, 10);
+      if (Date.now() < lockUntil) {
+        const remaining = Math.ceil((lockUntil - Date.now()) / 60_000);
+        return {
+          error: {
+            message: `Too many failed attempts. Try again in ${remaining} minute${remaining !== 1 ? 's' : ''}.`,
+          },
+        };
+      }
+      // Lock expired — reset counters
+      sessionStorage.removeItem(JOIN_LOCK_KEY);
+      sessionStorage.removeItem(JOIN_ATTEMPTS_KEY);
+    }
+    // ── End rate-limit check ────────────────────────────────────────────────
+
     try {
       const { error } = await supabase.rpc('join_household_via_invite', {
         invite_code_param: inviteCode,
@@ -182,14 +224,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      // Refresh profile after joining
+      // Success — clear rate-limit state and refresh profile
+      sessionStorage.removeItem(JOIN_ATTEMPTS_KEY);
+      sessionStorage.removeItem(JOIN_LOCK_KEY);
+
       if (user) {
         await fetchProfile(user.id);
       }
 
       return { error: null };
     } catch (error) {
+      // Track the failed attempt
+      const attempts = parseInt(sessionStorage.getItem(JOIN_ATTEMPTS_KEY) || '0', 10) + 1;
+      if (attempts >= MAX_JOIN_ATTEMPTS) {
+        sessionStorage.setItem(JOIN_LOCK_KEY, String(Date.now() + JOIN_LOCK_MS));
+        sessionStorage.removeItem(JOIN_ATTEMPTS_KEY);
+      } else {
+        sessionStorage.setItem(JOIN_ATTEMPTS_KEY, String(attempts));
+      }
       console.error('Error joining household:', error);
+      return { error };
+    }
+  };
+
+  const removeMember = async (memberId: string) => {
+    try {
+      const { error } = await supabase.rpc('remove_household_member', {
+        member_id: memberId,
+      });
+
+      if (error) throw error;
+
+      return { error: null };
+    } catch (error) {
+      console.error('Error removing member:', error);
       return { error };
     }
   };
@@ -199,11 +267,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     profile,
     session,
     loading,
+    isOwner,
     signUp,
     signIn,
     signOut,
     createInvite,
     joinHousehold,
+    removeMember,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
