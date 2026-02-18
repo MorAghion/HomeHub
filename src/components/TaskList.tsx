@@ -340,38 +340,45 @@ function TaskList({
                 style={{ borderColor: '#8E806A33' }}
               />
 
-              {/* Date + Priority row */}
-              <div className="flex gap-3">
-                {/* Date takes all remaining space; minWidth:0 inline beats iOS UA stylesheet */}
-                <div className="flex flex-col gap-1" style={{ flex: '1 1 0', minWidth: 0 }}>
-                  <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
-                    <Calendar size={11} strokeWidth={2} />
-                    Due Date
-                  </label>
-                  <input
-                    type="date"
-                    value={newTaskDueDate}
-                    onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
-                    style={{ borderColor: '#8E806A33', width: '100%', minWidth: 0, padding: '8px' }}
-                  />
+              {/* Priority toggle row */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
+                  Priority
+                </label>
+                <div className="flex rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
+                  {(['Low', 'Medium', 'High'] as const).map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setNewTaskUrgency(level)}
+                      className="flex-1 py-2 transition-colors"
+                      style={{
+                        backgroundColor: newTaskUrgency === level
+                          ? getUrgencyColor(level)
+                          : 'transparent',
+                        color: newTaskUrgency === level ? 'white' : '#8E806A',
+                        borderRight: level !== 'High' ? '1px solid #8E806A33' : 'none',
+                      }}
+                    >
+                      {level}
+                    </button>
+                  ))}
                 </div>
-                {/* Priority: fixed width — "High" is the longest option */}
-                <div className="flex flex-col gap-1 flex-shrink-0" style={{ width: '110px' }}>
-                  <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
-                    Priority
-                  </label>
-                  <select
-                    value={newTaskUrgency}
-                    onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
-                    className="w-full rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
-                    style={{ borderColor: '#8E806A33', padding: '8px' }}
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                  </select>
-                </div>
+              </div>
+
+              {/* Due Date row — full width so iOS date input never overflows */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
+                  <Calendar size={11} strokeWidth={2} />
+                  Due Date
+                </label>
+                <input
+                  type="date"
+                  value={newTaskDueDate}
+                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                  style={{ borderColor: '#8E806A33' }}
+                />
               </div>
 
               {/* Add button row */}
