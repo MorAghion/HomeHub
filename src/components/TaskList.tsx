@@ -328,34 +328,32 @@ function TaskList({
       <main className="max-w-4xl mx-auto">
         {/* Add New Task Form */}
         {!isUrgentView && (
-          <form onSubmit={addTask} className="bg-white p-6 rounded-2xl shadow-sm mb-6">
+          <form onSubmit={addTask} className="bg-white p-5 rounded-2xl shadow-sm mb-6">
             <div className="flex flex-col gap-3">
-              {/* Task Name Input */}
+              {/* Task Name — h-11 */}
               <input
                 type="text"
                 value={newTaskName}
                 onChange={(e) => setNewTaskName(e.target.value)}
                 placeholder="Add a new task..."
-                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
+                className="w-full h-11 px-4 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
                 style={{ borderColor: '#8E806A33' }}
               />
 
-              {/* Priority toggle row */}
+              {/* Priority toggle — h-11, same visual weight as the text input */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
                   Priority
                 </label>
-                <div className="flex rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
+                <div className="flex h-11 rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
                   {(['Low', 'Medium', 'High'] as const).map((level) => (
                     <button
                       key={level}
                       type="button"
                       onClick={() => setNewTaskUrgency(level)}
-                      className="flex-1 py-2 transition-colors"
+                      className="flex-1 transition-colors"
                       style={{
-                        backgroundColor: newTaskUrgency === level
-                          ? getUrgencyColor(level)
-                          : 'transparent',
+                        backgroundColor: newTaskUrgency === level ? getUrgencyColor(level) : 'transparent',
                         color: newTaskUrgency === level ? 'white' : '#8E806A',
                         borderRight: level !== 'High' ? '1px solid #8E806A33' : 'none',
                       }}
@@ -366,7 +364,7 @@ function TaskList({
                 </div>
               </div>
 
-              {/* Due Date row — full width so iOS date input never overflows */}
+              {/* Due Date — h-11, full width */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
                   <Calendar size={11} strokeWidth={2} />
@@ -376,15 +374,15 @@ function TaskList({
                   type="date"
                   value={newTaskDueDate}
                   onChange={(e) => setNewTaskDueDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                  className="w-full h-11 px-4 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
                   style={{ borderColor: '#8E806A33' }}
                 />
               </div>
 
-              {/* Add button row */}
+              {/* Add Task button — h-10, slightly less prominent than inputs */}
               <button
                 type="submit"
-                className="w-full py-2 rounded-lg font-medium text-white transition-all hover:opacity-90"
+                className="w-full h-10 rounded-lg font-medium text-white transition-all hover:opacity-90 text-sm"
                 style={{ backgroundColor: '#630606' }}
               >
                 Add Task
