@@ -341,8 +341,9 @@ function TaskList({
               />
 
               {/* Date + Priority row */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1 min-w-0">
+              <div className="flex gap-3">
+                {/* Date takes all remaining space; minWidth:0 inline beats iOS UA stylesheet */}
+                <div className="flex flex-col gap-1" style={{ flex: '1 1 0', minWidth: 0 }}>
                   <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
                     <Calendar size={11} strokeWidth={2} />
                     Due Date
@@ -351,19 +352,20 @@ function TaskList({
                     type="date"
                     value={newTaskDueDate}
                     onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="w-full min-w-0 px-2 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
-                    style={{ borderColor: '#8E806A33' }}
+                    className="rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    style={{ borderColor: '#8E806A33', width: '100%', minWidth: 0, padding: '8px' }}
                   />
                 </div>
-                <div className="flex flex-col gap-1 min-w-0">
+                {/* Priority: fixed width — "High" is the longest option */}
+                <div className="flex flex-col gap-1 flex-shrink-0" style={{ width: '110px' }}>
                   <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
                     Priority
                   </label>
                   <select
                     value={newTaskUrgency}
                     onChange={(e) => setNewTaskUrgency(e.target.value as 'Low' | 'Medium' | 'High')}
-                    className="w-full min-w-0 px-2 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
-                    style={{ borderColor: '#8E806A33' }}
+                    className="w-full rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                    style={{ borderColor: '#8E806A33', padding: '8px' }}
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
