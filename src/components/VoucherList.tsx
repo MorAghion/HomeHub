@@ -4,6 +4,8 @@ import type { VoucherItem, Voucher, Reservation } from '../types/base';
 import VoucherCard from './VoucherCard';
 import ConfirmationModal from './ConfirmationModal';
 import { VOUCHER_TEMPLATES } from '../utils/voucherMemory';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 
 interface VoucherListProps {
   listName: string;
@@ -18,11 +20,14 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
   const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [smartPaste, setSmartPaste] = useState('');
   const [imageSize, setImageSize] = useState<string>('');
   const [isScraping, setIsScraping] = useState(false);
   const [showManualFillPrompt, setShowManualFillPrompt] = useState(false);
   const [extractionResults, setExtractionResults] = useState<string[]>([]);
+
+  const { profile } = useAuth();
 
   // Debug: Log list info on mount
   console.log('📂 VoucherList opened:', {
@@ -786,7 +791,28 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
       const compressedSizeKB = ((base64.length * 3) / 4 / 1024).toFixed(1);
       setImageSize(wasCompressed ? `${originalSizeKB}KB → ${compressedSizeKB}KB (compressed)` : `${originalSizeKB}KB`);
 
+      // Show base64 as immediate preview while storage upload happens in the background
       setFormData(prev => ({ ...prev, imageUrl: base64 }));
+
+      // Upload to Supabase Storage in background; replace base64 with a signed URL on success
+      if (profile) {
+        setIsUploading(true);
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        const storagePath = `${profile.household_id}/${listId}/${Date.now()}.${ext}`;
+        supabase.storage
+          .from('voucher-images')
+          .upload(storagePath, file, { contentType: file.type })
+          .then(async ({ error: uploadError }) => {
+            if (uploadError) throw uploadError;
+            const { data: signedData, error: signedError } = await supabase.storage
+              .from('voucher-images')
+              .createSignedUrl(storagePath, 315_360_000); // ~10 years
+            if (signedError || !signedData?.signedUrl) throw signedError ?? new Error('No signed URL');
+            setFormData(prev => ({ ...prev, imageUrl: signedData.signedUrl }));
+          })
+          .catch(err => console.error('Storage upload failed, keeping base64 fallback:', err))
+          .finally(() => setIsUploading(false));
+      }
 
       // Perform OCR with Hebrew + English support
       setIsScanning(true);
@@ -1362,6 +1388,15 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
                       Scanning image...
                     </div>
                   )}
+                  {isUploading && (
+                    <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#8E806A' }}>
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Saving to cloud...
+                    </div>
+                  )}
                   <p className="text-xs mt-2" style={{ color: '#8E806A' }}>
                     💡 We'll automatically detect codes and values from your photo
                   </p>
@@ -1388,6 +1423,15 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Scanning image...
+                    </div>
+                  )}
+                  {isUploading && (
+                    <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#8E806A' }}>
+                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Saving to cloud...
                     </div>
                   )}
                 </div>
