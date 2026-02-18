@@ -255,14 +255,14 @@ function VouchersHub({
         )}
       </main>
 
-      {/* Template Selection Modal */}
+      {/* Template Selection Modal — sits between header (top-16) and footer (bottom-20) */}
       {isTemplateModalOpen && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-x-0 top-16 bottom-20 bg-black/50 z-40 overflow-y-auto p-4"
           onClick={() => setIsTemplateModalOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl p-6 max-w-2xl w-full mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
