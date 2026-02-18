@@ -53,6 +53,7 @@ function InputModal({
           className="w-full p-3 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#63060611] outline-none mb-6 transition-all"
           style={{ color: '#8E806A' }}
           autoFocus
+          onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' })}
         />
         <div className="flex gap-3">
           <button

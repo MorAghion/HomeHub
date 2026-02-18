@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Settings } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
@@ -27,6 +28,22 @@ import type {
 
 function App() {
   const { user, profile, loading } = useAuth();
+
+  const keyboardHeight = useKeyboardHeight();
+
+  // Global: scroll any focused input into view above the keyboard
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
+    document.addEventListener('focusin', handleFocusIn);
+    return () => document.removeEventListener('focusin', handleFocusIn);
+  }, []);
 
   // Lock body scroll when authenticated (app uses its own scroll containers)
   // Release lock on auth screens so forms can scroll on small phones
@@ -959,7 +976,7 @@ function App() {
     }
 
     return (
-      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <ShoppingList
         listName={currentList.name}
         items={currentList.items}
@@ -1073,7 +1090,7 @@ function App() {
     const isUrgentView = currentTaskList.id === 'home-tasks_urgent';
 
     return (
-      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <TaskList
         listName={currentTaskList.name}
         listId={currentTaskList.id}
@@ -1208,7 +1225,7 @@ function App() {
     }
 
     return (
-      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <VoucherList
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}

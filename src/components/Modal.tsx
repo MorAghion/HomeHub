@@ -1,3 +1,5 @@
+import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -6,21 +8,26 @@ interface ModalProps {
 }
 
 /**
- * Reusable Modal component matching the Burgundy theme
+ * Reusable Modal component matching the Burgundy theme.
+ * Uses the Visual Viewport API to shift up when the soft keyboard opens.
  */
 function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const keyboardHeight = useKeyboardHeight();
+
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center animate-fade-in"
+        className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center animate-fade-in pb-4"
+        style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight + 16 : undefined }}
         onClick={onClose}
       >
         {/* Modal Container */}
         <div
-          className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-scale-in"
+          className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-scale-in overflow-y-auto"
+          style={{ maxHeight: `calc(100dvh - ${keyboardHeight + 32}px)` }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Title */}

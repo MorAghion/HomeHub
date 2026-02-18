@@ -82,3 +82,20 @@ body.app-locked #root {
 .prevent-swipe {
   touch-action: pan-y;
 }
+
+/* Remove 300ms tap delay on all buttons and interactive elements */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Extra bottom padding for scrollable list containers when keyboard is open.
+   Applied via JS by adding the class when keyboardHeight > 0. */
+.keyboard-spacer {
+  flex-shrink: 0;
+  transition: height 0.2s ease;
+}
