@@ -63,6 +63,16 @@ function App() {
   const [isLandingMode, setIsLandingMode] = useState(true); // Landing vs Active mode
   const cardStackRef = useRef<HTMLDivElement>(null);
 
+  // Pull-to-refresh: detect downward swipe on the header
+  const ptrStartY = useRef(0);
+  const handleHeaderTouchStart = (e: React.TouchEvent) => {
+    ptrStartY.current = e.touches[0].clientY;
+  };
+  const handleHeaderTouchEnd = (e: React.TouchEvent) => {
+    const dy = e.changedTouches[0].clientY - ptrStartY.current;
+    if (dy > 60) window.location.reload();
+  };
+
   // Settings Modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -500,11 +510,22 @@ function App() {
       }
     };
 
-    // Initial detection
-    detectHub();
+    // Initial detection (rAF ensures layout is committed before measuring)
+    requestAnimationFrame(detectHub);
 
-    // scroll fires during swipe; scrollend fires once momentum stops (more reliable)
-    container.addEventListener('scroll', detectHub, { passive: true });
+    // Debounced handler: fires immediately for visual feedback during drag,
+    // then again 150ms after the last scroll event to catch the final snap
+    // position. This works on all browsers including iOS Safari < 17.4
+    // which does not support scrollend.
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const handleScroll = () => {
+      detectHub();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(detectHub, 150);
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    // scrollend for browsers that support it (Chrome 114+, iOS 17.4+)
     container.addEventListener('scrollend', detectHub);
 
     // IntersectionObserver with the scroll container as root (not viewport)
@@ -525,8 +546,9 @@ function App() {
     Array.from(container.children).forEach((card) => observer.observe(card));
 
     return () => {
-      container.removeEventListener('scroll', detectHub);
+      container.removeEventListener('scroll', handleScroll);
       container.removeEventListener('scrollend', detectHub);
+      if (debounceTimer) clearTimeout(debounceTimer);
       observer.disconnect();
     };
   }, [isLandingMode]); // activeHub removed — read via ref instead
@@ -651,13 +673,15 @@ function App() {
           backgroundColor: '#F5F2E7',
         }}
       >
-        {/* Fixed Header - Logo + Settings */}
+        {/* Fixed Header - Logo + Settings — swipe down here to refresh */}
         <header
           className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
           style={{
             backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
           }}
+          onTouchStart={handleHeaderTouchStart}
+          onTouchEnd={handleHeaderTouchEnd}
         >
           <div className="w-10"></div> {/* Spacer for centering */}
           <button
