@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useKeyboardHeight } from './hooks/useKeyboardHeight'
-import { ShoppingBag, ListTodo, Gift, Settings } from 'lucide-react'
+import { ShoppingBag, ListTodo, Gift, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
 import SettingsModal from './components/SettingsModal'
@@ -62,16 +62,6 @@ function App() {
   const [activeHub, setActiveHub] = useState<'shopping' | 'tasks' | 'vouchers'>('shopping');
   const [isLandingMode, setIsLandingMode] = useState(true); // Landing vs Active mode
   const cardStackRef = useRef<HTMLDivElement>(null);
-
-  // Pull-to-refresh: detect downward swipe on the header
-  const ptrStartY = useRef(0);
-  const handleHeaderTouchStart = (e: React.TouchEvent) => {
-    ptrStartY.current = e.touches[0].clientY;
-  };
-  const handleHeaderTouchEnd = (e: React.TouchEvent) => {
-    const dy = e.changedTouches[0].clientY - ptrStartY.current;
-    if (dy > 60) window.location.reload();
-  };
 
   // Settings Modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -510,8 +500,11 @@ function App() {
       }
     };
 
-    // Initial detection (rAF ensures layout is committed before measuring)
+    // Initial detection: rAF for first paint, then two safety-net timers
+    // to catch late browser scroll-position restoration after refresh.
     requestAnimationFrame(detectHub);
+    const t1 = setTimeout(detectHub, 300);
+    const t2 = setTimeout(detectHub, 800);
 
     // Debounced handler: fires immediately for visual feedback during drag,
     // then again 150ms after the last scroll event to catch the final snap
@@ -549,6 +542,8 @@ function App() {
       container.removeEventListener('scroll', handleScroll);
       container.removeEventListener('scrollend', detectHub);
       if (debounceTimer) clearTimeout(debounceTimer);
+      clearTimeout(t1);
+      clearTimeout(t2);
       observer.disconnect();
     };
   }, [isLandingMode]); // activeHub removed — read via ref instead
@@ -673,17 +668,22 @@ function App() {
           backgroundColor: '#F5F2E7',
         }}
       >
-        {/* Fixed Header - Logo + Settings — swipe down here to refresh */}
+        {/* Fixed Header */}
         <header
           className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
           style={{
             backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
           }}
-          onTouchStart={handleHeaderTouchStart}
-          onTouchEnd={handleHeaderTouchEnd}
         >
-          <div className="w-10"></div> {/* Spacer for centering */}
+          <button
+            onClick={() => window.location.reload()}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
+            style={{ color: '#630606' }}
+            title="Refresh"
+          >
+            <RotateCcw size={18} strokeWidth={2} />
+          </button>
           <button
             onClick={returnToHome}
             className="text-center transition-all hover:opacity-70 active:scale-95"
