@@ -330,7 +330,8 @@ function TaskList({
         {!isUrgentView && (
           <form onSubmit={addTask} className="bg-white p-5 rounded-2xl shadow-sm mb-6">
             <div className="flex flex-col gap-3">
-              {/* Task Name — h-11 */}
+
+              {/* Task name — tallest, most prominent — h-11 */}
               <input
                 type="text"
                 value={newTaskName}
@@ -340,12 +341,12 @@ function TaskList({
                 style={{ borderColor: '#8E806A33' }}
               />
 
-              {/* Priority toggle — h-11, same visual weight as the text input */}
+              {/* Priority toggle — h-9 */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
                   Priority
                 </label>
-                <div className="flex h-11 rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
+                <div className="flex h-9 w-full rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
                   {(['Low', 'Medium', 'High'] as const).map((level) => (
                     <button
                       key={level}
@@ -364,25 +365,30 @@ function TaskList({
                 </div>
               </div>
 
-              {/* Due Date — h-11, full width */}
+              {/* Due Date — h-9, border on wrapper + overflow-hidden clips iOS native chrome */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
                   <Calendar size={11} strokeWidth={2} />
                   Due Date
                 </label>
-                <input
-                  type="date"
-                  value={newTaskDueDate}
-                  onChange={(e) => setNewTaskDueDate(e.target.value)}
-                  className="w-full h-11 px-4 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors text-sm"
+                <div
+                  className="w-full h-9 rounded-lg border-2 overflow-hidden flex items-center focus-within:border-[#630606] transition-colors"
                   style={{ borderColor: '#8E806A33' }}
-                />
+                >
+                  <input
+                    type="date"
+                    value={newTaskDueDate}
+                    onChange={(e) => setNewTaskDueDate(e.target.value)}
+                    className="w-full h-full px-4 text-sm outline-none border-none bg-transparent"
+                    style={{ minWidth: 0 }}
+                  />
+                </div>
               </div>
 
-              {/* Add Task button — h-10, slightly less prominent than inputs */}
+              {/* Add Task — h-8, shortest — clearly the action, not a field */}
               <button
                 type="submit"
-                className="w-full h-10 rounded-lg font-medium text-white transition-all hover:opacity-90 text-sm"
+                className="w-full h-8 rounded-lg font-medium text-white transition-all hover:opacity-90 text-sm"
                 style={{ backgroundColor: '#630606' }}
               >
                 Add Task
