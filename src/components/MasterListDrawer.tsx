@@ -3,7 +3,7 @@ import type { MasterListItem } from '../types/base';
 import {
   getSuggestedContexts,
   getContextItems,
-} from '../utils/contextMapping';
+} from '../utils/contextResolver';
 
 interface MasterListDrawerProps {
   isOpen: boolean;

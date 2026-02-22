@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Gift, Calendar, Plus, Pencil } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
-import { getContextIcon } from '../utils/iconMapping';
+import { getContextIcon } from '../utils/contextResolver';
 import type { VoucherListInstance } from '../types/base';
 import { VOUCHER_TEMPLATES } from '../utils/voucherMemory';
 

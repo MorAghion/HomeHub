@@ -1,0 +1,70 @@
+{
+  "id": "fe-006-cont",
+  "title": "Hebrew Support — Settings page + Context Mapping Hebrew keywords",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["fe-006"],
+  "blocks": ["qa-007"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "reported_by": "human — manual review + PRD review",
+
+  "description": "Two remaining gaps in Hebrew support after fe-006: (1) Settings page is not translated. (2) The Context Mapping engine (contextMapping.ts + suggestions.ts) is English-only — Hebrew Sub-Hub names won't match any context, and injected Master List items are English only.",
+
+  "task_1_settings_page": {
+    "description": "Complete Hebrew translations for the Settings page (SettingsModal.tsx). All visible strings must go through i18n keys in the 'settings' namespace.",
+    "files": [
+      "src/components/SettingsModal.tsx",
+      "src/i18n/en/settings.json",
+      "src/i18n/he/settings.json"
+    ],
+    "steps": [
+      "Audit SettingsModal.tsx for any hardcoded strings or missing t() calls",
+      "Add missing keys to src/i18n/en/settings.json",
+      "Add corresponding Hebrew translations to src/i18n/he/settings.json",
+      "Verify the Settings page looks correct in both English (LTR) and Hebrew (RTL)"
+    ]
+  },
+
+  "task_2_context_mapping": {
+    "description": "The context engine in contextMapping.ts and suggestions.ts only matches English keywords. When the app is in Hebrew, users will name their Sub-Hubs in Hebrew (e.g., 'סופרמרקט', 'קמפינג', 'תרופות'). These won't match today. Additionally, item names injected into the Master List are English — they should be in Hebrew when the app language is Hebrew.",
+    "approach": "Create a new file src/utils/contextMappingHe.ts that mirrors the structure of contextMapping.ts but with Hebrew keywords and Hebrew item names. The detectContext() and getSuggestedContexts() functions should check both the English mapping and the Hebrew mapping, using the current i18n language to decide which item names to inject.",
+    "files_to_create": [
+      "src/utils/contextMappingHe.ts — Hebrew keywords + Hebrew item names for all 12 context types"
+    ],
+    "files_to_modify": [
+      "src/utils/contextMapping.ts — update detectContext() and getSuggestedContexts() to also check Hebrew keywords",
+      "src/utils/suggestions.ts — add Hebrew keywords to matchListNameToTemplate()"
+    ],
+    "hebrew_keyword_examples": {
+      "grocery": ["סופרמרקט", "מכולת", "קניות", "אוכל", "שוק"],
+      "pharmacy": ["תרופות", "בית מרקחת", "פארם", "בריאות", "ויטמינים"],
+      "camping": ["קמפינג", "טיול", "טבע", "מחנה", "גינות לאומי"],
+      "abroad": ["חו\"ל", "טיסה", "נסיעה", "חופשה", "תיירות"],
+      "stock": ["מלאי", "אחסון", "ציוד בית", "עתודות"],
+      "baby": ["תינוק", "תינוקת", "עגלה", "ילדים", "פעוט"],
+      "party": ["מסיבה", "יום הולדת", "אירוע", "חגיגה", "שמחה"],
+      "pets": ["כלב", "חתול", "חיות מחמד", "וטרינר"],
+      "gardening": ["גינה", "גינון", "צמחים", "פרחים"],
+      "baking": ["אפייה", "עוגה", "לחם", "קינוח"],
+      "home-renovation": ["שיפוץ", "בנייה", "צביעה", "תיקון"],
+      "home-decor": ["עיצוב", "דקורציה", "ריהוט", "אביזרים"]
+    },
+    "note": "Item names in contextMappingHe.ts should be the Hebrew translations of the English items (e.g., 'חלב' for Milk, 'לחם' for Bread). The listCategory values should remain in English as they are used as keys internally — only translate the display labels via i18n."
+  },
+
+  "acceptance_criteria": [
+    "Settings page fully translated — no hardcoded strings visible in Hebrew mode",
+    "Typing a Hebrew Sub-Hub name (e.g., 'סופרמרקט') correctly detects 'grocery' context and shows suggestion bubbles",
+    "When app language is Hebrew, injected Master List items appear in Hebrew",
+    "When app language is English, injected Master List items still appear in English (no regression)",
+    "contextMappingHe.ts created as a standalone file (not modifying the English mapping data)",
+    "No TypeScript errors, no inline styles, all strings via i18n"
+  ],
+
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "The user explicitly requested a separate Hebrew mapping file rather than modifying contextMapping.ts data inline."
+}

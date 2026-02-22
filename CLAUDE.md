@@ -201,3 +201,30 @@ This must run BEFORE any other work. Non-negotiable.
 - Agents NEVER run `supabase db push` against production without HUMAN ACTION REQUIRED alert
 - Agents NEVER modify production data
 - All new features must work alongside existing MVP features — no regressions
+
+## Git Rules (CRITICAL)
+- main = production. NEVER commit directly to main.
+- All agent work happens on the dev branch.
+- Deploy to production: Human merges dev → main manually.
+- Current deployment: Vercel auto-deploys main to home-hub-five.vercel.app
+
+## Git Workflow (CRITICAL)
+- main = production (auto-deploys via Vercel). NEVER commit to main.
+- dev = working branch. All PRs merge here.
+- Before starting ANY task:
+  1. git checkout dev
+  2. git pull origin dev
+  3. git checkout -b agent/{task-id}-{short-description}
+- While working: commit frequently to your branch
+- When done:
+  1. git add -A && git commit -m "{task-id}: {description}"
+  2. git push origin agent/{task-id}-{short-description}
+  3. Alert the human that the branch is ready for review
+- NEVER merge your own branch
+- NEVER push to dev or main directly
+
+## Merge Conflict Protocol
+- After merging a PR into dev, all active agents must pull latest:
+  git checkout dev && git pull origin dev
+  git checkout agent/{your-branch} && git merge dev
+- If conflicts arise, the agent resolves them and commits
