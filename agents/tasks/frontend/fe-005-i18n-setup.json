@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "done",
   "depends_on": [],
   "blocks": ["fe-006"],
   "created": "2026-02-22",
@@ -27,6 +27,6 @@
     "src/pages/Settings.tsx (add language toggle)"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Installed react-i18next + i18next. Created src/i18n/config.ts with fallbackLng:'en', returnNull:false, returnEmptyString:false for production safety. Created 6 namespace JSON files (common, shopping, tasks, vouchers, reservations, settings) in both en/ and he/ (HE is placeholder copies of EN — real translations come in fe-006). Added './i18n/config' import to main.tsx. Applied useTranslation() to all 6 production components: App.tsx, ShoppingHub.tsx, TasksHub.tsx, VouchersHub.tsx, VoucherList.tsx, SettingsModal.tsx — plus all 8 new components created in fe-001/fe-002/fe-003. Added language toggle in SettingsModal (EN/HE pill buttons, persisted to localStorage as 'homehub-lang', applied without page reload via i18n.changeLanguage()). All plural forms use i18next count interpolation (activeList_one/other, activeTask_one/other, etc.). Zero tsc errors. Production-safe: English strings are identical to prior hardcoded values.",
   "notes": "Start with English translations (copy current strings). Hebrew translations come in fe-006. This task is about infrastructure, not translation quality."
 }

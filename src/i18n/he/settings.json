@@ -1,0 +1,15 @@
+{
+  "title": "Settings",
+  "language": "Language",
+  "english": "English",
+  "hebrew": "עברית",
+  "gmailConnection": "Gmail Connection",
+  "connectGmail": "Connect Gmail",
+  "connected": "Connected",
+  "disconnect": "Disconnect",
+  "disconnectConfirm": "Disconnect Gmail?",
+  "disconnectMessage": "This will stop automatic bill detection from your Gmail.",
+  "household": "Household",
+  "account": "Account",
+  "signOut": "Sign Out"
+}
