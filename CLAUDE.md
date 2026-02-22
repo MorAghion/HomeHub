@@ -82,6 +82,33 @@ HomeHub is a shared household management PWA built with React (Vite) + TypeScrip
 - After every migration, verify: tables created, columns correct, RLS enabled, data migrated
 - Log verification results in the task JSON completion_summary
 
+## Coordinator Duties
+
+### After Every Wave Completion
+When told that tasks are complete, the Coordinator MUST do ALL of the following in order:
+
+1. **Update task JSONs**: Set completed tasks to status "done" in their JSON files
+2. **Process handoffs**: Check if completed tasks have deliverables for other agents. If yes, create handoff JSONs in agents/handoffs/
+3. **Unblock tasks**: Check all "blocked" tasks — if their dependencies are now done, update them to "todo"
+4. **Update BOARD.md** — every section:
+   - Wave Tracker: mark current wave as done, queue next wave
+   - Phase Progress Bars: recalculate percentages
+   - Human Action Queue: add any pending human actions from completed tasks
+   - Active Agents: clear completed, show next assignments
+   - Task Board: update all statuses
+   - Completed Log: add finished tasks with timestamps
+5. **Report next wave**: List which tasks are now unblocked and recommend the next wave composition with agent assignments
+6. **Sign off** using Coordinator color (yellow)
+
+- The Coordinator NEVER writes application code
+- The Coordinator NEVER executes tasks from other agents
+- The Coordinator ONLY reads/writes files in agents/
+- If asked to "continue" or "start" a wave, respond with the commands the human should run — do NOT execute the tasks yourself
+
+### Coordinator Command Shortcut
+When the human says "coordinator update" or "update board", run the full sequence above.
+When the human says "status", just read and report BOARD.md without changes.
+
 ## Handoff Protocol
 - Every agent must check agents/handoffs/ for pending handoffs addressed to them BEFORE starting work
 - If you produce files that another agent needs, create a handoff JSON in agents/handoffs/
@@ -151,12 +178,39 @@ echo -e "\033]0;🎨 FRONTEND AGENT\a"
 ```
 
 This must run BEFORE any other work. Non-negotiable.
-```
 
-So when you type "You are the Frontend agent", the first thing it does is turn the iTerm tab **magenta** and rename it to "🎨 FRONTEND AGENT" — before writing a single line of code.
+### Environments
 
-You'll end up with tabs like:
-```
-🎯 COORDINATOR  |  🏗️ ARCHITECT  |  🎨 FRONTEND  |  🧪 QA
-   (yellow)          (blue)          (magenta)      (green)
-```
+### Production
+- The MVP is LIVE and in use. Do NOT make breaking changes to existing features.
+- All schema migrations must be backward-compatible (add columns, don't rename/drop)
+- If a migration requires data transformation, always keep the old table/column as backup
+
+### Development
+- Local dev server: run with `npm run dev`
+- Supabase local: use `supabase start` for local DB instance
+- All agents develop and test against the LOCAL environment, never production
+
+### Testing (QA)
+- QA agent runs tests against the local dev environment
+- E2E tests use `npm run dev` server + local Supabase
+- QA must NEVER run tests against production
+- Before running tests: ensure local Supabase is running and seeded with test fixtures
+
+### Deployment Flow
+- All changes are developed locally
+- Tested by QA locally
+- Human reviews and approves
+- Human deploys to production (agents do NOT deploy)
+
+### Environment Commands
+- Start local dev: `npm run dev`
+- Start local Supabase: `supabase start`
+- Seed test data: `npm run db:seed` (if exists)
+- Run migrations locally: `supabase db reset` (resets + applies all migrations)
+- Deploy to production: Human only — NEVER done by agents
+
+### Critical Rules
+- Agents NEVER run `supabase db push` against production without HUMAN ACTION REQUIRED alert
+- Agents NEVER modify production data
+- All new features must work alongside existing MVP features — no regressions
