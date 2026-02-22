@@ -211,20 +211,36 @@ This must run BEFORE any other work. Non-negotiable.
 ## Git Workflow (CRITICAL)
 - main = production (auto-deploys via Vercel). NEVER commit to main.
 - master = working branch. All PRs merge here.
-- Before starting ANY task:
-  1. git checkout master
-  2. git pull origin master
-  3. git checkout -b agent/{task-id}-{short-description}
-- While working: commit frequently to your branch
-- When done:
-  1. git add -A && git commit -m "{task-id}: {description}"
-  2. git push origin agent/{task-id}-{short-description}
-  3. Alert the human that the branch is ready for review
-- NEVER merge your own branch
-- NEVER push to master or main directly
+- master and main are branch-protected on GitHub — direct pushes are blocked.
+  You WILL be rejected if you try to push directly. There are no exceptions.
+
+### Mandatory steps BEFORE writing any code:
+```bash
+git checkout master
+git pull origin master
+git checkout -b agent/{task-id}-{short-description}
+```
+Do not skip this. Do not write a single line of code before your branch is created.
+
+### While working:
+- Commit frequently to your feature branch
+- Keep commits focused and descriptive: `{task-id}: {what changed}`
+
+### When task is complete:
+```bash
+git add -A
+git commit -m "{task-id}: {description}"
+git push origin agent/{task-id}-{short-description}
+```
+Then fire the HUMAN ACTION REQUIRED alert — the human will review and merge the PR.
+
+### Rules (enforced by GitHub):
+- NEVER push to master or main directly — you will be rejected
+- NEVER merge your own PR
+- NEVER commit directly to master or main
 
 ## Merge Conflict Protocol
-- After merging a PR into master, all active agents must pull latest:
+- After a PR is merged into master, all active agents must pull latest:
   git checkout master && git pull origin master
   git checkout agent/{your-branch} && git merge master
 - If conflicts arise, the agent resolves them and commits
