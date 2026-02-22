@@ -1,0 +1,44 @@
+{
+  "id": "fe-bug-001-002-handoff",
+  "type": "bug_fix_complete",
+  "from_agent": "frontend",
+  "to_agent": "qa",
+  "created": "2026-02-22",
+  "status": "ready_for_qa",
+  "bugs_fixed": ["fe-bug-002", "fe-bug-001"],
+  "summary": "Two bugs fixed. Both are status=review and ready for QA validation.",
+
+  "fix_1": {
+    "bug_id": "fe-bug-002",
+    "severity": "critical",
+    "title": "Sign-in button unresponsive",
+    "files_changed": ["src/components/AuthScreen.tsx", "src/contexts/AuthContext.tsx"],
+    "what_changed": "setLoading(false) in handleSignIn now only fires on error. On success the button stays in loading state until profile fetches and App navigates away. Also fixed unused 'data' variable TS errors breaking npm run build.",
+    "qa_test_plan": [
+      "Sign in with valid credentials — button should show 'Signing in...' continuously until dashboard appears",
+      "Sign in with invalid credentials — button should show 'Signing in...' briefly, then reset to 'Sign In' with an error message",
+      "Sign up with a new account — button should show 'Creating account...', then reset with success message (email confirmation flow)",
+      "Join household with invite code — button should stay in 'Joining...' state until dashboard",
+      "Verify npm run build completes without TypeScript errors"
+    ]
+  },
+
+  "fix_2": {
+    "bug_id": "fe-bug-001",
+    "severity": "high",
+    "title": "Slow initial load",
+    "files_changed": ["src/App.tsx", "src/components/VoucherList.tsx", "src/contexts/AuthContext.tsx"],
+    "what_changed": "ShoppingList, TaskList, VoucherList converted to React.lazy() — deferred from initial bundle. tesseract.js converted to dynamic import() at point-of-use. AuthContext loading now starts false for users with no stored session.",
+    "bundle_before": "index.js: 224.73KB raw / 52.40KB gzip",
+    "bundle_after":  "index.js: 139.71KB raw / 33.93KB gzip  (+3 lazy chunks: TaskList 13KB, ShoppingList 34KB, VoucherList 41KB)",
+    "qa_test_plan": [
+      "Open app logged-out — auth screen should appear instantly (no loading spinner)",
+      "Open app logged-in (reload) — loading spinner should appear briefly while session validates, then dashboard",
+      "Navigate into a shopping list — ShoppingList loads normally (brief spinner fallback OK)",
+      "Navigate into a task list — TaskList loads normally",
+      "Navigate into a voucher list — VoucherList loads normally",
+      "Use OCR (camera icon on voucher) — tesseract should still work, just loaded on demand",
+      "Verify no regressions in existing functionality across all three hubs"
+    ]
+  }
+}

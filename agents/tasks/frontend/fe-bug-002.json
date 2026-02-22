@@ -1,0 +1,27 @@
+{
+  "id": "fe-bug-002",
+  "title": "Sign-in button unresponsive — click does nothing, no errors",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "review",
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "parent_task": null,
+  "reported_by": "human — manual testing",
+  "regression_of": "fe-005-bug-001",
+  "root_cause": "Premature setLoading(false) in AuthScreen.handleSignIn. The previous fix (fe-005-bug-001) correctly removed fetchProfile() from signIn(), making signIn() resolve in ~200ms. But the unconditional setLoading(false) at the end of handleSignIn fired immediately after — before onAuthStateChange had finished fetching the profile and navigating away. This reset the button from 'Signing in...' back to 'Sign In' in milliseconds, making the sign-in appear completely unresponsive. The dashboard would appear 1-2 seconds later 'out of nowhere'.",
+  "steps_to_reproduce": [
+    "1. Navigate to the sign-in screen",
+    "2. Enter credentials",
+    "3. Click the Sign In button",
+    "4. Nothing appears to happen — button instantly resets to 'Sign In'",
+    "5. Dashboard appears 1-2 seconds later unexpectedly"
+  ],
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/contexts/AuthContext.tsx"
+  ],
+  "fix_applied": "setLoading(false) in handleSignIn now only fires on error. On success, the button stays in 'Signing in...' state until onAuthStateChange finishes fetchProfile and App.tsx unmounts AuthScreen. Same fix applied to handleJoinHousehold (same pattern). handleSignUp is unchanged — it stays on the auth screen on success (email confirmation flow), so setLoading(false) is correct in both paths. Also fixed: unused 'data' variable in AuthContext.signIn() and signUp() that was breaking 'npm run build' (TypeScript noUnusedLocals).",
+  "completion_summary": "Sign-in button now shows 'Signing in...' continuously until navigation to dashboard. Build passes clean. Investigated 8 hypotheses via thorough code analysis — only premature setLoading was the actual bug."
+}

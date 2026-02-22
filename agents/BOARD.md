@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-22 20:00 UTC
-**Current Phase:** 0.2 — Test Suite → Wave 3 ready to launch
+**Last updated:** 2026-02-22 21:30 UTC
+**Current Phase:** 0.2 — Test Suite → Wave 3 ready to launch + 2 bugs in review
 
 ---
 
@@ -11,6 +11,7 @@
 | Wave 1 | arch-001, qa-001, fe-007 | 🏗️🧪🎨 | ✅ Done | 2026-02-22 14:00 | 2026-02-22 16:45 | All parallel, 3 critical foundations |
 | Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ Frontend + Architect | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
 | Wave 3 | qa-002 | 🧪 QA | ⏳ Queued | — | — | QA validates Wave 2 FE output |
+| Wave 3b | fe-bug-001, fe-bug-002 → QA re-validation | 🎨→🧪 | ✅ Fixed, awaiting QA | 2026-02-22 | — | Critical sign-in fix + perf improvements |
 
 ---
 
@@ -39,7 +40,7 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 
 | Terminal | Agent | Task | Started | Notes |
 |----------|-------|------|---------|-------|
-| — | — | Wave 2 complete — awaiting Wave 3 launch | — | Run QA agent for qa-002 |
+| — | 🧪 QA | qa-002 + fe-bug-001 + fe-bug-002 re-validation | — | Run QA agent next |
 
 ---
 
@@ -107,7 +108,10 @@ None.
 
 ## 🐛 Active Bugs
 
-None.
+| Bug | Title | Priority | Status | Agent |
+|-----|-------|----------|--------|-------|
+| fe-bug-001 | App initial load takes a long time | 🟠 high | 🔍 review | 🧪 QA to validate |
+| fe-bug-002 | Sign-in button unresponsive — click does nothing | 🔴 critical | 🔍 review | 🧪 QA to validate |
 
 ---
 
@@ -124,6 +128,8 @@ None.
 | arch-002 | 🏗️ Architect | 2026-02-22 20:00 | Wave 2 | OAuth tokens schema: table, RLS, 4 indexes, verified in Supabase |
 | fe-005 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | i18n framework: i18next + react-i18next, en/he translations, language toggle |
 | fe-005-bug-001 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | Fixed sign-in stuck: removed blocking fetchProfile from signIn/signUp |
+| fe-bug-002 | 🎨 Frontend | 2026-02-22 21:30 | Wave 3b | Critical: sign-in button unresponsive — premature setLoading(false) fix |
+| fe-bug-001 | 🎨 Frontend | 2026-02-22 21:30 | Wave 3b | Perf: initial bundle 224KB→140KB via lazy loading + dynamic tesseract import |
 
 ---
 

@@ -1,0 +1,25 @@
+{
+  "id": "fe-bug-001",
+  "title": "App initial load takes a long time — slow startup performance",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "review",
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "parent_task": null,
+  "reported_by": "human — manual testing",
+  "root_cause": "Three compounding issues: (1) All detail screens (ShoppingList, TaskList, VoucherList) were eagerly imported in App.tsx, adding ~90KB to the initial bundle even though they're never rendered on first load. (2) tesseract.js was statically imported in VoucherList.tsx, loading the 17KB OCR bootstrap at startup despite OCR only used on image upload. (3) AuthContext started loading=true unconditionally, showing a blocking spinner even for unauthenticated users who have no stored session.",
+  "steps_to_reproduce": [
+    "1. Open the app in browser",
+    "2. Observe time from navigation to app being interactive",
+    "3. Note: load time is noticeably slow"
+  ],
+  "affected_files": [
+    "src/App.tsx",
+    "src/components/VoucherList.tsx",
+    "src/contexts/AuthContext.tsx"
+  ],
+  "fix_applied": "Three targeted fixes: (1) ShoppingList, TaskList, VoucherList converted to React.lazy() + Suspense in App.tsx — defers ~88KB from initial bundle. (2) 'import Tesseract from tesseract.js' removed; replaced with dynamic import() at point-of-use inside handleImageUpload — defers 17KB chunk. (3) AuthContext.loading now initializes as false for users with no stored session (checks localStorage for Supabase token) — auth screen renders immediately without network wait. Build verified: index.js dropped from 224KB to 140KB gzipped (33.93KB vs 52.40KB before).",
+  "completion_summary": "Initial bundle reduced by ~85KB raw / ~19KB gzipped. Unauthenticated users now see the auth screen instantly. Authenticated users still see a loading spinner while session validates. All three detail views lazy-load on first navigation with a spinner fallback. Build passes clean."
+}
