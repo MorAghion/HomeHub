@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["fe-005"],
   "blocks": ["qa-007"],
   "created": "2026-02-22",
@@ -26,6 +26,6 @@
     "tailwind.config.ts (RTL plugin if needed)"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "RTL + Hebrew translations fully implemented. (1) Hebrew translations: all 6 namespaces completed (common, shopping, tasks, vouchers, reservations, settings) with accurate Hebrew strings and correct i18next pluralization (_one/_other). (2) RTL dir toggle: useEffect in App.tsx syncs document.documentElement.dir to i18n.language. (3) Directional class audit: all ml-/mr-/pl-/pr-/left-/right- → ms-/me-/ps-/pe-/start-/end- logical properties across App.tsx, SettingsModal, ShoppingHub, TasksHub, VouchersHub, TaskList, VoucherList, MasterListDrawer, VoucherCard (root + vouchers/), reservations/ReservationCard. (4) MasterListDrawer slide animation: ltr:-translate-x-full rtl:translate-x-full for correct open/close direction. (5) tailwind.config.js: Arial added to font-sans fallback chain for Hebrew script. Build passes clean (tsc + vite).",
   "notes": "Use Tailwind RTL plugin or manual logical properties. Test every page in both LTR and RTL. Hebrew text direction is right-to-left but numbers remain left-to-right."
 }

@@ -290,7 +290,7 @@ function TasksHub({
                 // View Mode
                 <button
                   onClick={() => onSelectList(list.id)}
-                  className="w-full text-left"
+                  className="w-full text-start"
                 >
                   <div className="mb-3">
                     {(() => {

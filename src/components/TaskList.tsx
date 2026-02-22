@@ -343,7 +343,7 @@ function TaskList({
 
               {/* Priority toggle — h-9 */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
+                <label className="text-xs font-medium ps-1" style={{ color: '#8E806A' }}>
                   Priority
                 </label>
                 <div className="flex h-9 w-full rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
@@ -367,7 +367,7 @@ function TaskList({
 
               {/* Due Date — h-9, border on wrapper + overflow-hidden clips iOS native chrome */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
+                <label className="text-xs font-medium flex items-center gap-1 ps-1" style={{ color: '#8E806A' }}>
                   <Calendar size={11} strokeWidth={2} />
                   Due Date
                 </label>

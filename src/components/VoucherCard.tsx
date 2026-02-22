@@ -261,7 +261,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
           >
             <button
               onClick={() => setImageModalOpen(false)}
-              className="absolute -top-12 right-0 text-white hover:opacity-70 transition-opacity"
+              className="absolute -top-12 end-0 text-white hover:opacity-70 transition-opacity"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

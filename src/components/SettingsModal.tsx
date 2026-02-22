@@ -234,7 +234,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   <button
                     onClick={() => handleRemoveMember(member.id, member.display_name)}
                     disabled={removingMemberId === member.id}
-                    className="ml-2 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-red-100 disabled:opacity-40 flex-shrink-0"
+                    className="ms-2 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-red-100 disabled:opacity-40 flex-shrink-0"
                     title={`Remove ${member.display_name || 'member'}`}
                   >
                     <UserMinus size={14} style={{ color: '#DC2626' }} />

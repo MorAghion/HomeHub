@@ -38,7 +38,12 @@ const LazyFallback = () => (
 
 function App() {
   const { user, profile, loading } = useAuth();
-  const { t } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
+  const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
+
+  // Sync document dir with language so all RTL logical-property classes work
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === 'he' ? 'rtl' : 'ltr';
+  }, [i18n.language]);
 
   const keyboardHeight = useKeyboardHeight();
 
@@ -605,7 +610,7 @@ function App() {
   // Render Bottom Navigation
   const renderBottomNav = () => (
     <div
-      className="absolute bottom-0 left-0 w-full h-20 z-50 border-t backdrop-blur-md"
+      className="absolute bottom-0 inset-x-0 h-20 z-50 border-t backdrop-blur-md"
       style={{
         backgroundColor: 'rgba(245, 242, 231, 0.9)',
         borderColor: 'rgba(99, 6, 6, 0.1)'
@@ -681,7 +686,7 @@ function App() {
       >
         {/* Fixed Header */}
         <header
-          className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
+          className="absolute top-0 inset-x-0 h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
           style={{
             backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
@@ -713,7 +718,7 @@ function App() {
 
         {/* Landing Page Layout */}
         {isLandingMode ? (
-          <div className="absolute top-16 left-0 right-0 bottom-0 overflow-hidden flex flex-col">
+          <div className="absolute top-16 inset-x-0 bottom-0 overflow-hidden flex flex-col">
             {/* Subtle Small Greeting */}
             <div className="flex-shrink-0 flex items-center justify-center pt-8 pb-6">
               <h2 className="text-xl font-medium" style={{ color: '#630606' }}>
@@ -807,7 +812,7 @@ function App() {
           /* Active Mode - Full Screen Hub */
           <div
             ref={cardStackRef}
-            className="absolute top-16 left-0 right-0 bottom-20 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+            className="absolute top-16 inset-x-0 bottom-20 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
             style={{
               scrollSnapType: 'x mandatory',
               WebkitOverflowScrolling: 'touch',

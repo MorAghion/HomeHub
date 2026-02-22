@@ -219,7 +219,7 @@ function VouchersHub({
                 {isEditMode && (
                   <div
                     onClick={() => toggleListSelection(list.id)}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
+                    className="absolute -top-2 -end-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
                     style={{
                       borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
                       backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'white',
@@ -232,7 +232,7 @@ function VouchersHub({
                 )}
                 <button
                   onClick={() => !isEditMode && onSelectList(list.id)}
-                  className={`w-full bg-white p-6 rounded-2xl shadow-sm text-left transition-all ${
+                  className={`w-full bg-white p-6 rounded-2xl shadow-sm text-start transition-all ${
                     !isEditMode ? 'hover:bg-white hover:shadow-md active:scale-[0.98]' : 'opacity-70'
                   }`}
                   style={{ border: selectedListsForDeletion.has(list.id) ? '2px solid #630606' : '1px solid #8E806A22' }}
@@ -290,7 +290,7 @@ function VouchersHub({
                   <button
                     key={template.id}
                     onClick={() => handleTemplateSelect(template.id)}
-                    className="p-4 rounded-xl border-2 text-left transition-all hover:shadow-md hover:border-[#630606] active:scale-[0.98]"
+                    className="p-4 rounded-xl border-2 text-start transition-all hover:shadow-md hover:border-[#630606] active:scale-[0.98]"
                     style={{ borderColor: '#8E806A22' }}
                   >
                     <div className="text-3xl mb-2">{template.icon}</div>
@@ -324,7 +324,7 @@ function VouchersHub({
                       value="voucher"
                       checked={selectedType === 'voucher'}
                       onChange={(e) => setSelectedType(e.target.value as 'voucher')}
-                      className="mt-1 mr-3"
+                      className="mt-1 me-3"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -351,7 +351,7 @@ function VouchersHub({
                       value="reservation"
                       checked={selectedType === 'reservation'}
                       onChange={(e) => setSelectedType(e.target.value as 'reservation')}
-                      className="mt-1 mr-3"
+                      className="mt-1 me-3"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

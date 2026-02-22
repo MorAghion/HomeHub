@@ -49,7 +49,7 @@ function VoucherCard({ voucher, onEdit, onDelete }: VoucherCardProps) {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="w-full text-left bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md active:scale-[0.98]"
+        className="w-full text-start bg-white rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md active:scale-[0.98]"
         style={{ border: '1px solid #8E806A22' }}
       >
         {/* Top accent strip */}

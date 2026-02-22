@@ -1,0 +1,100 @@
+{
+  "id": "fe-006-qa-007-handoff",
+  "type": "task_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-22",
+  "task_id": "fe-006",
+  "unblocks": ["qa-007"],
+  "summary": "fe-006 RTL Layout + Hebrew Translations is complete and ready for QA validation.",
+  "deliverables": [
+    "src/i18n/he/common.json — full Hebrew translations",
+    "src/i18n/he/shopping.json — full Hebrew translations",
+    "src/i18n/he/tasks.json — full Hebrew translations",
+    "src/i18n/he/vouchers.json — full Hebrew translations",
+    "src/i18n/he/reservations.json — full Hebrew translations",
+    "src/i18n/he/settings.json — full Hebrew translations",
+    "src/App.tsx — RTL dir toggle via useEffect",
+    "All components — directional Tailwind classes replaced with logical properties"
+  ],
+  "qa_test_cases": [
+    {
+      "id": "qa-007-01",
+      "description": "Switch language to Hebrew in Settings",
+      "steps": [
+        "Open Settings",
+        "Tap 'עברית' language option",
+        "Observe entire UI"
+      ],
+      "expected": "HTML dir attribute becomes 'rtl', layout mirrors correctly, all text appears in Hebrew"
+    },
+    {
+      "id": "qa-007-02",
+      "description": "Switch back to English from Hebrew",
+      "steps": [
+        "While in Hebrew mode, open Settings",
+        "Tap 'English' language option"
+      ],
+      "expected": "HTML dir becomes 'ltr', layout returns to LTR, no visual regressions"
+    },
+    {
+      "id": "qa-007-03",
+      "description": "MasterListDrawer slide direction in RTL",
+      "steps": [
+        "Switch to Hebrew",
+        "Open a shopping list",
+        "Tap the Master List button to open the drawer"
+      ],
+      "expected": "Drawer slides in from the RIGHT (correct for RTL); closes to the right"
+    },
+    {
+      "id": "qa-007-04",
+      "description": "Hebrew text on all main screens",
+      "steps": [
+        "Switch to Hebrew",
+        "Navigate to Shopping, Tasks, Vouchers/Reservations, Settings screens"
+      ],
+      "expected": "All UI text is in Hebrew; no English strings visible (except proper nouns)"
+    },
+    {
+      "id": "qa-007-05",
+      "description": "Voucher card delete/image buttons in RTL",
+      "steps": [
+        "Switch to Hebrew",
+        "Open a voucher list with a voucher that has an image",
+        "Open voucher form with an image uploaded"
+      ],
+      "expected": "Remove image button appears at top-end (top-right in LTR = top-left in RTL); image size label at bottom-start"
+    },
+    {
+      "id": "qa-007-06",
+      "description": "Checkbox positioning in VouchersHub edit mode",
+      "steps": [
+        "Switch to Hebrew",
+        "Go to Vouchers hub",
+        "Tap edit mode (long press or edit button)",
+        "Observe selection checkboxes on list cards"
+      ],
+      "expected": "Checkboxes appear at top-end (top-left in RTL)"
+    },
+    {
+      "id": "qa-007-07",
+      "description": "Sign-in flow in Hebrew",
+      "steps": [
+        "Sign out",
+        "Switch to Hebrew via URL or default",
+        "Observe auth screen"
+      ],
+      "expected": "Auth screen labels and buttons appear in Hebrew"
+    },
+    {
+      "id": "qa-007-08",
+      "description": "LTR regression check",
+      "steps": [
+        "Keep language as English",
+        "Navigate all screens"
+      ],
+      "expected": "No layout regressions; all classes work identically to pre-fe-006"
+    }
+  ]
+}

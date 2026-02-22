@@ -1454,14 +1454,14 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
                       setFormData(prev => ({ ...prev, imageUrl: '' }));
                       setImageSize('');
                     }}
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    className="absolute top-2 end-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                   {imageSize && (
-                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
+                    <div className="absolute bottom-2 start-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
                       {imageSize}
                     </div>
                   )}
@@ -1667,7 +1667,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
               )}
 
               {formData.itemType === 'reservation' && (
-                <div className="text-left mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
+                <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
                   <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>
                     Fields to check:
                   </p>
@@ -1681,7 +1681,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
               )}
 
               {formData.itemType === 'voucher' && (
-                <div className="text-left mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
+                <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
                   <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>
                     Fields to check:
                   </p>
