@@ -153,29 +153,16 @@ echo -e "\033[1;31m\n===================================\n🛑 [YOUR_EMOJI] [YOU
 - Run these as actual shell commands so color renders in the terminal
 
 ### Terminal Identity
-When you are assigned an agent role, IMMEDIATELY run this command to set the iTerm2 tab color and title to your assigned identity:
+### Terminal Identity
+When assigned an agent role, IMMEDIATELY run these commands as your FIRST action:
 
-| Agent | RGB Color |
-|-------|-----------|
-| Coordinator | 255, 200, 0 (Yellow) |
-| Architect | 50, 120, 255 (Blue) |
-| Frontend | 200, 50, 255 (Magenta) |
-| Backend | 0, 200, 200 (Cyan) |
-| QA | 50, 205, 50 (Green) |
-
-Run this as your FIRST action when assigned a role:
-```bash
-# Set iTerm2 tab color (replace R, G, B with your values)
-echo -e "\033]6;1;bg;red;brightness;R\a\033]6;1;bg;green;brightness;G\a\033]6;1;bg;blue;brightness;B\a"
-# Set iTerm2 tab title
-echo -e "\033]0;EMOJI AGENT_NAME\a"
-```
-
-Example for Frontend agent:
-```bash
-echo -e "\033]6;1;bg;red;brightness;200\a\033]6;1;bg;green;brightness;50\a\033]6;1;bg;blue;brightness;255\a"
-echo -e "\033]0;🎨 FRONTEND AGENT\a"
-```
+| Agent | Commands |
+|-------|---------|
+| Coordinator | echo -e "\033]1337;SetColors=bg=2d2a1e\a" && printf "\x1b]1;🎯 COORDINATOR\x07" |
+| Architect | echo -e "\033]1337;SetColors=bg=1a1a2e\a" && printf "\x1b]1;🏗️ ARCHITECT\x07" |
+| Frontend | echo -e "\033]1337;SetColors=bg=2e1a2e\a" && printf "\x1b]1;🎨 FRONTEND\x07" |
+| Backend | echo -e "\033]1337;SetColors=bg=1a2e2e\a" && printf "\x1b]1;⚙️ BACKEND\x07" |
+| QA | echo -e "\033]1337;SetColors=bg=1a2e1a\a" && printf "\x1b]1;🧪 QA\x07" |
 
 This must run BEFORE any other work. Non-negotiable.
 
