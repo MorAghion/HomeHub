@@ -147,10 +147,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) return { error };
 
-      // Profile will be auto-created by database trigger
-      if (data.user) {
-        await fetchProfile(data.user.id);
-      }
+      // Profile will be auto-created by database trigger.
+      // Profile loading is handled by onAuthStateChange listener.
 
       return { error: null };
     } catch (error) {
@@ -167,9 +165,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) return { error };
 
-      if (data.user) {
-        await fetchProfile(data.user.id);
-      }
+      // Profile loading is handled by onAuthStateChange listener (SIGNED_IN event).
+      // We intentionally do NOT await fetchProfile here to avoid hanging the
+      // caller if the Supabase query is slow or stalls.
 
       return { error: null };
     } catch (error) {

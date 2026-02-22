@@ -1,0 +1,14 @@
+{
+  "id": "fe-005-bug-001-handoff",
+  "type": "bug_report",
+  "from_agent": "frontend",
+  "to_agent": "qa",
+  "created": "2026-02-22",
+  "severity": "critical",
+  "original_task": "fe-005",
+  "bug_task": "fe-005-bug-001",
+  "status": "fixed",
+  "summary": "Critical regression introduced in fe-005: react-i18next useSuspense default caused App.tsx to throw before auth screen rendered, leaving sign-in stuck.",
+  "fix_summary": "Added initImmediate:false and react:{useSuspense:false} to src/i18n/config.ts. Fix is minimal and targeted — no other files changed.",
+  "qa_action": "Please verify: (1) App loads and shows sign-in screen normally, (2) Signing in proceeds to dashboard, (3) Language toggle in Settings still works, (4) All translated strings display correctly in English."
+}
