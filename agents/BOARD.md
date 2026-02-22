@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-22 21:30 UTC
-**Current Phase:** 0.2 — Test Suite → Wave 3 ready to launch + 2 bugs in review
+**Last updated:** 2026-02-22 22:30 UTC
+**Current Phase:** 0.2 — Test Suite → Wave 3 in progress
 
 ---
 
@@ -10,8 +10,8 @@
 |------|-------|--------|--------|---------|-----------|-------|
 | Wave 1 | arch-001, qa-001, fe-007 | 🏗️🧪🎨 | ✅ Done | 2026-02-22 14:00 | 2026-02-22 16:45 | All parallel, 3 critical foundations |
 | Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ Frontend + Architect | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
-| Wave 3 | qa-002 | 🧪 QA | ⏳ Queued | — | — | QA validates Wave 2 FE output |
-| Wave 3b | fe-bug-001, fe-bug-002 → QA re-validation | 🎨→🧪 | ✅ Fixed, awaiting QA | 2026-02-22 | — | Critical sign-in fix + perf improvements |
+| Wave 3 | qa-003, qa-004, qa-005, qa-006 | 🧪 QA | ⏳ Queued | — | — | Remaining test suite |
+| Wave 3b | fe-bug-001, fe-bug-002, qa-002 | 🎨🧪 | ✅ Done | 2026-02-22 21:30 | 2026-02-22 22:30 | Both bugs validated + 87 tests passing |
 
 ---
 
@@ -19,7 +19,7 @@
 
 ```
 Phase 0.1 ██████████100%  (5/5 tasks done)   arch-001 ✅ | fe-001 ✅ | fe-002 ✅ | fe-003 ✅ | qa-001 ✅
-Phase 0.2 ██░░░░░░░░ 20%  (1/5 tasks done)   qa-001 ✅ | qa-002 ⏳ | qa-003 ⏳ | qa-004 ⏳ | qa-005 ⏳ | qa-006 ⏳
+Phase 0.2 ████░░░░░░ 33%  (2/6 tasks done)   qa-001 ✅ | qa-002 ✅ | qa-003 ⏳ | qa-004 ⏳ | qa-005 ⏳ | qa-006 ⏳
 Phase 0.3 ████░░░░░░ 33%  (1/3 tasks done)   arch-002 ✅ | be-001 🔒 | fe-004 🔒
 Phase 0.4 ████░░░░░░ 33%  (1/3 tasks done)   fe-005 ✅ | fe-006 ⏳ | qa-007 🔒
 Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be-002 ⏳
@@ -40,7 +40,7 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 
 | Terminal | Agent | Task | Started | Notes |
 |----------|-------|------|---------|-------|
-| — | 🧪 QA | qa-002 + fe-bug-001 + fe-bug-002 re-validation | — | Run QA agent next |
+| — | — | Wave 3b complete — awaiting Wave 3 launch | — | Run QA for qa-003/004/005/006 |
 
 ---
 
@@ -58,7 +58,7 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
-| qa-002: Voucher/Reservation tests | 🧪 QA | ⏳ todo | fe-001, fe-002, fe-003, qa-001 | All V2 |
+| qa-002: Voucher/Reservation tests | 🧪 QA | ✅ done | fe-001, fe-002, fe-003, qa-001 | All V2 |
 | qa-003: Shopping Hub tests | 🧪 QA | ⏳ todo | qa-001 | All V2 |
 | qa-004: Home Tasks tests | 🧪 QA | ⏳ todo | qa-001 | All V2 |
 | qa-005: E2E test suite | 🧪 QA | ⏳ todo | qa-001 | All V2 |
@@ -108,10 +108,7 @@ None.
 
 ## 🐛 Active Bugs
 
-| Bug | Title | Priority | Status | Agent |
-|-----|-------|----------|--------|-------|
-| fe-bug-001 | App initial load takes a long time | 🟠 high | 🔍 review | 🧪 QA to validate |
-| fe-bug-002 | Sign-in button unresponsive — click does nothing | 🔴 critical | 🔍 review | 🧪 QA to validate |
+None.
 
 ---
 
@@ -129,7 +126,9 @@ None.
 | fe-005 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | i18n framework: i18next + react-i18next, en/he translations, language toggle |
 | fe-005-bug-001 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | Fixed sign-in stuck: removed blocking fetchProfile from signIn/signUp |
 | fe-bug-002 | 🎨 Frontend | 2026-02-22 21:30 | Wave 3b | Critical: sign-in button unresponsive — premature setLoading(false) fix |
-| fe-bug-001 | 🎨 Frontend | 2026-02-22 21:30 | Wave 3b | Perf: initial bundle 224KB→140KB via lazy loading + dynamic tesseract import |
+| fe-bug-001 | 🎨🧪 Frontend+QA | 2026-02-22 22:30 | Wave 3b | Perf validated: bundle 224KB→140KB, lazy chunks confirmed, auth spinner fixed |
+| fe-bug-002 | 🎨🧪 Frontend+QA | 2026-02-22 22:30 | Wave 3b | Critical validated: sign-in button flow correct, build clean, 6 test cases passed |
+| qa-002 | 🧪 QA | 2026-02-22 22:30 | Wave 3b | 87 tests passing: VoucherCard, ReservationCard, forms, integration flow |
 
 ---
 

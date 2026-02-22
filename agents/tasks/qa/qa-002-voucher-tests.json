@@ -4,7 +4,7 @@
   "agent": "qa",
   "phase": "0.2",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["qa-001", "fe-001", "fe-002", "fe-003"],
   "blocks": [],
   "created": "2026-02-22",
@@ -31,6 +31,6 @@
     "tests/integration/vouchers-flow.test.tsx"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "87 tests passing (0 failures). Created 5 test files: VoucherCard.test.tsx (voucher type — 24 tests), ReservationCard.test.tsx (reservation type — 18 tests), CreateVoucherForm.test.tsx (form + CRUD — 15 tests), CreateReservationForm.test.tsx (form + CRUD — 14 tests), vouchers-flow.test.tsx (integration — 5 tests). All acceptance criteria met including render, CRUD callbacks, expiry display, image modal, form validation, submission, edit pre-fill, delete confirmation, and full create→edit→delete flow. Note: VoucherCard handles both voucher and reservation types; no separate ReservationCard component exists. Form is embedded in VoucherList, not a standalone component.",
   "notes": "Use the mock factories from qa-001. Test edge cases: missing image_url, very long names, expired vouchers, past-date reservations."
 }
