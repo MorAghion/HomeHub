@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Flame } from 'lucide-react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
-import { getContextIcon } from '../utils/iconMapping';
+import { getContextIcon } from '../utils/contextResolver';
 import type { TaskListInstance } from '../types/base';
 
 interface TasksHubProps {

@@ -1,0 +1,117 @@
+{
+  "id": "fe-006-cont-qa-handoff",
+  "type": "task_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-23",
+  "task_id": "fe-006-cont",
+  "unblocks": ["qa-007"],
+  "summary": "fe-006-cont complete. Settings page fully translated + Hebrew context mapping engine added. Branch: agent/fe-006-cont-hebrew-context-mapping",
+  "deliverables": [
+    "src/components/SettingsModal.tsx — all strings use t() — no more hardcoded English",
+    "src/i18n/en/settings.json — 30+ keys including all new ones",
+    "src/i18n/he/settings.json — full Hebrew translations for all settings keys",
+    "src/utils/he/contextMapping.ts — Hebrew keywords + Hebrew item names for all 12 contexts",
+    "src/utils/he/suggestions.ts — Hebrew suggestion templates + Hebrew keyword matching",
+    "src/utils/he/iconMapping.ts — Hebrew keyword → LucideIcon map",
+    "src/utils/contextResolver.ts — language-aware resolver, same function signatures as originals",
+    "src/components/ShoppingHub.tsx, VouchersHub.tsx, TasksHub.tsx, MasterListDrawer.tsx — imports redirected to contextResolver.ts"
+  ],
+  "qa_test_cases": [
+    {
+      "id": "qa-cont-01",
+      "description": "Settings page in Hebrew mode — no English strings visible",
+      "steps": [
+        "Switch to Hebrew",
+        "Open Settings modal",
+        "Review all visible text"
+      ],
+      "expected": "All text is Hebrew: הגדרות, חברי משק הבית, הגדרות שפה, הזמן שותף, הצטרף למשק בית אחר, מחק משק בית, התנתק"
+    },
+    {
+      "id": "qa-cont-02",
+      "description": "Settings page in English mode — no Hebrew strings visible",
+      "steps": [
+        "Keep English mode",
+        "Open Settings modal"
+      ],
+      "expected": "All text is English: Settings, Household Members, Language, Invite Your Partner, Join Another Household, Delete Household, Sign Out"
+    },
+    {
+      "id": "qa-cont-03",
+      "description": "Hebrew Sub-Hub name triggers context detection",
+      "steps": [
+        "Switch to Hebrew",
+        "Go to Shopping hub",
+        "Create a new list named 'סופרמרקט'"
+      ],
+      "expected": "Context 'grocery' is detected, suggestion bubbles appear, Master List items are in Hebrew (חלב, לחם, ביצים, etc.)"
+    },
+    {
+      "id": "qa-cont-04",
+      "description": "Hebrew pharmacy context",
+      "steps": [
+        "Switch to Hebrew",
+        "Create a list named 'תרופות'"
+      ],
+      "expected": "Context 'pharmacy' detected, Hebrew items injected (אספירין, פלסטרים, ויטמינים, etc.)"
+    },
+    {
+      "id": "qa-cont-05",
+      "description": "Hebrew camping context",
+      "steps": [
+        "Switch to Hebrew",
+        "Create a list named 'קמפינג'"
+      ],
+      "expected": "Context 'camping' detected, Hebrew items injected (אוהל, שק שינה, תרמיל גב, etc.)"
+    },
+    {
+      "id": "qa-cont-06",
+      "description": "English Sub-Hub names still work after resolver change",
+      "steps": [
+        "Keep English mode",
+        "Create a list named 'Grocery'"
+      ],
+      "expected": "Context 'grocery' detected, English items injected (Milk, Bread, Eggs, etc.) — no regression"
+    },
+    {
+      "id": "qa-cont-07",
+      "description": "Hebrew icon mapping — list named 'קמפינג' shows Tent icon",
+      "steps": [
+        "Switch to Hebrew",
+        "Create or view a list named 'קמפינג'"
+      ],
+      "expected": "Tent icon appears for the list card"
+    },
+    {
+      "id": "qa-cont-08",
+      "description": "Sign out confirm dialog in Hebrew",
+      "steps": [
+        "Switch to Hebrew",
+        "Open Settings → tap Sign Out button"
+      ],
+      "expected": "Confirm dialog says 'האם אתה בטוח שברצונך להתנתק?' (not English)"
+    },
+    {
+      "id": "qa-cont-09",
+      "description": "Remove member confirm dialog in Hebrew",
+      "steps": [
+        "Switch to Hebrew",
+        "Open Settings as household owner with >1 member",
+        "Tap remove button on a member"
+      ],
+      "expected": "Confirm dialog says 'להסיר את [Name] ממשק הבית?'"
+    },
+    {
+      "id": "qa-cont-10",
+      "description": "Switching language from Hebrew to English updates Master List items",
+      "steps": [
+        "Switch to Hebrew, create list 'סופרמרקט'",
+        "Open Master List drawer — items should be Hebrew",
+        "Switch language to English",
+        "Open Master List drawer again"
+      ],
+      "expected": "Items switch to English (Milk, Bread, Eggs, etc.) without page reload"
+    }
+  ]
+}
