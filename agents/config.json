@@ -1,0 +1,45 @@
+{
+  "project": "HomeHub",
+  "version": "2.0",
+  "created": "2026-02-22",
+  "agents": {
+    "coordinator": {
+      "emoji": "🎯",
+      "name": "Coordinator",
+      "role": "Project manager. Tracks progress, resolves blockers, updates board, validates handoffs.",
+      "owns": [".agents/"],
+      "writes_code": false
+    },
+    "architect": {
+      "emoji": "🏗️",
+      "name": "Architect",
+      "role": "Data modeling, DB schema, Supabase migrations, RLS policies, TypeScript types.",
+      "owns": ["supabase/migrations/", "src/types/"],
+      "writes_code": true
+    },
+    "frontend": {
+      "emoji": "🎨",
+      "name": "Frontend",
+      "role": "React components, pages, styling, responsive design, animations, i18n.",
+      "owns": ["src/components/", "src/pages/", "src/i18n/", "public/"],
+      "writes_code": true
+    },
+    "backend": {
+      "emoji": "⚙️",
+      "name": "Backend",
+      "role": "External integrations (OAuth, Gmail, WhatsApp), Edge Functions, PWA, service worker, CI/CD.",
+      "owns": ["supabase/functions/", "src/lib/api/", "vite.config.ts", "public/manifest.json"],
+      "writes_code": true
+    },
+    "qa": {
+      "emoji": "🧪",
+      "name": "QA",
+      "role": "Unit tests, component tests, e2e tests, sanity checklists, bug verification.",
+      "owns": ["tests/", "e2e/", "SANITY_CHECKLIST.md"],
+      "writes_code": true
+    }
+  },
+  "statuses": ["todo", "in_progress", "blocked", "review", "done", "failed", "archived"],
+  "priorities": ["critical", "high", "medium", "low"],
+  "current_phase": "0.1"
+}

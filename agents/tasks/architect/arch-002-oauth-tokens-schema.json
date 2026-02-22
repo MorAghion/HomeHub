@@ -1,0 +1,27 @@
+{
+  "id": "arch-002",
+  "title": "OAuth Tokens Schema",
+  "agent": "architect",
+  "phase": "0.3",
+  "priority": "high",
+  "status": "done",
+  "depends_on": [],
+  "blocks": ["be-001"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Create a secure table for storing OAuth refresh tokens (Gmail, Google Calendar). Tokens must be associated with a user and encrypted at rest.",
+  "acceptance_criteria": [
+    "Table 'oauth_tokens' exists with: id, user_id, provider ('gmail' | 'google_calendar'), access_token (encrypted), refresh_token (encrypted), expires_at, scopes, created_at, updated_at",
+    "RLS policies: users can only access their own tokens",
+    "TypeScript types exported from src/types/oauth.ts",
+    "Index on (user_id, provider) for fast lookups"
+  ],
+  "files_to_touch": [
+    "supabase/migrations/YYYYMMDD_oauth_tokens.sql",
+    "src/types/oauth.ts"
+  ],
+  "open_questions": [],
+  "completion_summary": "Created supabase/15-oauth-tokens.sql: table oauth_tokens (id, user_id, provider CHECK IN ('gmail','google_calendar'), access_token TEXT, refresh_token TEXT, expires_at, scopes TEXT[], created_at, updated_at) with UNIQUE(user_id, provider) constraint. RLS: user_id = auth.uid() on all four operations. anon role revoked entirely. Encryption contract: tokens must be AES-256-GCM encrypted by Edge Functions before INSERT/UPDATE (no vault dependency — keeps stack simple and consistent with existing pattern). Indexes: idx_oauth_tokens_user_provider (primary lookup), idx_oauth_tokens_expires_at (token refresh scheduling). updated_at trigger applied. Created src/types/oauth.ts: OAuthProvider, OAuthTokenRow (DB shape, ciphertext), OAuthToken (Edge Function shape, plaintext), OAuthTokenUpsert, toOAuthToken(), isTokenExpired(). VERIFICATION PASSED (2026-02-22): table_exists=1, rls_enabled=true, index_count=4, policy_count=4, unique_constraint=1. All acceptance criteria met. BE agent (be-001) unblocked.",
+  "updated": "2026-02-22",
+  "notes": "Consider using Supabase Vault for token encryption if available. Otherwise, encrypt in Edge Function before storing."
+}

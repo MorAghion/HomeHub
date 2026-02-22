@@ -1,0 +1,32 @@
+{
+  "id": "be-001",
+  "title": "Gmail OAuth 2.0 Integration",
+  "agent": "backend",
+  "phase": "0.3",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["arch-002"],
+  "blocks": ["fe-004"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Implement Gmail OAuth 2.0 flow with metadata-only read access. Store tokens in Supabase. Create Edge Function for email metadata fetching.",
+  "acceptance_criteria": [
+    "OAuth 2.0 authorization code flow implemented (Google Cloud Console setup documented)",
+    "Scope limited to gmail.readonly",
+    "Refresh tokens stored securely in oauth_tokens table (encrypted)",
+    "Token auto-refresh logic with error handling",
+    "Supabase Edge Function 'gmail-fetch' returns email metadata (sender, subject, date, has_attachments)",
+    "Rate limiting on Gmail API calls (respect Google quotas)",
+    "Error handling: expired tokens, revoked access, network failures",
+    "Disconnect endpoint that cleans up tokens"
+  ],
+  "files_to_touch": [
+    "supabase/functions/gmail-auth/index.ts (create — OAuth initiation + callback)",
+    "supabase/functions/gmail-fetch/index.ts (create — email metadata retrieval)",
+    "src/lib/api/gmail.ts (create — client-side API wrapper)",
+    "Environment variables documented in .env.example"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Google Cloud Console setup requires: OAuth consent screen, credentials, redirect URI. Document all setup steps in a SETUP.md for the developer to follow."
+}

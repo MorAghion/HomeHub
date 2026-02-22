@@ -26,7 +26,7 @@ export default {
         'hh-burgundy': '#630606', // הבורדו להדגשות
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'Arial', 'sans-serif'],
       },
     },
   },

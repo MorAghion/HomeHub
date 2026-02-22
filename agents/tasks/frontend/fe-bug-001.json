@@ -1,0 +1,25 @@
+{
+  "id": "fe-bug-001",
+  "title": "App initial load takes a long time — slow startup performance",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "done",
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "parent_task": null,
+  "reported_by": "human — manual testing",
+  "root_cause": "Three compounding issues: (1) ShoppingList, TaskList, and VoucherList were statically imported in App.tsx, adding ~88KB to the initial bundle even though they are never rendered on first load. (2) tesseract.js was statically imported in VoucherList.tsx, loading 17KB of OCR bootstrap at startup despite OCR only being used on image upload. (3) AuthContext started loading=true unconditionally, showing a blocking spinner even for unauthenticated users who have no stored session and don't need a network round-trip before seeing the auth screen.",
+  "steps_to_reproduce": [
+    "1. Open the app in browser (http://localhost:5173 or production URL)",
+    "2. Observe time from navigation to app being interactive",
+    "3. Note: load time is noticeably slow — large initial JS bundle, blocking spinner on first visit"
+  ],
+  "affected_files": [
+    "src/App.tsx",
+    "src/components/VoucherList.tsx",
+    "src/contexts/AuthContext.tsx"
+  ],
+  "fix_applied": "Three targeted fixes: (1) ShoppingList, TaskList, VoucherList converted to React.lazy() + Suspense in App.tsx — defers ~88KB from initial bundle into on-demand chunks. (2) Static 'import Tesseract from tesseract.js' removed from VoucherList.tsx; replaced with dynamic import() inside handleImageUpload — defers 17KB OCR chunk. (3) AuthContext.loading now initializes false for users with no stored Supabase session token (localStorage check) — auth screen renders immediately without any network wait for unauthenticated users.",
+  "completion_summary": "Initial JS bundle reduced from 224KB to 140KB raw (-37%, saves ~19KB gzipped). Unauthenticated users see auth screen instantly with zero network wait. Authenticated users see a loading spinner only while their existing session is validated. All three detail views lazy-load on first navigation with a spinner fallback. tesseract.js deferred entirely to point-of-use. Build passes clean."
+}

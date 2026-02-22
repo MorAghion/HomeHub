@@ -23,7 +23,9 @@ function AuthScreen() {
     if (error) {
       setError(error.message || 'Failed to sign in');
     }
-
+    // Always reset local button loading. On success, onAuthStateChange(SIGNED_IN)
+    // immediately sets authContext.loading=true, so the app shows the global spinner
+    // while profile fetches — the auth screen unmounts cleanly.
     setLoading(false);
   };
 
@@ -37,13 +39,14 @@ function AuthScreen() {
 
     if (error) {
       setError(error.message || 'Failed to sign up');
+      setLoading(false);
     } else {
+      // Sign-up requires email confirmation — user stays on auth screen, so reset loading.
       setMessage('Account created! You can now sign in.');
       setMode('signin');
       setPassword('');
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleJoinHousehold = async (e: React.FormEvent) => {
@@ -61,7 +64,7 @@ function AuthScreen() {
       localStorage.removeItem('homehub-pending-invite');
       setError(signUpError.message || 'Failed to create account');
     }
-
+    // Always reset local button loading — global spinner takes over on success.
     setLoading(false);
   };
 

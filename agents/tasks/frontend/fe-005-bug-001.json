@@ -1,0 +1,23 @@
+{
+  "id": "fe-005-bug-001",
+  "title": "Sign-in button stuck on 'Signing in...' — fetchProfile hangs signIn promise",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "critical",
+  "status": "done",
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "parent_task": "fe-005",
+  "root_cause": "In AuthContext.tsx, the signIn() function awaited fetchProfile(data.user.id) after a successful signInWithPassword(). fetchProfile makes two sequential Supabase queries (user_profiles + households) with no timeout. If either query hangs or is slow (e.g., network latency, RLS policy evaluation delay), the signIn promise never resolves. Since AuthScreen.tsx calls setLoading(false) only after await signIn() completes, the button stays permanently stuck on 'Signing in...'. Additionally, onAuthStateChange already fires SIGNED_IN and calls fetchProfile, so the await in signIn was redundant — creating a double-fetch race condition. The same issue existed in signUp().",
+  "steps_to_reproduce": [
+    "1. Navigate to the sign-in screen",
+    "2. Enter valid credentials and click 'Sign In'",
+    "3. Button shows 'Signing in...' and never reverts",
+    "4. No console errors visible — the promise simply hangs on fetchProfile"
+  ],
+  "affected_files": [
+    "src/contexts/AuthContext.tsx"
+  ],
+  "fix_applied": "Removed `await fetchProfile(data.user.id)` from both signIn() and signUp() functions. Profile loading is already handled by the onAuthStateChange listener which fires on SIGNED_IN/SIGNED_UP events. This eliminates the hanging promise and the redundant double-fetch. Zero tsc errors.",
+  "completion_summary": "Fixed in src/contexts/AuthContext.tsx. The signIn() and signUp() functions no longer await fetchProfile() — they return immediately after the Supabase auth call succeeds. The onAuthStateChange listener (already present, lines 96-130) handles profile loading on auth state transitions. This is both safer (no hanging promise) and more correct (single source of truth for profile loading). TypeScript compilation passes with zero errors."
+}

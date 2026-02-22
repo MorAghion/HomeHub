@@ -1,0 +1,32 @@
+{
+  "id": "be-002",
+  "title": "PWA Manifest & Service Worker Foundation",
+  "agent": "backend",
+  "phase": "0.5",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Set up PWA foundation: manifest.json, app icons, service worker via vite-plugin-pwa, and offline fallback.",
+  "acceptance_criteria": [
+    "manifest.json with: name 'HomeHub', icons (192px, 512px), theme_color '#630606', background_color '#F5F2E7', display 'standalone'",
+    "iOS meta tags for PWA (<meta name='apple-mobile-web-app-capable'>, splash screens)",
+    "vite-plugin-pwa installed and configured in vite.config.ts",
+    "Service worker: precache app shell, network-first for API calls",
+    "Offline fallback page displays when disconnected",
+    "App installable on Android Chrome and iOS Safari",
+    "Standalone mode works (no browser chrome visible)"
+  ],
+  "files_to_touch": [
+    "public/manifest.json (create)",
+    "public/icons/ (create app icons in required sizes)",
+    "vite.config.ts (add vite-plugin-pwa config)",
+    "index.html (add manifest link, iOS meta tags)",
+    "src/pages/Offline.tsx (create offline fallback page)"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Generate icons from the app logo in multiple sizes: 72, 96, 128, 144, 152, 192, 384, 512. Use maskable icon variant for Android."
+}

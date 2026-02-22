@@ -1,0 +1,28 @@
+{
+  "id": "fe-004",
+  "title": "Gmail Connection Settings UI",
+  "agent": "frontend",
+  "phase": "0.3",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["be-001"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Build the Settings UI for Gmail OAuth connection. Single-click connect button, status indicator, and disconnect option.",
+  "acceptance_criteria": [
+    "Settings page shows 'Connect Gmail' button when not connected",
+    "Clicking button initiates OAuth flow (opens Google consent screen)",
+    "After successful auth, status shows 'Connected' with green indicator and connected email address",
+    "Disconnect button with confirmation modal",
+    "Error handling: show error message if OAuth fails",
+    "Loading state during OAuth flow"
+  ],
+  "files_to_touch": [
+    "src/pages/Settings.tsx (modify)",
+    "src/components/settings/GmailConnection.tsx (create)"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "OAuth flow is handled by Backend agent (be-001). This task is UI only — calls the OAuth initiation endpoint and displays the result."
+}

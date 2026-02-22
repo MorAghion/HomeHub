@@ -167,3 +167,5 @@ Real-time Synchronization: Implementing WebSockets or Real-time listeners to ens
 User Authentication: Adding a secure login system (Google Auth / Magic Links) to associate data with a specific household ID.
 
 Image Hosting: Moving Base64 images from LocalStorage to a dedicated Storage Bucket (S3/Firebase Storage) to handle high-resolution photos of vouchers without performance degradation.
+
+See [SECURITY.md](./SECURITY.md) for full technical security architecture.

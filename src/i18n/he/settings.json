@@ -1,0 +1,15 @@
+{
+  "title": "הגדרות",
+  "language": "שפה",
+  "english": "English",
+  "hebrew": "עברית",
+  "gmailConnection": "חיבור Gmail",
+  "connectGmail": "חבר Gmail",
+  "connected": "מחובר",
+  "disconnect": "נתק",
+  "disconnectConfirm": "לנתק את Gmail?",
+  "disconnectMessage": "פעולה זו תפסיק את איתור החשבוניות האוטומטי מה-Gmail שלך.",
+  "household": "משק בית",
+  "account": "חשבון",
+  "signOut": "התנתק"
+}

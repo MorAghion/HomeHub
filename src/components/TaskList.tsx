@@ -226,15 +226,15 @@ function TaskList({
     <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
             <button
               onClick={onBack}
-              className="text-2xl hover:opacity-50 transition-opacity"
+              className="text-2xl hover:opacity-50 transition-opacity flex-shrink-0"
             >
               ←
             </button>
-            <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate" style={{ color: '#630606' }}>
                 {listName}
               </h1>
               {isUrgentView && (
@@ -245,7 +245,7 @@ function TaskList({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {!isUrgentView && tasks.length > 0 && (
               <button
                 onClick={() => {
@@ -343,7 +343,7 @@ function TaskList({
 
               {/* Priority toggle — h-9 */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium pl-1" style={{ color: '#8E806A' }}>
+                <label className="text-xs font-medium ps-1" style={{ color: '#8E806A' }}>
                   Priority
                 </label>
                 <div className="flex h-9 w-full rounded-lg border-2 overflow-hidden text-sm font-medium" style={{ borderColor: '#8E806A33' }}>
@@ -367,7 +367,7 @@ function TaskList({
 
               {/* Due Date — h-9, border on wrapper + overflow-hidden clips iOS native chrome */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium flex items-center gap-1 pl-1" style={{ color: '#8E806A' }}>
+                <label className="text-xs font-medium flex items-center gap-1 ps-1" style={{ color: '#8E806A' }}>
                   <Calendar size={11} strokeWidth={2} />
                   Due Date
                 </label>
@@ -423,7 +423,7 @@ function TaskList({
                       className="w-full px-3 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                       style={{ borderColor: '#8E806A33' }}
                     />
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import Tesseract from 'tesseract.js';
+import { useTranslation } from 'react-i18next';
+// tesseract.js is imported dynamically at point-of-use to keep it out of the initial bundle.
 import type { VoucherItem, Voucher, Reservation } from '../types/base';
 import VoucherCard from './VoucherCard';
 import ConfirmationModal from './ConfirmationModal';
@@ -28,6 +29,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
   const [extractionResults, setExtractionResults] = useState<string[]>([]);
 
   const { profile } = useAuth();
+  const { t } = useTranslation('vouchers');
 
   // Debug: Log list info on mount
   console.log('📂 VoucherList opened:', {
@@ -818,6 +820,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
       setIsScanning(true);
       try {
         console.log('📸 Starting OCR with Hebrew + English support...');
+        const { default: Tesseract } = await import('tesseract.js');
         const { data: { text } } = await Tesseract.recognize(
           base64,
           'heb+eng', // Support both Hebrew and English
@@ -1240,29 +1243,29 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
             <button
               onClick={onBack}
-              className="text-2xl hover:opacity-50 transition-opacity"
+              className="text-2xl hover:opacity-50 transition-opacity flex-shrink-0"
             >
               ←
             </button>
-            <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate" style={{ color: '#630606' }}>
                 {listName}
               </h1>
               <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
-                List ID: {listId} • {vouchers.length} items
+                {t('voucher', { count: vouchers.length })}
               </p>
             </div>
           </div>
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
             style={{ backgroundColor: '#630606' }}
           >
-            + Add Voucher
+            {t('addVoucher')}
           </button>
         </div>
       </header>
@@ -1273,17 +1276,17 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🎫</div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#630606' }}>
-              No Vouchers Yet
+              {t('noVouchersYet')}
             </h2>
             <p className="text-sm mb-6" style={{ color: '#8E806A' }}>
-              Add your first voucher to get started
+              {t('noVouchersAdd')}
             </p>
             <button
               onClick={openAddModal}
               className="px-6 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#630606' }}
             >
-              Add Your First Voucher
+              {t('addVoucher')}
             </button>
           </div>
         )}
@@ -1317,7 +1320,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-                  {editingVoucher ? 'Edit' : 'Add'} {formData.itemType === 'reservation' ? 'Reservation' : 'Voucher'}
+                  {editingVoucher ? t('common:edit') : t('addVoucher')}
                 </h2>
                 <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
                   Type: {formData.itemType} • List: {listName}
@@ -1451,14 +1454,14 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
                       setFormData(prev => ({ ...prev, imageUrl: '' }));
                       setImageSize('');
                     }}
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    className="absolute top-2 end-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                   {imageSize && (
-                    <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
+                    <div className="absolute bottom-2 start-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
                       {imageSize}
                     </div>
                   )}
@@ -1664,7 +1667,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
               )}
 
               {formData.itemType === 'reservation' && (
-                <div className="text-left mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
+                <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
                   <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>
                     Fields to check:
                   </p>
@@ -1678,7 +1681,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
               )}
 
               {formData.itemType === 'voucher' && (
-                <div className="text-left mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
+                <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
                   <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>
                     Fields to check:
                   </p>
@@ -1707,9 +1710,9 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
         isOpen={deleteConfirmation !== null}
         onClose={() => setDeleteConfirmation(null)}
         onConfirm={() => deleteConfirmation && handleDeleteVoucher(deleteConfirmation)}
-        title="Delete Voucher?"
-        message="Are you sure you want to delete this voucher? This action cannot be undone."
-        confirmText="Delete"
+        title={t('deleteVoucher')}
+        message={t('deleteVoucherMessage')}
+        confirmText={t('deleteConfirm')}
         isDestructive
       />
     </div>

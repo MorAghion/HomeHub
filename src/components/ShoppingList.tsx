@@ -254,14 +254,14 @@ function ShoppingList({
     <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <button onClick={onBack} className="text-2xl hover:opacity-50 transition-opacity">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <button onClick={onBack} className="text-2xl hover:opacity-50 transition-opacity flex-shrink-0">
               ←
             </button>
             {/* Master List Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="p-2 hover:bg-[#63060611] rounded-lg transition-colors"
+              className="p-2 hover:bg-[#63060611] rounded-lg transition-colors flex-shrink-0"
               style={{ color: '#630606' }}
               title="Open Master List"
             >
@@ -280,11 +280,11 @@ function ShoppingList({
                 />
               </svg>
             </button>
-            <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold truncate" style={{ color: '#630606' }}>
               {listName}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {/* Bulk Delete Toggle */}
             {!isBulkDeleteMode && (
               <button

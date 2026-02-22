@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Users, LogOut, UserMinus, Crown, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/config';
+import { X, Copy, Check, Users, LogOut, UserMinus, Crown, Trash2, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
 
@@ -16,6 +18,14 @@ interface HouseholdMember {
 
 function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { profile, signOut, createInvite, joinHousehold, removeMember, deleteHousehold, isOwner } = useAuth();
+  const { t } = useTranslation('settings');
+  const [currentLang, setCurrentLang] = useState(i18n.language);
+
+  const switchLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('homehub-lang', lang);
+    setCurrentLang(lang);
+  };
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -156,6 +166,40 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
         </div>
 
+        {/* Language Toggle */}
+        <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#F5F2E7' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <Globe size={18} style={{ color: '#630606' }} />
+            <h3 className="text-sm font-semibold" style={{ color: '#630606' }}>
+              {t('language')}
+            </h3>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => switchLanguage('en')}
+              className="flex-1 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                backgroundColor: currentLang === 'en' ? '#630606' : 'white',
+                color: currentLang === 'en' ? 'white' : '#630606',
+                border: currentLang === 'en' ? 'none' : '1.5px solid #63060644',
+              }}
+            >
+              {t('english')}
+            </button>
+            <button
+              onClick={() => switchLanguage('he')}
+              className="flex-1 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                backgroundColor: currentLang === 'he' ? '#630606' : 'white',
+                color: currentLang === 'he' ? 'white' : '#630606',
+                border: currentLang === 'he' ? 'none' : '1.5px solid #63060644',
+              }}
+            >
+              {t('hebrew')}
+            </button>
+          </div>
+        </div>
+
         {/* Household Members */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
@@ -190,7 +234,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   <button
                     onClick={() => handleRemoveMember(member.id, member.display_name)}
                     disabled={removingMemberId === member.id}
-                    className="ml-2 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-red-100 disabled:opacity-40 flex-shrink-0"
+                    className="ms-2 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-red-100 disabled:opacity-40 flex-shrink-0"
                     title={`Remove ${member.display_name || 'member'}`}
                   >
                     <UserMinus size={14} style={{ color: '#DC2626' }} />

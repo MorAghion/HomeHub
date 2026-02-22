@@ -1,15 +1,19 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
-import ShoppingList from './components/ShoppingList'
 import TasksHub from './components/TasksHub'
-import TaskList from './components/TaskList'
 import VouchersHub from './components/VouchersHub'
-import VoucherList from './components/VoucherList'
+
+// Lazy-load detail views — only needed after the user navigates into a specific list.
+// Keeps them out of the initial bundle, cutting ~50KB from first load.
+const ShoppingList = lazy(() => import('./components/ShoppingList'))
+const TaskList = lazy(() => import('./components/TaskList'))
+const VoucherList = lazy(() => import('./components/VoucherList'))
 import { ShoppingService } from './utils/supabaseShoppingService'
 import { MasterListService } from './utils/supabaseMasterListService'
 import { TaskService } from './utils/supabaseTaskService'
@@ -26,8 +30,20 @@ import type {
 } from './types/base'
 
 
+const LazyFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: '#F5F2E7' }}>
+    <div className="w-10 h-10 border-4 rounded-full animate-spin" style={{ borderColor: '#63060633', borderTopColor: '#630606' }} />
+  </div>
+);
+
 function App() {
   const { user, profile, loading } = useAuth();
+  const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
+
+  // Sync document dir with language so all RTL logical-property classes work
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === 'he' ? 'rtl' : 'ltr';
+  }, [i18n.language]);
 
   const keyboardHeight = useKeyboardHeight();
 
@@ -594,7 +610,7 @@ function App() {
   // Render Bottom Navigation
   const renderBottomNav = () => (
     <div
-      className="absolute bottom-0 left-0 w-full h-20 z-50 border-t backdrop-blur-md"
+      className="absolute bottom-0 inset-x-0 h-20 z-50 border-t backdrop-blur-md"
       style={{
         backgroundColor: 'rgba(245, 242, 231, 0.9)',
         borderColor: 'rgba(99, 6, 6, 0.1)'
@@ -610,7 +626,7 @@ function App() {
           }}
         >
           <ShoppingBag size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Shopping</span>
+          <span className="text-xs font-medium">{t('shopping:title')}</span>
         </button>
 
         <button
@@ -622,7 +638,7 @@ function App() {
           }}
         >
           <ListTodo size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Tasks</span>
+          <span className="text-xs font-medium">{t('tasks:title')}</span>
         </button>
 
         <button
@@ -634,7 +650,7 @@ function App() {
           }}
         >
           <Gift size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Vouchers</span>
+          <span className="text-xs font-medium">{t('vouchers:title')}</span>
         </button>
       </div>
     </div>
@@ -649,7 +665,7 @@ function App() {
       >
         <div className="text-center">
           <div className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#63060633', borderTopColor: '#630606' }}></div>
-          <p className="text-sm" style={{ color: '#8E806A' }}>Loading...</p>
+          <p className="text-sm" style={{ color: '#8E806A' }}>{t('common:loading')}</p>
         </div>
       </div>
     );
@@ -670,7 +686,7 @@ function App() {
       >
         {/* Fixed Header */}
         <header
-          className="absolute top-0 left-0 w-full h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
+          className="absolute top-0 inset-x-0 h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"
           style={{
             backgroundColor: 'rgba(245, 242, 231, 0.9)',
             borderColor: '#8E806A22'
@@ -680,7 +696,7 @@ function App() {
             onClick={() => window.location.reload()}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
             style={{ color: '#630606' }}
-            title="Refresh"
+            title={t('common:refresh')}
           >
             <RotateCcw size={18} strokeWidth={2} />
           </button>
@@ -694,7 +710,7 @@ function App() {
             onClick={() => setIsSettingsOpen(true)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
             style={{ color: '#630606' }}
-            title="Settings"
+            title={t('common:settings')}
           >
             <Settings size={20} />
           </button>
@@ -702,7 +718,7 @@ function App() {
 
         {/* Landing Page Layout */}
         {isLandingMode ? (
-          <div className="absolute top-16 left-0 right-0 bottom-0 overflow-hidden flex flex-col">
+          <div className="absolute top-16 inset-x-0 bottom-0 overflow-hidden flex flex-col">
             {/* Subtle Small Greeting */}
             <div className="flex-shrink-0 flex items-center justify-center pt-8 pb-6">
               <h2 className="text-xl font-medium" style={{ color: '#630606' }}>
@@ -735,13 +751,13 @@ function App() {
                     transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <ShoppingBag size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
-                      Shopping Lists
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <ShoppingBag size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
+                      {t('shopping:title')}
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(lists).length} {Object.keys(lists).length === 1 ? 'active list' : 'active lists'}
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
+                      {t('common:activeList', { count: Object.keys(lists).length })}
                     </p>
                   </div>
                 </div>
@@ -757,13 +773,13 @@ function App() {
                     transform: activeHub === 'tasks' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <ListTodo size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
-                      Home Tasks
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <ListTodo size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
+                      {t('tasks:title')}
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length} {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length === 1 ? 'active list' : 'active lists'}
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
+                      {t('common:activeList', { count: Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length })}
                     </p>
                   </div>
                 </div>
@@ -779,13 +795,13 @@ function App() {
                     transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <Gift size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
-                      Vouchers & Cards
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <Gift size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
+                      {t('vouchers:title')}
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(voucherLists).length} {Object.keys(voucherLists).length === 1 ? 'active list' : 'active lists'}
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
+                      {t('common:activeList', { count: Object.keys(voucherLists).length })}
                     </p>
                   </div>
                 </div>
@@ -796,7 +812,7 @@ function App() {
           /* Active Mode - Full Screen Hub */
           <div
             ref={cardStackRef}
-            className="absolute top-16 left-0 right-0 bottom-20 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+            className="absolute top-16 inset-x-0 bottom-20 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
             style={{
               scrollSnapType: 'x mandatory',
               WebkitOverflowScrolling: 'touch',
@@ -1002,6 +1018,7 @@ function App() {
     }
 
     return (
+      <Suspense fallback={<LazyFallback />}>
       <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <ShoppingList
         listName={currentList.name}
@@ -1102,6 +1119,7 @@ function App() {
         autoCategorize={autoCategorize}
       />
       </div>
+      </Suspense>
     );
   }
 
@@ -1116,6 +1134,7 @@ function App() {
     const isUrgentView = currentTaskList.id === 'home-tasks_urgent';
 
     return (
+      <Suspense fallback={<LazyFallback />}>
       <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <TaskList
         listName={currentTaskList.name}
@@ -1239,6 +1258,7 @@ function App() {
         onClearHighlight={() => setHighlightedTaskId(null)}
       />
       </div>
+      </Suspense>
     );
   }
 
@@ -1251,6 +1271,7 @@ function App() {
     }
 
     return (
+      <Suspense fallback={<LazyFallback />}>
       <div className="fixed inset-0 overflow-y-auto overflow-x-hidden" style={{ backgroundColor: '#F5F2E7', paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}>
         <VoucherList
         listName={currentVoucherList.name}
@@ -1295,6 +1316,7 @@ function App() {
         }}
       />
       </div>
+      </Suspense>
     );
   }
 }

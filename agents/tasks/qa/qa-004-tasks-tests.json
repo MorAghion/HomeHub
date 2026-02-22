@@ -1,0 +1,30 @@
+{
+  "id": "qa-004",
+  "title": "Home Tasks Hub Test Coverage",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["qa-001"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Write tests for Home Tasks Hub: task CRUD, urgency levels, urgent aggregation, deep-link flashlight, clear completed.",
+  "acceptance_criteria": [
+    "Component tests: task creation form validates and submits",
+    "Component tests: task card renders with correct urgency styling",
+    "Component tests: urgent tasks aggregation shows correct count and items",
+    "Component tests: clear completed tasks with confirmation",
+    "Integration test: create task → set urgency → appears in urgent aggregation → deep-link flashlight highlights task",
+    "All tests passing"
+  ],
+  "files_to_touch": [
+    "tests/components/tasks/TaskCard.test.tsx",
+    "tests/components/tasks/CreateTaskForm.test.tsx",
+    "tests/components/tasks/UrgentTasks.test.tsx",
+    "tests/integration/tasks-flow.test.tsx"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": ""
+}

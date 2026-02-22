@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Gift, Calendar, Plus, Pencil } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/iconMapping';
@@ -22,6 +23,7 @@ function VouchersHub({
   onDeleteLists,
   onBack,
 }: VouchersHubProps) {
+  const { t } = useTranslation('vouchers');
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedListsForDeletion, setSelectedListsForDeletion] = useState<Set<string>>(new Set());
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
@@ -97,20 +99,20 @@ function VouchersHub({
     <div className="px-6 py-8 overflow-x-hidden w-full" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <button
               onClick={onBack}
               className="text-2xl hover:opacity-50 transition-opacity"
             >
               ←
             </button>
-            <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
-              Vouchers & Cards
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#630606' }}>
+              {t('title')}
             </h1>
           </div>
 
           {/* Header Action Buttons - Circular Icon-Only Ghost UI */}
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsTemplateModalOpen(true)}
@@ -120,7 +122,7 @@ function VouchersHub({
                   color: '#630606',
                   border: '1.5px solid #630606'
                 }}
-                title="New Voucher List"
+                title={t('newVoucherList')}
               >
                 <Plus size={18} strokeWidth={2.5} />
               </button>
@@ -157,7 +159,7 @@ function VouchersHub({
             <div className="flex items-center gap-3">
               {selectedListsForDeletion.size > 0 && (
                 <span className="text-sm font-medium" style={{ color: '#630606' }}>
-                  {selectedListsForDeletion.size} selected
+                  {t('common:selected_other', { count: selectedListsForDeletion.size })}
                 </span>
               )}
               <button
@@ -165,7 +167,7 @@ function VouchersHub({
                 className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
-                {selectedListsForDeletion.size === listArray.length ? 'Deselect All' : 'Select All'}
+                {selectedListsForDeletion.size === listArray.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
             <div className="flex gap-2">
@@ -175,7 +177,7 @@ function VouchersHub({
                   className="px-4 py-2 rounded-lg text-sm font-medium text-white"
                   style={{ backgroundColor: '#DC2626' }}
                 >
-                  Delete Selected
+                  {t('common:deleteSelected')}
                 </button>
               )}
             </div>
@@ -194,17 +196,17 @@ function VouchersHub({
               })()}
             </div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#630606' }}>
-              No Vouchers Yet
+              {t('noVouchersYet')}
             </h2>
             <p className="text-sm mb-6" style={{ color: '#8E806A' }}>
-              Start organizing your gift cards, tickets, and vouchers
+              {t('noVouchersDesc')}
             </p>
             <button
               onClick={() => setIsTemplateModalOpen(true)}
               className="px-6 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#630606' }}
             >
-              Create Your First Voucher List
+              {t('createFirstList')}
             </button>
           </div>
         )}
@@ -217,7 +219,7 @@ function VouchersHub({
                 {isEditMode && (
                   <div
                     onClick={() => toggleListSelection(list.id)}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
+                    className="absolute -top-2 -end-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
                     style={{
                       borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
                       backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'white',
@@ -230,7 +232,7 @@ function VouchersHub({
                 )}
                 <button
                   onClick={() => !isEditMode && onSelectList(list.id)}
-                  className={`w-full bg-white p-6 rounded-2xl shadow-sm text-left transition-all ${
+                  className={`w-full bg-white p-6 rounded-2xl shadow-sm text-start transition-all ${
                     !isEditMode ? 'hover:bg-white hover:shadow-md active:scale-[0.98]' : 'opacity-70'
                   }`}
                   style={{ border: selectedListsForDeletion.has(list.id) ? '2px solid #630606' : '1px solid #8E806A22' }}
@@ -267,7 +269,7 @@ function VouchersHub({
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-                {selectedTemplate ? 'Choose Item Type' : 'Choose a Template'}
+                {selectedTemplate ? t('chooseItemType') : t('chooseTemplate')}
               </h2>
               <button
                 onClick={() => {
@@ -288,7 +290,7 @@ function VouchersHub({
                   <button
                     key={template.id}
                     onClick={() => handleTemplateSelect(template.id)}
-                    className="p-4 rounded-xl border-2 text-left transition-all hover:shadow-md hover:border-[#630606] active:scale-[0.98]"
+                    className="p-4 rounded-xl border-2 text-start transition-all hover:shadow-md hover:border-[#630606] active:scale-[0.98]"
                     style={{ borderColor: '#8E806A22' }}
                   >
                     <div className="text-3xl mb-2">{template.icon}</div>
@@ -305,7 +307,7 @@ function VouchersHub({
               // Type Selection (for Custom/Physical)
               <div className="space-y-4">
                 <p className="text-sm" style={{ color: '#8E806A' }}>
-                  What type of items will you store in this list?
+                  {t('itemTypeQuestion')}
                 </p>
 
                 {/* Radio Buttons */}
@@ -322,17 +324,17 @@ function VouchersHub({
                       value="voucher"
                       checked={selectedType === 'voucher'}
                       onChange={(e) => setSelectedType(e.target.value as 'voucher')}
-                      className="mt-1 mr-3"
+                      className="mt-1 me-3"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Gift size={20} strokeWidth={2} style={{ color: '#630606' }} />
                         <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
-                          Vouchers & Gift Cards
+                          {t('typeVoucher')}
                         </h3>
                       </div>
                       <p className="text-xs" style={{ color: '#8E806A' }}>
-                        Gift cards, coupons, and vouchers with value and expiry dates
+                        {t('typeVoucherDesc')}
                       </p>
                     </div>
                   </label>
@@ -349,17 +351,17 @@ function VouchersHub({
                       value="reservation"
                       checked={selectedType === 'reservation'}
                       onChange={(e) => setSelectedType(e.target.value as 'reservation')}
-                      className="mt-1 mr-3"
+                      className="mt-1 me-3"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar size={20} strokeWidth={2} style={{ color: '#630606' }} />
                         <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
-                          Reservations & Events
+                          {t('typeReservation')}
                         </h3>
                       </div>
                       <p className="text-xs" style={{ color: '#8E806A' }}>
-                        Restaurant bookings, movie tickets, and event reservations
+                        {t('typeReservationDesc')}
                       </p>
                     </div>
                   </label>
@@ -372,14 +374,14 @@ function VouchersHub({
                     className="flex-1 px-4 py-3 rounded-lg font-medium transition-colors hover:bg-[#8E806A11]"
                     style={{ color: '#8E806A', border: '1px solid #8E806A33' }}
                   >
-                    Back
+                    {t('common:back')}
                   </button>
                   <button
                     onClick={handleConfirmType}
                     className="flex-1 px-4 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
                     style={{ backgroundColor: '#630606' }}
                   >
-                    Create List
+                    {t('createList')}
                   </button>
                 </div>
               </div>
@@ -399,13 +401,13 @@ function VouchersHub({
             handleDeleteSingle(deleteConfirmation.listId);
           }
         }}
-        title={deleteConfirmation?.type === 'bulk' ? 'Delete Selected Lists?' : 'Delete Voucher List?'}
+        title={deleteConfirmation?.type === 'bulk' ? t('deleteSelectedLists') : t('deleteVoucherList')}
         message={
           deleteConfirmation?.type === 'bulk'
-            ? `Are you sure you want to delete ${selectedListsForDeletion.size} list${selectedListsForDeletion.size !== 1 ? 's' : ''}?`
-            : 'Are you sure you want to delete this voucher list and all its vouchers?'
+            ? t(selectedListsForDeletion.size === 1 ? 'deleteSelectedListsMessage_one' : 'deleteSelectedListsMessage_other', { count: selectedListsForDeletion.size })
+            : t('deleteVoucherListMessage')
         }
-        confirmText="Delete"
+        confirmText={t('deleteConfirm')}
         isDestructive
       />
     </div>
