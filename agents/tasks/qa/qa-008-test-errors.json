@@ -1,0 +1,51 @@
+{
+  "id": "qa-008",
+  "title": "Scan and fix test suite errors",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["qa-001"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "reported_by": "human",
+
+  "description": "Run the full test suite and fix any failing or erroring tests. Tests may have broken due to recent changes: fe-005 (i18n framework added — components now use useTranslation()), fe-006 (RTL dir attribute added to document, logical Tailwind classes), fe-bug-001 (React.lazy wrapping, dynamic tesseract import). Also check for test quality issues: missing coverage, incorrect assertions, skipped tests.",
+
+  "steps": [
+    "1. Run `npm test` and capture full output — identify all failing tests and errors",
+    "2. Run `npm run test:coverage` — identify files with 0% or very low coverage",
+    "3. For each failing test: diagnose root cause and fix (do NOT delete tests)",
+    "4. Common issues to look for:",
+    "   - i18n not initialized in test setup — components using useTranslation() will throw without i18n provider",
+    "   - React.lazy components need Suspense wrapper in tests",
+    "   - document.documentElement.dir being set in useEffect — may affect DOM-based tests",
+    "   - Mocks not reset between tests causing cross-contamination",
+    "5. If i18n is not set up in test utils — add i18n test initialization to tests/setup.ts or tests/utils/",
+    "6. Fix all errors. Re-run until `npm test` passes with 0 failures",
+    "7. Document any tests that needed structural changes in completion_summary"
+  ],
+
+  "files_to_check": [
+    "tests/unit/smoke.test.ts",
+    "tests/unit/mocks.test.ts",
+    "tests/components/vouchers/VoucherCard.test.tsx",
+    "tests/components/vouchers/CreateVoucherForm.test.tsx",
+    "tests/components/reservations/ReservationCard.test.tsx",
+    "tests/components/reservations/CreateReservationForm.test.tsx",
+    "tests/integration/vouchers-flow.test.tsx"
+  ],
+
+  "acceptance_criteria": [
+    "`npm test` runs to completion with 0 failures",
+    "No test is deleted — only fixed",
+    "i18n properly initialized in test environment if needed",
+    "All existing 87 tests still pass (no regressions from fixes)",
+    "Coverage report generated and noted in completion_summary"
+  ],
+
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "If a test exposes a real bug in application code (not just a test setup issue), follow the Bug Protocol in CLAUDE.md — create a bug JSON and handoff, do not silently ignore it."
+}
