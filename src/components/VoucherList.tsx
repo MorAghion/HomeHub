@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Tesseract from 'tesseract.js';
+// tesseract.js is imported dynamically at point-of-use to keep it out of the initial bundle.
 import type { VoucherItem, Voucher, Reservation } from '../types/base';
 import VoucherCard from './VoucherCard';
 import ConfirmationModal from './ConfirmationModal';
@@ -820,6 +820,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
       setIsScanning(true);
       try {
         console.log('📸 Starting OCR with Hebrew + English support...');
+        const { default: Tesseract } = await import('tesseract.js');
         const { data: { text } } = await Tesseract.recognize(
           base64,
           'heb+eng', // Support both Hebrew and English

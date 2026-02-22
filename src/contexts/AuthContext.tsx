@@ -36,7 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Start loading=true only if a stored session exists — so unauthenticated users
+  // see the auth screen immediately without waiting for getSession() to resolve.
+  const [loading, setLoading] = useState(() => {
+    return localStorage.getItem('sb-wwqvjiekakjetspucfxp-auth-token') !== null;
+  });
 
   const isOwner = profile !== null && profile.id === profile.household_owner_id;
 
@@ -134,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -158,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });

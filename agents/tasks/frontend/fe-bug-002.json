@@ -10,18 +10,17 @@
   "parent_task": null,
   "reported_by": "human — manual testing",
   "regression_of": "fe-005-bug-001",
-  "root_cause": "Premature setLoading(false) in AuthScreen.handleSignIn. The previous fix (fe-005-bug-001) correctly removed fetchProfile() from signIn(), making signIn() resolve in ~200ms. But the unconditional setLoading(false) at the end of handleSignIn fired immediately after — before onAuthStateChange had finished fetching the profile and navigating away. This reset the button from 'Signing in...' back to 'Sign In' in milliseconds, making the sign-in appear completely unresponsive. The dashboard would appear 1-2 seconds later 'out of nowhere'.",
+  "root_cause": "Premature setLoading(false) in AuthScreen.handleSignIn. The previous fix (fe-005-bug-001) removed fetchProfile from signIn(), making it resolve in ~200ms. The unconditional setLoading(false) immediately after caused the 'Signing in...' state to flash for <200ms then reset — making the button appear completely unresponsive. The dashboard appeared 1-2s later with no visible connection to the click. A secondary attempted fix (setLoading(true) in onAuthStateChange SIGNED_IN) created an infinite spinner because the safetyTimer had already been cleared by INITIAL_SESSION, so setLoading(false) was never reached if fetchProfile failed. Final fix: button always resets after signIn() returns; onAuthStateChange handles profile fetch and navigation in the background.",
   "steps_to_reproduce": [
     "1. Navigate to the sign-in screen",
-    "2. Enter credentials",
-    "3. Click the Sign In button",
-    "4. Nothing appears to happen — button instantly resets to 'Sign In'",
-    "5. Dashboard appears 1-2 seconds later unexpectedly"
+    "2. Enter valid credentials",
+    "3. Click Sign In",
+    "4. Previously: button flashed 'Signing in...' for <200ms then reset, dashboard appeared unexpectedly 1-2s later"
   ],
   "affected_files": [
     "src/components/AuthScreen.tsx",
     "src/contexts/AuthContext.tsx"
   ],
-  "fix_applied": "setLoading(false) in handleSignIn now only fires on error. On success, the button stays in 'Signing in...' state until onAuthStateChange finishes fetchProfile and App.tsx unmounts AuthScreen. Same fix applied to handleJoinHousehold (same pattern). handleSignUp is unchanged — it stays on the auth screen on success (email confirmation flow), so setLoading(false) is correct in both paths. Also fixed: unused 'data' variable in AuthContext.signIn() and signUp() that was breaking 'npm run build' (TypeScript noUnusedLocals).",
-  "completion_summary": "Sign-in button now shows 'Signing in...' continuously until navigation to dashboard. Build passes clean. Investigated 8 hypotheses via thorough code analysis — only premature setLoading was the actual bug."
+  "fix_applied": "AuthScreen.handleSignIn: setLoading(false) always called after signIn() returns (error or success). handleSignUp and handleJoinHousehold follow same pattern. AuthContext: removed unstable setLoading(true) in onAuthStateChange(SIGNED_IN) that caused infinite spinner. Also fixed: unused 'data' variable in signIn() and signUp() that broke npm run build (TypeScript noUnusedLocals).",
+  "completion_summary": "Sign-in button now shows 'Signing in...' during the network request, resets when done, and the dashboard loads in the background via onAuthStateChange. No infinite spinner. Build passes clean. Verified via multiple fix iterations — root cause fully resolved."
 }

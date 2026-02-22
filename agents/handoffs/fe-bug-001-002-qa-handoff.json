@@ -1,0 +1,59 @@
+{
+  "id": "fe-bug-001-002-qa-handoff",
+  "type": "bug_fix_complete",
+  "from_agent": "frontend",
+  "to_agent": "qa",
+  "created": "2026-02-22",
+  "status": "ready_for_qa",
+  "bugs_fixed": ["fe-bug-002", "fe-bug-001"],
+
+  "fe-bug-002": {
+    "title": "Sign-in button unresponsive",
+    "severity": "critical",
+    "files_changed": [
+      "src/components/AuthScreen.tsx",
+      "src/contexts/AuthContext.tsx"
+    ],
+    "what_changed": [
+      "handleSignIn: setLoading(false) always called after signIn() returns — button never permanently stuck",
+      "handleSignUp + handleJoinHousehold: same pattern applied",
+      "AuthContext: removed setLoading(true) in onAuthStateChange(SIGNED_IN) that caused infinite spinner",
+      "AuthContext: removed unused 'data' variable in signIn() and signUp() (was breaking npm run build)"
+    ],
+    "qa_test_cases": [
+      "Sign in with VALID credentials → button shows 'Signing in...' during request, resets, dashboard loads within 1-3s",
+      "Sign in with INVALID credentials → button shows 'Signing in...' briefly, resets to 'Sign In', error message appears",
+      "Sign in with empty fields → form HTML5 validation prevents submit (no network request)",
+      "Sign up new account → button shows 'Creating account...', resets, success message shown, mode switches to sign-in",
+      "Join household with invite code → button shows 'Joining...', resets, dashboard loads",
+      "Confirm npm run build completes with zero TypeScript errors"
+    ]
+  },
+
+  "fe-bug-001": {
+    "title": "Slow initial load",
+    "severity": "high",
+    "files_changed": [
+      "src/App.tsx",
+      "src/components/VoucherList.tsx",
+      "src/contexts/AuthContext.tsx"
+    ],
+    "what_changed": [
+      "App.tsx: ShoppingList, TaskList, VoucherList converted to React.lazy() + wrapped in Suspense",
+      "VoucherList.tsx: static 'import Tesseract' removed, replaced with dynamic import() at point-of-use",
+      "AuthContext.tsx: loading initializes false when no Supabase session token in localStorage"
+    ],
+    "bundle_before": "index.js 224KB raw / 52KB gzip (single chunk)",
+    "bundle_after": "index.js 140KB raw / 34KB gzip + 3 lazy chunks (TaskList 13KB, ShoppingList 34KB, VoucherList 41KB)",
+    "qa_test_cases": [
+      "Open app while LOGGED OUT → auth screen appears immediately, no loading spinner",
+      "Open app while LOGGED IN (page reload) → loading spinner appears briefly while session validates, then dashboard",
+      "Navigate into a shopping list → list opens normally (brief spinner fallback acceptable on first load)",
+      "Navigate into a task list → list opens normally",
+      "Navigate into a voucher list → list opens normally",
+      "On voucher list, tap camera/OCR button and upload image → OCR still works (tesseract loads on demand)",
+      "Full regression: create/edit/delete items across shopping, tasks, and vouchers — no regressions",
+      "Confirm no console errors on initial load"
+    ]
+  }
+}
