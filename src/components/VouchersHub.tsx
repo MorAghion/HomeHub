@@ -97,20 +97,20 @@ function VouchersHub({
     <div className="px-6 py-8 overflow-x-hidden w-full" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <button
               onClick={onBack}
               className="text-2xl hover:opacity-50 transition-opacity"
             >
               ←
             </button>
-            <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#630606' }}>
               Vouchers & Cards
             </h1>
           </div>
 
           {/* Header Action Buttons - Circular Icon-Only Ghost UI */}
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2">
             {!isEditMode && (
               <button
                 onClick={() => setIsTemplateModalOpen(true)}

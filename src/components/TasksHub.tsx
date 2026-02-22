@@ -92,7 +92,7 @@ function TasksHub({
             >
               ←
             </button>
-            <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#630606' }}>
               Home Tasks
             </h1>
           </div>

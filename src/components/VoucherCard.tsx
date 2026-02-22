@@ -103,7 +103,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
           </div>
 
           {/* Always-visible action buttons (shown on card hover) */}
-          <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1 ms-2">
             {/* Refresh button - only show if code is a URL */}
             {isCodeUrl && onRefreshDetails && (
               <button

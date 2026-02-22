@@ -1,0 +1,32 @@
+{
+  "id": "fe-002",
+  "title": "Static ReservationCard Component",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "critical",
+  "status": "todo",
+  "depends_on": ["arch-001"],
+  "blocks": ["qa-002"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Create a static ReservationCard.tsx component. Card displays: name, event date/time, address. Includes photo icon (if image attached). Full details accessible via modal.",
+  "acceptance_criteria": [
+    "ReservationCard.tsx created in src/components/reservations/",
+    "Imports Reservation type from src/types/reservation.ts",
+    "Displays: name, event date, time, address on card face",
+    "Photo icon visible only when image_url is present",
+    "Click opens ReservationDetailModal with full info",
+    "No dynamic type-checking — component only handles Reservation type",
+    "Styled consistently with VoucherCard (same grid, palette, spacing)",
+    "Grid layout works on mobile (1 col), tablet (2 col), desktop (3 col)"
+  ],
+  "files_to_touch": [
+    "src/components/reservations/ReservationCard.tsx (create)",
+    "src/components/reservations/ReservationDetailModal.tsx (create)",
+    "src/components/reservations/ReservationGrid.tsx (create or refactor)",
+    "Remove old dynamic card renderer references for reservation type"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Design should be visually distinct from VoucherCard (different accent or icon treatment) so users can tell them apart at a glance."
+}

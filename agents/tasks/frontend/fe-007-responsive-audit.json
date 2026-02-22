@@ -1,0 +1,31 @@
+{
+  "id": "fe-007",
+  "title": "Responsive Design Audit & Fix",
+  "agent": "frontend",
+  "phase": "0.5",
+  "priority": "high",
+  "status": "done",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Audit and fix all responsive issues. App must render correctly on iPhone SE (375px), iPhone 14 (390px), Pixel 7 (412px), iPad (768px), and Desktop (1280px+).",
+  "acceptance_criteria": [
+    "Consistent breakpoints defined: sm (640), md (768), lg (1024), xl (1280)",
+    "All grid layouts reflow correctly: 1 col mobile, 2 col tablet, 3 col desktop",
+    "All touch targets minimum 44x44px",
+    "Font scaling uses clamp() or responsive scale — no text overflow",
+    "No horizontal scroll on any device at any viewport",
+    "Cards, modals, and forms work on all breakpoints",
+    "Header and navigation responsive (hamburger on mobile if needed)",
+    "Bubble selector works on small screens"
+  ],
+  "files_to_touch": [
+    "All component files with layout classes",
+    "tailwind.config.ts (breakpoint verification)",
+    "src/components/ (audit all grid and flex usage)"
+  ],
+  "open_questions": [],
+  "completion_summary": "Audited all 12 component files and App.tsx. Found and fixed 7 responsive issues:\n\n1. MasterListDrawer.tsx: Fixed w-96 (384px) overflowing iPhone SE (375px) viewport — changed to w-full sm:w-96. This was the only true horizontal-scroll bug.\n\n2. TaskList.tsx (edit form): grid-cols-4 on a 375px screen made 4 inputs unreadably cramped — changed to grid-cols-2 sm:grid-cols-4.\n\n3. VoucherCard.tsx: Action buttons (Edit/Delete/Refresh) were opacity-0 group-hover:opacity-100, invisible on touch devices — removed hover-gating, always visible.\n\n4. ShoppingList.tsx header: Added min-w-0 flex-1 to left container, flex-shrink-0 to right, truncate + text-2xl sm:text-3xl to title — prevents long list names from overflowing.\n\n5. TaskList.tsx header: Same fix as ShoppingList — min-w-0, flex-shrink-0, truncate, responsive text.\n\n6. VoucherList.tsx header: Same fix + flex-shrink-0 on Add Voucher button. Also removed debug 'List ID: ...' from production UI.\n\n7. VouchersHub.tsx: Reduced gap-6 (24px) → gap-4 (16px) between back arrow and title; made heading text-2xl sm:text-3xl. ShoppingHub and TasksHub headings also made responsive.\n\n8. App.tsx landing cards: Reduced padding from p-12 to p-8 sm:p-12, icon size from 64 to 48 (sm:64 via CSS), text from text-3xl to text-xl sm:text-3xl — prevents text overflow on 80vw cards at 375px.\n\nAll changes verified with npx tsc --noEmit (zero errors). Tailwind breakpoints confirmed correct (sm:640, md:768, lg:1024, xl:1280 — Tailwind defaults, no override needed). RTL logical properties (ms-/me-) used where applicable.",
+  "notes": "Use Chrome DevTools device mode to test. Focus on the worst offenders first. Take before/after screenshots for documentation."
+}

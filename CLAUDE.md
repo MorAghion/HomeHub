@@ -1,0 +1,162 @@
+
+```markdown
+# CLAUDE.md — HomeHub Project Context
+
+## Project Overview
+HomeHub is a shared household management PWA built with React (Vite) + TypeScript + Tailwind CSS, backed by Supabase (Auth, Postgres, Storage, Edge Functions).
+
+## Architecture
+- **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS
+- **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions)
+- **State:** Supabase for persistent data, localStorage for offline cache
+- **Styling:** Tailwind with custom palette — Primary: #630606 (Burgundy), Background: #F5F2E7 (Cream)
+
+## Hierarchy
+- Hub (domain) → Sub-Hub (specific list) → Master List (template) + Active List (session)
+- Context engine maps Sub-Hub names to starter packs via keyword matching
+
+## Key Directories
+- src/components/ — Reusable UI components
+- src/pages/ — Route-level page components
+- src/lib/ — Business logic, utilities, Supabase client
+- src/hooks/ — Custom React hooks
+- src/i18n/ — Translation files (en/, he/)
+- supabase/functions/ — Edge Functions
+- supabase/migrations/ — Database migrations
+- tests/ — Unit and component tests (Vitest)
+- e2e/ — End-to-end tests (Playwright)
+
+## Conventions
+- All components are functional with hooks
+- Use TypeScript strict mode
+- Tailwind for all styling (no CSS files)
+- RTL support: use logical properties (ms-, me-, ps-, pe-) not directional (ml-, mr-)
+- All user-facing strings go through i18n (react-i18next)
+- Supabase RLS policies enforce household-level access
+
+## Data Models
+- Vouchers: id, name, value, issuer, expiry_date, code, image_url, notes, household_id
+- Reservations: id, name, event_date, time, address, image_url, notes, household_id
+- Bills: id, vendor_name, amount, due_date, billing_period, payment_link, pdf_url, status, household_id
+- Tasks: id, title, description, urgency, status, assignee_id, sub_hub_id, household_id
+
+## Testing
+- Unit/Component: Vitest + React Testing Library
+- E2E: Playwright
+- Run: npm test (unit), npm run test:e2e (playwright)
+
+## DO NOT
+- Do not use inline styles
+- Do not hardcode strings (use i18n keys)
+- Do not use ml-/mr-/pl-/pr- (use ms-/me-/ps-/pe- for RTL)
+- Do not store sensitive tokens in localStorage
+- Do not skip TypeScript types (no `any`)
+
+## Bug & Issue Protocol
+
+### When an agent finds a bug:
+1. Create a bug task JSON in the responsible agent's folder
+   - Naming: `{original-task-id}-bug-{NNN}.json` (e.g., `fe-001-bug-001.json`)
+   - Set `priority` based on severity (critical = blocks release, high = blocks other tasks, medium = cosmetic)
+   - Include: root cause description, steps to reproduce, affected files
+2. Create a handoff in `agents/handoffs/`
+   - Type: `bug_report`
+   - Reference the original task and the new bug task
+3. If the bug blocks your current task, set your task status to `blocked` and reference the bug in `open_questions`
+4. If the bug doesn't block you, continue your work and note it in your `completion_summary`
+
+### When an agent receives a bug to fix:
+1. Set the bug task status to `in_progress`
+2. Fix the issue
+3. Add a regression test (or request QA to add one)
+4. Set bug task status to `review`
+5. Create a handoff back to QA for re-validation
+
+### Severity Guide:
+- **critical**: App crashes, data loss, security issue → drop everything
+- **high**: Feature doesn't work, blocks other tasks → fix before moving on
+- **medium**: Visual glitch, minor UX issue → fix in current phase
+- **low**: Nice-to-have, polish → backlog it
+
+## Architect Rules
+- After every migration, verify: tables created, columns correct, RLS enabled, data migrated
+- Log verification results in the task JSON completion_summary
+
+## Handoff Protocol
+- Every agent must check agents/handoffs/ for pending handoffs addressed to them BEFORE starting work
+- If you produce files that another agent needs, create a handoff JSON in agents/handoffs/
+
+## Agent Output Protocol
+
+### Agent Identity & Colors
+Each agent has an assigned ANSI color for terminal output:
+
+| Agent | Emoji | Color | ANSI Code |
+|-------|-------|-------|-----------|
+| Coordinator | 🎯 | Yellow | \033[1;33m |
+| Architect | 🏗️ | Blue | \033[1;34m |
+| Frontend | 🎨 | Magenta | \033[1;35m |
+| Backend | ⚙️ | Cyan | \033[1;36m |
+| QA | 🧪 | Green | \033[1;32m |
+
+When signing off or alerting, use your assigned color by wrapping output in a shell echo command:
+
+### Sign-off (use your agent color)
+When you complete a task, run this command with YOUR color code:
+```bash
+echo -e "\033[1;35m\n===================================\n✅ 🎨 FRONTEND AGENT — TASK COMPLETE\nTask: fe-001 — VoucherCard Component\nStatus: done\n===================================\033[0m"
+```
+
+### Human Action Required (always RED)
+If your task requires the human to do something, run this BEFORE your sign-off:
+```bash
+echo -e "\033[1;31m\n🚨🚨🚨 HUMAN ACTION REQUIRED 🚨🚨🚨\nWhat: Apply the migration to Supabase\nRun:  supabase db push\nWhy:  New tables won't exist until migration is applied\n⏳ Blocked until complete\n🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\033[0m"
+```
+
+### Blocked (always RED)
+If you hit a blocker:
+```bash
+echo -e "\033[1;31m\n===================================\n🛑 [YOUR_EMOJI] [YOUR_NAME] — BLOCKED\nTask: [task-id] — [task-title]\nBlocker: [description]\nNeeds: [what you need to continue]\n===================================\033[0m"
+```
+
+### Rules
+- ALWAYS use your assigned color for sign-offs
+- ALWAYS use RED (\033[1;31m) for human actions and blockers
+- ALWAYS reset color at the end with \033[0m
+- Run these as actual shell commands so color renders in the terminal
+
+### Terminal Identity
+When you are assigned an agent role, IMMEDIATELY run this command to set the iTerm2 tab color and title to your assigned identity:
+
+| Agent | RGB Color |
+|-------|-----------|
+| Coordinator | 255, 200, 0 (Yellow) |
+| Architect | 50, 120, 255 (Blue) |
+| Frontend | 200, 50, 255 (Magenta) |
+| Backend | 0, 200, 200 (Cyan) |
+| QA | 50, 205, 50 (Green) |
+
+Run this as your FIRST action when assigned a role:
+```bash
+# Set iTerm2 tab color (replace R, G, B with your values)
+echo -e "\033]6;1;bg;red;brightness;R\a\033]6;1;bg;green;brightness;G\a\033]6;1;bg;blue;brightness;B\a"
+# Set iTerm2 tab title
+echo -e "\033]0;EMOJI AGENT_NAME\a"
+```
+
+Example for Frontend agent:
+```bash
+echo -e "\033]6;1;bg;red;brightness;200\a\033]6;1;bg;green;brightness;50\a\033]6;1;bg;blue;brightness;255\a"
+echo -e "\033]0;🎨 FRONTEND AGENT\a"
+```
+
+This must run BEFORE any other work. Non-negotiable.
+```
+
+So when you type "You are the Frontend agent", the first thing it does is turn the iTerm tab **magenta** and rename it to "🎨 FRONTEND AGENT" — before writing a single line of code.
+
+You'll end up with tabs like:
+```
+🎯 COORDINATOR  |  🏗️ ARCHITECT  |  🎨 FRONTEND  |  🧪 QA
+   (yellow)          (blue)          (magenta)      (green)
+```

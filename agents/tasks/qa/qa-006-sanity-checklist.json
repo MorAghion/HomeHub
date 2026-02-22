@@ -1,0 +1,27 @@
+{
+  "id": "qa-006",
+  "title": "Manual Sanity Checklist",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "medium",
+  "status": "todo",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Create a comprehensive manual sanity checklist document for pre-release regression testing across all target devices.",
+  "acceptance_criteria": [
+    "SANITY_CHECKLIST.md created in repo root",
+    "Device coverage: iPhone SE, iPhone 14, Pixel 7, iPad, Desktop Chrome, Desktop Firefox",
+    "Section per hub: Shopping, Tasks, Vouchers, Reservations",
+    "Section for cross-cutting: navigation, responsive, i18n/RTL, offline behavior",
+    "Each check item has: description, expected result, pass/fail checkbox",
+    "Visual regression checks for card layouts, modals, forms in both LTR and RTL"
+  ],
+  "files_to_touch": [
+    "SANITY_CHECKLIST.md (create)"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "This is a document task — no code changes. The checklist should be usable by a non-developer."
+}

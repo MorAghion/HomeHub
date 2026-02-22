@@ -1,0 +1,33 @@
+{
+  "id": "fe-001",
+  "title": "Static VoucherCard Component",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "critical",
+  "status": "todo",
+  "depends_on": ["arch-001"],
+  "blocks": ["qa-002"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Replace the dynamic card renderer for vouchers with a static VoucherCard.tsx component. No conditional type-checking at render time. Card displays: name, value (formatted as currency), issuer, expiry date. Includes photo icon (if image attached) and copy/link icon. Full details accessible via modal.",
+  "acceptance_criteria": [
+    "VoucherCard.tsx created in src/components/vouchers/",
+    "Imports Voucher type from src/types/voucher.ts",
+    "Displays: name, value (₪ formatted), issuer, expiry date on card face",
+    "Photo icon visible only when image_url is present",
+    "Copy icon copies voucher code to clipboard",
+    "Click opens VoucherDetailModal with full info + original screenshot",
+    "No dynamic type-checking — component only handles Voucher type",
+    "Styled with project palette: burgundy (#630606) accents, cream (#F5F2E7) background",
+    "Grid layout works on mobile (1 col), tablet (2 col), desktop (3 col)"
+  ],
+  "files_to_touch": [
+    "src/components/vouchers/VoucherCard.tsx (create)",
+    "src/components/vouchers/VoucherDetailModal.tsx (create)",
+    "src/components/vouchers/VoucherGrid.tsx (create or refactor)",
+    "Remove old dynamic card renderer references for voucher type"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Check existing dynamic card component to understand current props and behavior before replacing. Preserve all existing functionality, just make it static."
+}

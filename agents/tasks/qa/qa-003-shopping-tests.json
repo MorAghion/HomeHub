@@ -1,0 +1,35 @@
+{
+  "id": "qa-003",
+  "title": "Shopping Hub Test Coverage",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["qa-001"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Write tests for Shopping Hub: context engine, auto-categorization, bubble selector, master/active list management, smart merge.",
+  "acceptance_criteria": [
+    "Unit tests: context engine keyword matching (all 12 contexts)",
+    "Unit tests: autoCategorize maps items to correct categories",
+    "Unit tests: smart merge prevents duplicates (case-insensitive)",
+    "Component tests: BubbleSelector renders correct suggestions per context",
+    "Component tests: MasterList add/remove/toggle items",
+    "Component tests: ActiveList sort order (active on top, checked at bottom per category)",
+    "Integration test: create sub-hub → select bubble → items in master list → activate → check off",
+    "All tests passing, coverage >80% on business logic"
+  ],
+  "files_to_touch": [
+    "tests/unit/context-engine.test.ts",
+    "tests/unit/auto-categorize.test.ts",
+    "tests/unit/smart-merge.test.ts",
+    "tests/components/shopping/BubbleSelector.test.tsx",
+    "tests/components/shopping/MasterList.test.tsx",
+    "tests/components/shopping/ActiveList.test.tsx",
+    "tests/integration/shopping-flow.test.tsx"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": ""
+}

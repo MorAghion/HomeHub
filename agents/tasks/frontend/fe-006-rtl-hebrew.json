@@ -1,0 +1,31 @@
+{
+  "id": "fe-006",
+  "title": "RTL Layout + Hebrew Translations",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["fe-005"],
+  "blocks": ["qa-007"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Implement RTL layout support and complete all Hebrew translations.",
+  "acceptance_criteria": [
+    "dir='rtl' toggles on <html> element when Hebrew selected",
+    "All directional Tailwind classes replaced with logical properties (ms-/me-/ps-/pe- instead of ml-/mr-/pl-/pr-)",
+    "All absolute positioning reviewed and fixed for RTL",
+    "All Hebrew translation files completed with accurate translations",
+    "Context engine keywords work in Hebrew",
+    "Animations work correctly in RTL",
+    "No visual regressions in LTR (English) mode"
+  ],
+  "files_to_touch": [
+    "src/i18n/he/*.json (complete translations)",
+    "All component files with directional Tailwind classes",
+    "src/App.tsx or root layout (dir attribute toggle)",
+    "tailwind.config.ts (RTL plugin if needed)"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Use Tailwind RTL plugin or manual logical properties. Test every page in both LTR and RTL. Hebrew text direction is right-to-left but numbers remain left-to-right."
+}

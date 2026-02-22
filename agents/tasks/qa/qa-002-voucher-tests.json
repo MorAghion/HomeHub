@@ -1,0 +1,36 @@
+{
+  "id": "qa-002",
+  "title": "Voucher & Reservation Test Coverage",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["qa-001", "fe-001", "fe-002", "fe-003"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Write comprehensive tests for the refactored Voucher and Reservation components, forms, and data flows.",
+  "acceptance_criteria": [
+    "Unit tests: Voucher/Reservation data transformations, type guards",
+    "Component tests: VoucherCard renders all fields correctly",
+    "Component tests: ReservationCard renders all fields correctly",
+    "Component tests: VoucherDetailModal opens/closes with correct data",
+    "Component tests: ReservationDetailModal opens/closes with correct data",
+    "Component tests: CreateVoucherForm validates and submits",
+    "Component tests: CreateReservationForm validates and submits",
+    "Integration test: full flow — create voucher → appears in grid → open modal → verify data",
+    "All tests passing"
+  ],
+  "files_to_touch": [
+    "tests/components/vouchers/VoucherCard.test.tsx",
+    "tests/components/vouchers/VoucherDetailModal.test.tsx",
+    "tests/components/reservations/ReservationCard.test.tsx",
+    "tests/components/reservations/ReservationDetailModal.test.tsx",
+    "tests/components/vouchers/CreateVoucherForm.test.tsx",
+    "tests/components/reservations/CreateReservationForm.test.tsx",
+    "tests/integration/vouchers-flow.test.tsx"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Use the mock factories from qa-001. Test edge cases: missing image_url, very long names, expired vouchers, past-date reservations."
+}

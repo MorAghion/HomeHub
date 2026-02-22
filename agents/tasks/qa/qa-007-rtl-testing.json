@@ -1,0 +1,29 @@
+{
+  "id": "qa-007",
+  "title": "RTL & Hebrew Testing",
+  "agent": "qa",
+  "phase": "0.4",
+  "priority": "medium",
+  "status": "todo",
+  "depends_on": ["fe-006"],
+  "blocks": [],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Test all components and pages in RTL Hebrew mode. Verify no visual regressions in LTR English mode.",
+  "acceptance_criteria": [
+    "All E2E tests pass with locale set to Hebrew/RTL",
+    "Visual check: all card layouts correct in RTL",
+    "Visual check: all forms aligned correctly in RTL",
+    "Visual check: all modals render correctly in RTL",
+    "Visual check: navigation and headers correct in RTL",
+    "Animations work correctly in both directions",
+    "No regressions: all existing E2E tests still pass in English/LTR"
+  ],
+  "files_to_touch": [
+    "e2e/rtl.spec.ts (create)",
+    "e2e/fixtures/he-locale.ts (create)"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Run full E2E suite twice: once in English, once in Hebrew. Compare screenshots if possible."
+}

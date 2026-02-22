@@ -1240,26 +1240,26 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
     <div className="w-full px-6 py-8 overflow-x-hidden" style={{ backgroundColor: '#F5F2E7' }}>
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
             <button
               onClick={onBack}
-              className="text-2xl hover:opacity-50 transition-opacity"
+              className="text-2xl hover:opacity-50 transition-opacity flex-shrink-0"
             >
               ←
             </button>
-            <div>
-              <h1 className="text-3xl font-bold" style={{ color: '#630606' }}>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate" style={{ color: '#630606' }}>
                 {listName}
               </h1>
               <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
-                List ID: {listId} • {vouchers.length} items
+                {vouchers.length} items
               </p>
             </div>
           </div>
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
             style={{ backgroundColor: '#630606' }}
           >
             + Add Voucher

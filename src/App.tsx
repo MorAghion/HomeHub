@@ -735,12 +735,12 @@ function App() {
                     transform: activeHub === 'shopping' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <ShoppingBag size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <ShoppingBag size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
                       Shopping Lists
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
                       {Object.keys(lists).length} {Object.keys(lists).length === 1 ? 'active list' : 'active lists'}
                     </p>
                   </div>
@@ -757,12 +757,12 @@ function App() {
                     transform: activeHub === 'tasks' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <ListTodo size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <ListTodo size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
                       Home Tasks
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
                       {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length} {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length === 1 ? 'active list' : 'active lists'}
                     </p>
                   </div>
@@ -779,12 +779,12 @@ function App() {
                     transform: activeHub === 'vouchers' ? 'scale(1)' : 'scale(0.9)'
                   }}
                 >
-                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-12 flex flex-col items-center justify-center text-center">
-                    <Gift size={64} strokeWidth={2} style={{ color: '#630606' }} className="mb-6" />
-                    <h2 className="text-3xl font-bold mb-3" style={{ color: '#630606' }}>
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <Gift size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
                       Vouchers & Cards
                     </h2>
-                    <p className="text-lg" style={{ color: '#8E806A' }}>
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
                       {Object.keys(voucherLists).length} {Object.keys(voucherLists).length === 1 ? 'active list' : 'active lists'}
                     </p>
                   </div>

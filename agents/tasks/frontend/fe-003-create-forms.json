@@ -1,0 +1,30 @@
+{
+  "id": "fe-003",
+  "title": "Separate Create Forms for Vouchers and Reservations",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["arch-001"],
+  "blocks": ["qa-002"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Split the current create/edit form into two separate forms: CreateVoucherForm.tsx and CreateReservationForm.tsx. Sub-hub type determines which form to show. Include Smart Paste for URL detection.",
+  "acceptance_criteria": [
+    "CreateVoucherForm.tsx with fields: name, value, issuer, expiry_date, code, image upload, notes",
+    "CreateReservationForm.tsx with fields: name, event_date, time, address, image upload, notes",
+    "Sub-Hub type ('voucher' | 'reservation') determines which form renders",
+    "Form validation: required fields enforced, date pickers for dates, currency input for value",
+    "Smart Paste: pasting a BuyMe URL auto-fills voucher fields, Ontopo URL auto-fills reservation fields",
+    "Image upload stores to Supabase Storage and saves URL",
+    "Both forms submit to their respective Supabase tables"
+  ],
+  "files_to_touch": [
+    "src/components/vouchers/CreateVoucherForm.tsx (create)",
+    "src/components/reservations/CreateReservationForm.tsx (create)",
+    "Remove or refactor old unified create form"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Keep form styling consistent. Consider extracting shared form elements (image upload, notes field) into a shared component."
+}

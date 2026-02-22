@@ -1,0 +1,26 @@
+{
+  "id": "arch-002",
+  "title": "OAuth Tokens Schema",
+  "agent": "architect",
+  "phase": "0.3",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": [],
+  "blocks": ["be-001"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Create a secure table for storing OAuth refresh tokens (Gmail, Google Calendar). Tokens must be associated with a user and encrypted at rest.",
+  "acceptance_criteria": [
+    "Table 'oauth_tokens' exists with: id, user_id, provider ('gmail' | 'google_calendar'), access_token (encrypted), refresh_token (encrypted), expires_at, scopes, created_at, updated_at",
+    "RLS policies: users can only access their own tokens",
+    "TypeScript types exported from src/types/oauth.ts",
+    "Index on (user_id, provider) for fast lookups"
+  ],
+  "files_to_touch": [
+    "supabase/migrations/YYYYMMDD_oauth_tokens.sql",
+    "src/types/oauth.ts"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Consider using Supabase Vault for token encryption if available. Otherwise, encrypt in Edge Function before storing."
+}

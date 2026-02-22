@@ -1,0 +1,1604 @@
+HomeHub - Complete Product Manual & Technical Reference
+========================================================
+Version 1.0  |  February 2026
+Built with React 19.2 + TypeScript + Supabase + Vite 8
+
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+  1.  Product Overview
+  2.  Infrastructure & Hosting Architecture
+  3.  Security Model
+  4.  Authentication & Household System
+  5.  Application Shell & Navigation
+  6.  Shopping Hub
+  7.  Tasks Hub
+  8.  Vouchers & Cards Hub
+  9.  Settings
+  10. Data Layer & Database Schema
+  11. UI/UX Design System
+  12. Error Handling & User Feedback
+  13. Performance & Build Configuration
+
+
+================================================================================
+1. PRODUCT OVERVIEW
+================================================================================
+
+HomeHub is a private household management application designed for couples and
+small families. It replaces fragmented group chats and note apps with a single
+shared workspace organized into three core areas: Shopping, Tasks, and Vouchers.
+
+Every piece of data is scoped to a "household" — a shared account that two or
+more people join via a one-time invite code. All members see the same lists in
+real time via Supabase Realtime.
+
+Primary Platform
+================
+Mobile-first progressive web app (PWA-ready). Runs in the browser on iPhone,
+Android, and desktop. Deployed to Vercel at a public HTTPS URL.
+
+Technology Stack
+================
+  Framework:    React 19.2.0 with TypeScript 5.9
+  Backend:      Supabase (PostgreSQL 15, Row Level Security, Auth, Realtime)
+  Storage:      Supabase Storage (AWS S3 under the hood) for voucher images
+  OCR Engine:   Tesseract.js 7.0.0 (Hebrew + English recognition)
+  Icons:        Lucide React 0.564.0
+  CSS:          Tailwind CSS 4.1 (JIT)
+  Build Tool:   Vite 8.0.0-beta.13 with Rollup chunking
+  Hosting:      Vercel (CDN, HTTPS, automatic deployments from GitHub)
+
+
+================================================================================
+2. INFRASTRUCTURE & HOSTING ARCHITECTURE
+================================================================================
+
+Vercel (Hosting & CDN)
+======================
+Vercel serves the compiled React application as a static site. Every push to
+the main GitHub branch triggers an automatic build and deployment pipeline.
+The build output is a set of pre-compiled JavaScript chunks and one HTML file,
+all served from Vercel's global CDN with HTTPS enforced.
+
+Build chunks are split for optimal loading:
+  vendor-react.js      React and ReactDOM (the UI runtime)
+  vendor-supabase.js   Supabase SDK (auth + database + storage)
+  vendor-tesseract.js  Tesseract OCR library (only loaded when scanning)
+  vendor-ui.js         Lucide icon library
+  index.js             Application code (all components and logic)
+
+Supabase (Database + Auth + Realtime)
+======================================
+Supabase is the entire backend. It provides:
+
+  PostgreSQL Database:
+    Tables for all household data (shopping, tasks, vouchers) with Row Level
+    Security policies that enforce data isolation between households.
+
+  Authentication:
+    Email + password authentication. Sessions are stored in the browser's
+    localStorage and automatically refreshed before expiry.
+
+  Realtime:
+    Supabase broadcasts database changes to all connected clients. Shopping
+    lists, task lists, and voucher lists update live across devices without
+    any manual refresh. Tables enabled for Realtime:
+      shopping_lists, shopping_items, master_list_items,
+      task_lists, tasks, voucher_lists, voucher_items.
+
+  Edge Functions (RPC):
+    Server-side functions written in PL/pgSQL handle sensitive operations:
+      create_household_invite    Generate invite codes
+      join_household_via_invite  Validate and join a household
+      get_household_members      List all members in caller's household
+      remove_household_member    Eject a member (owner only)
+      delete_household           Delete household and all data (owner only)
+
+AWS S3 via Supabase Storage (Images)
+=====================================
+Voucher card images are uploaded to a private Supabase Storage bucket called
+"voucher-images". Supabase Storage is backed by AWS S3.
+
+File path convention inside the bucket:
+  {household_id}/{list_id}/{timestamp}.{ext}
+
+Example:
+  abc-123-household-id/def-456-list-id/1708000000000.jpg
+
+Because the bucket is PRIVATE, files are never accessible via a plain URL.
+The app generates a time-limited signed URL (valid approximately 10 years for
+display convenience) after each upload. This signed URL is stored in the
+database and used as the image source in the app.
+
+Supabase Storage RLS enforces that:
+  - Only authenticated users can read, write, update, or delete files
+  - The first path segment must match the user's own household_id
+  - A user in Household A cannot see or modify files from Household B
+
+
+================================================================================
+3. SECURITY MODEL
+================================================================================
+
+Row Level Security (RLS)
+=========================
+Every table in the database has RLS enabled. No data is accessible unless the
+requesting user's session matches the household ownership rule.
+
+The core rule for all data tables:
+  "household_id must equal the household_id stored in the calling user's
+  user_profiles row"
+
+This is implemented using a helper function:
+  public.current_user_household_id()
+
+Which executes:
+  SELECT household_id FROM user_profiles WHERE id = auth.uid()
+
+This function is SECURITY DEFINER, meaning it bypasses RLS to read the user's
+own profile without triggering a recursive policy evaluation.
+
+Policy Coverage Per Table
+==========================
+  shopping_lists       SELECT, INSERT, UPDATE, DELETE by household members
+  shopping_items       SELECT, INSERT, UPDATE, DELETE (inherits from parent list)
+  master_list_items    SELECT, INSERT, UPDATE, DELETE (inherits from parent list)
+  task_lists           SELECT, INSERT, UPDATE, DELETE by household members
+  tasks                SELECT, INSERT, UPDATE, DELETE (inherits from parent list)
+  voucher_lists        SELECT, INSERT, UPDATE, DELETE by household members
+  voucher_items        SELECT, INSERT, UPDATE, DELETE (inherits from parent list)
+  households           SELECT by members; UPDATE and DELETE by owner only
+  user_profiles        SELECT and UPDATE own profile only (non-recursive)
+  household_invites    SELECT by household members + PUBLIC select for valid codes;
+                       INSERT by household owner only
+  storage.objects      SELECT, INSERT, UPDATE, DELETE scoped by household_id
+                       in the file path (voucher-images bucket only)
+
+Owner Permissions
+==================
+The households table contains an owner_id column. The household owner is
+always the user who originally created the household on signup.
+
+Only the owner can:
+  - Generate invite codes
+  - Remove household members
+  - Delete the entire household
+  - Update household settings
+
+These restrictions are enforced both at the RLS policy level AND inside the
+server-side RPC functions, providing double enforcement.
+
+Cascade Delete Integrity
+=========================
+When a household is deleted, a full cascade wipe occurs automatically:
+
+  households
+    user_profiles           (CASCADE: household_id → households)
+    household_invites       (CASCADE: household_id → households)
+    shopping_lists          (CASCADE: fk_shopping_lists_household)
+      shopping_items        (CASCADE: list_id → shopping_lists)
+      master_list_items     (CASCADE: list_id → shopping_lists)
+    task_lists              (CASCADE: fk_task_lists_household)
+      tasks                 (CASCADE: list_id → task_lists)
+    voucher_lists           (CASCADE: fk_voucher_lists_household)
+      voucher_items         (CASCADE: list_id → voucher_lists)
+
+No orphaned data is left behind.
+
+Invitation Life Cycle
+======================
+Step 1: Owner clicks "Generate Invite Code" in Settings.
+Step 2: Server creates an 8-character alphanumeric code (excluding visually
+        confusing characters: 0, O, I, 1).
+Step 3: Code is stored in household_invites with:
+          expires_at = NOW() + 1 day
+          used_at = NULL
+Step 4: Owner shares the code with their partner verbally or by copy.
+Step 5: Partner signs up, enters the code in the "Join" tab.
+Step 6: Server validates: expires_at > NOW() AND used_at IS NULL.
+Step 7: If valid, partner's household_id is updated to the owner's household.
+Step 8: Code is marked as used: used_by = partner_id, used_at = NOW().
+Step 9: Partner's original (empty) household is deleted if they were the only
+        member.
+
+Brute-Force Protection
+=======================
+To prevent automated guessing of invite codes:
+
+  Maximum attempts per session:  5
+  Lock duration after 5 failures: 15 minutes
+  Storage:                        sessionStorage (resets on tab close)
+
+When 5 failed join attempts are detected, further attempts are blocked and
+the UI displays: "Too many failed attempts. Try again in X minute(s)."
+The countdown is shown in whole minutes. On lock expiry, the counter resets.
+
+Authentication Session Persistence
+=====================================
+The Supabase client is configured with:
+  persistSession:     true   (session survives page reloads via localStorage)
+  autoRefreshToken:   true   (JWT refreshed silently before expiry)
+  detectSessionInUrl: true   (magic-link and OAuth redirect support)
+
+On app load, the auth system fetches the existing session and the user profile
+before rendering any content, preventing the authentication screen from
+briefly flashing for already-logged-in users.
+
+
+================================================================================
+4. AUTHENTICATION & HOUSEHOLD SYSTEM
+================================================================================
+
+Sign Up
+========
+A new user provides:
+  Display Name   (shown to household members)
+  Email address  (used for login)
+  Password       (minimum 6 characters)
+
+On successful registration, a database trigger (handle_new_user) fires
+automatically and:
+  1. Creates a new households row with:
+       name     = display_name + "'s Household" (or display_name)
+       owner_id = new user's ID
+  2. Creates a user_profiles row linking the user to that household.
+
+The user immediately has a household and can invite others.
+
+Sign In
+========
+Email + password authentication via Supabase Auth. On success, the session
+is written to localStorage and the user profile is fetched.
+
+Join Mode (New User with Invite Code)
+=======================================
+A user who received an invite code selects the "Join" tab on the auth screen.
+They enter:
+  Invite Code    (8 uppercase characters, auto-formatted)
+  Display Name
+  Email
+  Password
+
+The invite code is saved to localStorage as "homehub-pending-invite" before
+the sign-up call. After the Supabase account is created and the SIGNED_IN
+event fires, the pending code is processed:
+  - Up to 5 retry attempts (with 500ms delay between) to handle database
+    propagation timing
+  - If successful, the user's household_id is updated to the inviting household
+  - Their original auto-created household (empty) is deleted
+
+Joining as an Existing User
+=============================
+Already-authenticated users can join a different household via the
+"Join Another Household" section in Settings. They enter an 8-character code
+and the join action runs immediately (no sign-out required). Their profile's
+household_id is updated and they see the new household's data immediately.
+
+User Profile
+=============
+Each user has one user_profiles row containing:
+  id                  (matches auth.users.id)
+  household_id        (the household they belong to)
+  display_name        (shown in member lists)
+  household_owner_id  (fetched from the households table on profile load)
+
+The isOwner flag in the app is:
+  profile.id === profile.household_owner_id
+
+This flag gates owner-only UI elements: invite generation, member removal,
+and household deletion.
+
+Household Member Visibility
+============================
+Due to Row Level Security on user_profiles (SELECT = own row only, to prevent
+recursive policy issues), the member list is fetched via a SECURITY DEFINER
+function:
+
+  get_household_members()
+
+This function bypasses RLS internally and returns all members of the caller's
+household with:
+  id, display_name, household_id, is_owner
+
+Members are ordered: owner first, then by join date ascending.
+
+Sign Out
+=========
+Clears the Supabase session and resets all local state (user, profile, session
+all become null). The auth screen is shown immediately.
+
+
+================================================================================
+5. APPLICATION SHELL & NAVIGATION
+================================================================================
+
+Overall Layout
+===============
+The app operates in two distinct modes:
+
+  Landing Mode (isLandingMode = true):
+    Shows the home view with a scrollable card stack carousel. The user sees
+    summary cards for Shopping, Tasks, and Vouchers. The header shows the
+    HomeHub title and a settings button. There is no bottom navigation.
+
+  Active Mode (isLandingMode = false):
+    The user has entered a hub. The header gains a back (refresh) button.
+    A fixed bottom navigation bar appears with icons for all three hubs.
+
+Header (always visible)
+========================
+  Height:     64px
+  Background: rgba(245, 242, 231, 0.9) with backdrop blur
+  z-index:    50 (above all content)
+
+  Left slot (landing mode):    Refresh button (RotateCcw icon)
+                               Clicking calls window.location.reload()
+  Left slot (active mode):     Same refresh button (used as back to reload)
+  Center:                      "HomeHub" text, clickable → returns to landing
+  Right slot:                  Settings gear icon → opens SettingsModal
+
+Bottom Navigation Bar (active mode only)
+==========================================
+  Height:     80px
+  Background: rgba(245, 242, 231, 0.9) with backdrop blur
+  z-index:    50
+
+  Three buttons, each with an icon and label:
+    Shopping   (ShoppingBag icon)
+    Tasks      (ListTodo icon)
+    Vouchers   (Gift icon)
+
+  Active button styling:
+    Background: #63060611 (burgundy 7% opacity)
+    Color:      #630606 (burgundy)
+    Rounded pill with label below icon
+
+  Inactive button styling:
+    Background: transparent
+    Color:      #8E806A (tan)
+
+  Clicking a button scrolls the card stack carousel to the corresponding hub
+  and sets activeHub accordingly.
+
+Card Stack Carousel (Landing Mode)
+====================================
+Three hub cards are arranged in a horizontal scroll container with snap points.
+
+  Card width:           80vw per card
+  Card height:          60vh
+  Side padding:         10vw (creates peek effect showing adjacent cards)
+  Scroll snap type:     mandatory, x-axis
+  Snap alignment:       center
+
+  Active card:          opacity 1.0, scale 1.0
+  Inactive cards:       opacity 0.4, scale 0.9
+
+  Each card shows:
+    Hub icon (large, 48px)
+    Hub name
+    Item count summary
+    Preview of recent items (up to 3)
+    Color-coded background based on hub type
+
+Hub Detection (Active Mode)
+=============================
+As the user scrolls the carousel, the app detects which hub card is most
+centered using three complementary methods:
+
+  1. Scroll event + debounced handler (150ms delay):
+     Fires on every scroll, calculates center of scroll container vs. center
+     of each card's offsetLeft + width/2.
+
+  2. scrollend event:
+     Fires when scrolling fully stops (Chrome 114+, iOS Safari 17.4+).
+     Provides a clean final detection point.
+
+  3. IntersectionObserver (root = carousel container, threshold = 0.5):
+     Fires when a card crosses 50% visibility within the carousel.
+
+  4. Safety net timers (requestAnimationFrame, 300ms, 800ms):
+     After initial page load, browsers may restore scroll position after the
+     first paint. These timers catch that case and re-run hub detection.
+
+  The activeHubRef stores the latest value via useRef to prevent the event
+  listeners from holding stale closures (which would cause them to re-attach
+  on every hub change).
+
+Viewport Lock
+==============
+When authenticated, the class "app-locked" is added to the body element.
+This CSS class applies:
+  height:   100dvh  (dynamic viewport height, accounts for mobile browser bars)
+  overflow: hidden
+  position: fixed
+  inset:    0
+
+This locks the viewport and prevents native browser pull-to-refresh and
+accidental page scrolling. The lock is removed when showing auth screens
+so that form inputs on small phones are reachable.
+
+Keyboard Handling
+==================
+A global focusin event listener detects when any input element receives
+focus. After a 300ms delay (to let the soft keyboard appear and resize the
+viewport), the focused element is scrolled into view using:
+  element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+
+The useKeyboardHeight hook detects keyboard height using the Visual Viewport
+API resize event. It calculates:
+  kh = window.innerHeight - visualViewport.height - visualViewport.offsetTop
+
+A 120px threshold filters out iOS Safari toolbar height fluctuations that
+would cause false positives. When the keyboard is open (kh > 120), modals
+and scroll containers add bottom padding equal to kh so content is visible
+above the keyboard.
+
+State Persistence
+==================
+Two pieces of state survive page refreshes via localStorage:
+  homehub-active-list          ID of the last open shopping list
+  homehub-active-task-list     ID of the last open task list
+
+This means users return to the same list they were viewing when they reload.
+
+
+================================================================================
+6. SHOPPING HUB
+================================================================================
+
+Hub Overview
+=============
+The Shopping Hub manages multiple named shopping lists. Each list is
+independently synced to Supabase. Lists belong to the household and are
+visible to all members.
+
+A special "Master List" runs alongside each shopping list as a reusable
+template — a persistent catalog of items the household regularly buys.
+
+Shopping Hub Screen (List Management)
+=======================================
+URL state: currentScreen = 'shopping-hub'
+
+Header elements:
+  Back arrow (←)     Returns to landing mode
+  Title              "Shopping Lists"
+  Plus button        Opens the Create List modal (circular, 36px, ghost border)
+  Pencil button      Toggles edit mode (only shown when lists exist)
+
+List grid:
+  1 column on mobile, 2 columns on medium+ screens
+  Each list card shows:
+    Context icon (auto-selected from list name keywords)
+    List name
+    Item count (e.g., "5 items")
+    Completed count (e.g., "2 done")
+
+Edit Mode
+==========
+When the Pencil button is pressed:
+  - Each list card gains a circular selection checkbox (top-right corner)
+  - A bulk action bar appears below the header
+  - Bulk action bar contains:
+      Select All / Deselect All button (left)
+      Delete Selected button (red, only visible if any selected)
+  - Individual cards also gain a delete icon button
+  - The Plus button is hidden in edit mode
+  - Pressing the Pencil button again (now showing a checkmark) exits edit mode
+
+Creating a New Shopping List
+==============================
+A modal dialog appears with a text input labeled "List name".
+  Placeholder: "e.g., Weekly Groceries"
+  Submit button: "Create"
+  Submit is disabled until the input is non-empty.
+
+After creation, the list appears immediately in the grid.
+
+Renaming a List
+================
+In edit mode, each list has an edit (pencil) icon button. Clicking it opens
+the same modal pre-filled with the current list name. The Submit button label
+becomes "Save".
+
+Deletion Confirmation
+======================
+All deletions (single or bulk) require confirmation via a ConfirmationModal:
+  Title:    "Delete Shopping List?" or "Delete X Lists?"
+  Message:  Describes what will be lost
+  Confirm:  Red "Delete" button
+  Cancel:   Grey "Cancel" button
+
+
+Shopping List Screen (Item Management)
+========================================
+URL state: currentScreen = 'shopping'
+
+Header elements:
+  Back arrow (←)        Returns to Shopping Hub
+  Clipboard icon         Opens Master List Drawer
+  Title                  List name
+  Bulk delete toggle     Pencil icon (right side)
+  Items left counter     "X left" in burgundy
+
+Add Item Row (fixed below header):
+  Large text input:  "Add something to the list..."
+  Auto-capitalizes first letter of each new item
+  Auto-categorizes based on item text keywords (see Auto-Categorization)
+  Pressing Enter or Submit button adds the item
+
+Auto-Categorization
+====================
+When an item is added, the autoCategorize() function compares the item text
+(case-insensitive) against 18 category keyword lists:
+
+  Category              Sample Keywords
+  ---------------------  -------------------------------------------------
+  Pharma & Hygiene      toothpaste, shampoo, deodorant, vitamin, sunscreen,
+                        aspirin, bandages, razor, makeup, cough syrup
+  Dairy                 milk, cheese, yogurt, butter, cream, ice cream
+  Meat                  chicken, beef, pork, lamb, turkey, sausage, steak
+  Fish                  salmon, tuna, shrimp, cod, crab, sardine, trout
+  Vegetables            tomato, lettuce, carrot, onion, potato, broccoli,
+                        pepper, spinach, garlic, mushroom, zucchini, kale
+  Fruit                 apple, banana, orange, grape, strawberry, mango,
+                        avocado, peach, kiwi, pomegranate, cherry
+  Pantry                bread, pasta, rice, flour, sugar, oil, cereal,
+                        honey, jam, spices, coffee, tea, crackers, nuts
+  Cleaning              soap, detergent, bleach, sponge, paper towel,
+                        dish soap, wipes, garbage bags, aluminum foil
+  Camping               tent, sleeping bag, lantern, cooler, flashlight
+  Pets                  dog food, cat food, pet treats, cat litter, collar
+  Baby                  diapers, wipes, formula, pacifiers, baby shampoo
+  Gardening             seeds, soil, fertilizer, shovel, pruning shears
+  Home Decor            curtains, rug, lamp, mirror, throw pillows, vase
+  Documents & Money     passport, ID, receipts, insurance
+  Home Renovation       paint, nails, drywall, sandpaper, drill, hammer
+  Party                 balloons, streamers, confetti, decorations
+  Baking                flour, sugar, baking soda, vanilla, chocolate chips
+  (default)             Pantry (fallback when no keywords match)
+
+Item Display (Grouped by Category)
+====================================
+Items are grouped by their category and displayed in sections.
+
+Category header format:  DAIRY (3)  [ALL CAPS, bold, with count in parentheses]
+
+Within each category group:
+  Incomplete items appear first, sorted by insertion order.
+  Completed items appear below, sorted by completion order.
+
+Each item row contains:
+  Round checkbox (left)     Tap to toggle completion
+  Item text (center)        Completed items: line-through + 40% opacity
+  Edit button (pen icon)    Hover-reveal, opens inline edit
+  Delete button (× icon)    Hover-reveal, removes the item
+
+Completed Item Behavior
+========================
+When a checkbox is tapped:
+  - Item immediately shows line-through styling and reduced opacity
+  - Supabase record updated (checked = true)
+  - Item moves to the "completed" section at the bottom of its category
+
+The "Clear Completed" action in bulk edit mode removes all completed items
+from the list in one operation.
+
+Inline Item Editing
+====================
+Clicking the edit button on any item shows an inline edit form replacing
+the item row:
+  Text input:      Pre-filled with current item text
+  Category select: Dropdown with all 18 categories pre-selected
+  Save button:     Checkmark icon
+  Cancel button:   X icon
+
+Saving capitalizes the first letter of the item text.
+
+Duplicate Detection
+====================
+When a new item is typed and submitted, the system checks whether any existing
+(non-completed) item in the current list has the same name (case-insensitive).
+
+If a duplicate is detected:
+  A modal dialog appears: "Item Already Exists"
+  Message: "'{item}' is already in your list. Add it anyway?"
+  Two buttons: "Add Anyway" (burgundy) and "Cancel" (grey)
+
+Bulk Delete Mode
+=================
+Pressing the Pencil button in the header activates bulk delete mode.
+
+In bulk delete mode:
+  - Each item's round completion checkbox is replaced by a square selection
+    checkbox (cannot mark complete while selecting)
+  - A bulk action bar appears below the header with:
+      {N} selected (count indicator, only when something is selected)
+      Row 1: "Select All" and "Clear Completed (N)" (equal-width buttons)
+      Row 2 (when items selected): "Check Selected" and "Delete Selected"
+
+  "Check Selected":
+    Marks all selected items as Completed.
+
+  "Delete Selected":
+    Opens a confirmation modal, then deletes all selected items.
+
+  "Clear Completed (N)":
+    Opens a confirmation modal, then removes all completed items.
+    The count N shows how many completed items would be removed.
+
+Master List Drawer
+===================
+A slide-in panel from the left side of the screen (width: 384px on desktop,
+full width on mobile). Triggered by the Clipboard icon in the header.
+
+The Master List is a persistent catalog of items the household commonly buys.
+It is stored in Supabase (master_list_items table) and shared across all
+shopping lists in the household.
+
+Drawer contents:
+  Header:         "Master List" with close button
+  Search field:   Filter master items by text
+  Add Item form:  Text input + category dropdown + Add button
+  Template section (collapsible):
+    Context-aware templates based on the active list's name
+    Example: For a list named "Camping Trip", the Camping template
+    appears with 20 pre-defined items
+  Item list:      Grouped by category, with add-to-list and delete buttons
+
+Available Context Templates (determined by list name keyword matching):
+  Stock Supplies      batteries, lightbulbs, toilet paper, soap, cleaning supplies...
+  Grocery List        milk, cheese, eggs, bread, chicken, salmon, vegetables...
+  Pharmacy            aspirin, toothpaste, vitamins, band-aids, sunscreen...
+  Camping Trip        tent, sleeping bag, lantern, flashlight, first aid kit...
+  Travel Abroad       passport, travel adapter, luggage, travel insurance...
+  Baby Items          diapers, baby wipes, formula, bottles, pacifiers...
+  Home Renovation     paint, brushes, nails, sandpaper, primer...
+  Baking Supplies     flour, sugar, butter, vanilla extract, chocolate chips...
+  Party Supplies      balloons, plates, napkins, streamers, confetti...
+  Pet Supplies        dog food, cat litter, pet toys, pet shampoo...
+  Gardening           seeds, soil, fertilizer, shovel, garden gloves...
+  Home Decor          curtains, rug, lamp, mirror, throw pillows...
+
+Adding items from the Master List:
+  "Add" button (per item): Adds that single item to the active shopping list.
+  "Add All" button: Bulk-adds all visible (search-filtered) master items.
+
+Items added from the master list are auto-categorized using the stored
+category from the master list record.
+
+
+================================================================================
+7. TASKS HUB
+================================================================================
+
+Hub Overview
+=============
+The Tasks Hub manages home task lists. Tasks can be assigned a priority level,
+a due date, a status, and an assignee name. A special computed "Urgent Tasks"
+view automatically collects all High-priority tasks across all lists.
+
+Tasks Hub Screen (List Management)
+=====================================
+URL state: currentScreen = 'home-tasks-hub'
+
+Header elements:
+  Back arrow (←)       Returns to landing mode
+  Title                "Home Tasks"
+  Plus button          Opens Create Task List modal
+  Pencil button        Toggles edit mode (only when lists exist)
+
+List cards:
+
+  Regular lists:
+    White card with context icon, list name, task count
+    Sub-count: "X pending" and "X completed"
+
+  Urgent Tasks (system list — always shown when tasks exist):
+    Gradient card: #630606 → #8b0000 (dark burgundy)
+    White text on dark background
+    Flame icon (Flame from Lucide)
+    Gold badge (#FFD700) showing number of urgent tasks
+    Tapping this card opens the Urgent Tasks view (read-only aggregation)
+
+Edit Mode (regular lists only)
+================================
+The Urgent Tasks card is excluded from edit mode — it cannot be renamed or
+deleted as it is a computed view, not a database record.
+
+In edit mode for regular lists:
+  Selection checkbox appears on each list card
+  Bulk action bar: Select All and Delete Selected
+
+Task List Screen (Task Management)
+=====================================
+URL state: currentScreen = 'home-tasks'
+
+Header elements:
+  Back arrow (←)         Returns to Tasks Hub
+  Clipboard icon          Opens Task Master List Drawer
+  Title                   List name (or "Urgent Tasks")
+  Pencil button           Toggles bulk edit mode
+
+Urgent Tasks View
+==================
+When the user opens the Urgent Tasks card, they see a read-only list of all
+tasks with urgency = 'High' from ALL task lists in the household.
+
+Each task in this view shows:
+  Source list name (sub-label in tan text)
+  Task name
+  Due date (if set)
+  Priority badge (red)
+  "Go to Task" button (navigates to the source list with flashlight highlight)
+
+The Urgent view does not allow editing. Toggling a task's urgency can be done
+from within its source list.
+
+Adding a New Task
+==================
+The add-task form is always visible at the top of the task list:
+
+  Task Name input:
+    Full-width text field, height 44px
+    Placeholder: "New task..."
+
+  Priority toggle:
+    Three-button segmented control (full width, height 36px)
+    Buttons: Low | Medium | High
+    Active state: colored background matching urgency level
+      Low:    #10B981 (green)
+      Medium: #F59E0B (amber)
+      High:   #DC2626 (red)
+    Default: Medium
+
+  Due Date input:
+    Full-width date input field (height 36px)
+    Label: "Due Date" with Calendar icon
+    Wrapper div handles border styling (overflow: hidden)
+    Native date picker on mobile
+
+  Add Task button:
+    Full-width, height 32px
+    Disabled if task name is empty
+
+Task Interface
+===============
+Each task stores:
+  id          UUID (auto-generated)
+  name        Task description text
+  status      'Not Started', 'In Progress', or 'Completed' (default: Not Started)
+  urgency     'Low', 'Medium', or 'High' (default: Medium)
+  dueDate     ISO date string (optional)
+  assignee    Name string (optional)
+
+Task Item Display
+==================
+Each task row shows (in view mode):
+  Left:    Completion checkbox (square, filled burgundy when complete)
+  Center:  Task name (bold)
+           Due date (calendar icon + formatted date, if set)
+           Urgency badge (colored pill: Low/Medium/High)
+           Status badge (grey pill for In Progress, hidden for Not Started)
+           Assignee (person icon + name, if set)
+  Right:   Edit button (pen icon, hover-reveal)
+           Delete button (trash icon, hover-reveal)
+
+Toggling Completion
+====================
+Clicking the completion checkbox cycles through statuses:
+  Completed → In Progress (reverting)
+  Any other → Completed
+
+Task Editing
+=============
+Clicking the edit button expands an inline edit form:
+  Task Name input       Pre-filled with current name
+  Status dropdown       'Not Started' / 'In Progress' / 'Completed'
+  Priority buttons      Low / Medium / High toggle
+  Due Date input        Date picker
+  Assignee input        Free text field for person's name
+  Save button           Checkmark icon
+  Cancel button         X icon
+
+Flashlight Highlight Effect
+=============================
+When navigating from the Urgent Tasks view to a task's source list via
+"Go to Task", the app:
+  1. Sets highlightedTaskId to the task's id
+  2. Navigates to the source task list
+  3. Scrolls the task into view: scrollIntoView({ behavior: 'smooth' })
+  4. Applies the CSS class "flashlight-highlight" to the task row
+  5. The animation pulses a burgundy glow around the row for 3 seconds:
+       Inset: box-shadow expands out (0px → 20px) and fades
+       Border: rgba(99, 6, 6, 0.7) → transparent
+       Background: rgba(99, 6, 6, 0.05) → white
+  6. After 3 seconds, the highlight class is removed
+
+Bulk Edit Mode (Tasks)
+=======================
+Pressing the Pencil button activates bulk edit mode.
+
+Bulk action bar contents:
+  {N} selected (count label, visible when items selected)
+  Row 1: "Select All" / "Deselect All" | "Clear Completed (N)"
+  Row 2 (when items selected): "Check Selected" | "Delete Selected"
+
+"Check Selected":
+  Marks all selected tasks as Completed in one operation.
+  Clears selection and exits bulk mode automatically.
+
+"Delete Selected":
+  Confirmation modal, then deletes all selected tasks.
+
+"Clear Completed (N)":
+  Confirmation modal, then deletes all tasks with status = 'Completed'.
+  N shows the count of tasks that would be removed.
+
+Task Master List
+=================
+A persistent catalog of common household tasks. Works identically to the
+Shopping Master List but stores task templates instead of shopping items.
+Accessed via the Clipboard icon in the header.
+
+Urgent Task Aggregation Logic
+===============================
+The app maintains a virtual task list with ID "home-tasks_urgent". This list
+is not stored in the database. It is computed on every data load:
+
+  getUrgentTasks(taskListsRecord) filters all tasks across all lists where:
+    urgency === 'High' AND status !== 'Completed'
+
+The result is stored as a read-only TaskListInstance in the taskLists state.
+When this virtual list is selected, the UI renders a special urgent view mode.
+Tasks in the urgent view retain their sourceListId so the "Go to Task"
+navigation can identify which real list to open.
+
+
+================================================================================
+8. VOUCHERS & CARDS HUB
+================================================================================
+
+Hub Overview
+=============
+The Vouchers Hub stores gift cards, digital vouchers, physical cards, and
+restaurant/event reservations. It handles two data types: Vouchers (with
+monetary value and expiry) and Reservations (with date, time, and location).
+
+Voucher Hub Screen (List Management)
+=======================================
+URL state: currentScreen = 'vouchers-hub'
+
+Header elements:
+  Back arrow (←)       Returns to landing mode
+  Title                "Vouchers & Cards"
+  Plus button          Opens the Template Selection modal
+  Pencil button        Toggles edit mode (only when lists exist)
+
+List grid:
+  1 column on mobile, 2 columns on medium+ screens
+  Each list card shows:
+    Context icon (mapped from list name)
+    List name
+    Item count (e.g., "3 vouchers")
+
+Template Selection Modal
+=========================
+When creating a new voucher list, the user chooses from seven templates.
+The modal sits between the header and footer (inset-x-0 top-16 bottom-20)
+and scrolls internally.
+
+Available Templates:
+  Template Name         Default Type      Description
+  --------------------  ----------------  ------------------------------------------
+  BuyMe                 Voucher           Gift cards purchased on BuyMe platform
+  Ontopo                Reservation       Restaurant reservations via Ontopo
+  Movies & Shows        Reservation       Cinema tickets and event reservations
+  Shopping Vouchers     Voucher           Retail and grocery vouchers
+  Digital Cards         Voucher           Barcodes and digital redemption codes
+  Physical Cards        (user chooses)    Photographed physical gift cards
+  Custom                (user chooses)    User-defined category
+
+For "Physical Cards" and "Custom", a type selector step appears:
+  Option 1: Vouchers & Gift Cards
+    "Gift cards, coupons, and vouchers with value and expiry dates"
+  Option 2: Reservations & Events
+    "Restaurant bookings, movie tickets, and event reservations"
+
+The user can go Back from the type selector to re-choose a template.
+
+Voucher List Screen (Item Management)
+=======================================
+URL state: currentScreen = 'vouchers'
+
+Header elements:
+  Back arrow (←)       Returns to Vouchers Hub
+  Title                List name
+  Sub-label            List ID + item count (debug info)
+  "Add Voucher" button Opens the Add/Edit modal
+
+Item Grid:
+  1 column mobile, 2 columns small, 3 columns large, 4 columns extra-large
+
+List Type Auto-Detection
+=========================
+The list's behavior adapts based on the list ID:
+  listId.includes('buyme')    → prioritizes Smart Paste section
+  listId.includes('ontopo')   → prioritizes Smart Paste section
+  listId.includes('physical') → prioritizes image upload section
+
+Add / Edit Voucher Modal
+=========================
+A full-page modal (max-h 90vh, scrollable) with five main sections:
+
+Section 1: Smart Link / SMS Paste
+===================================
+Always visible at the top of the form. The user pastes:
+  - A voucher/reservation URL (from BuyMe, Ontopo, Restoya, 10Bis, Goody,
+    Wolt, Bolt, Uber, or any generic HTTPS URL)
+  - An SMS confirmation message text
+
+Auto-Detection on Paste:
+  Service patterns tested (in priority order):
+    buyme:   buyme.co.il or buyme.com
+    ontopo:  ontopo.co.il or ontopo.com
+    restoya: restoya.co.il or restoya.com
+    tenbis:  10bis.co.il or 10bis.com
+    goody:   goody.co.il or goody.com
+    wolt:    wolt.com
+    bolt:    bolt.eu
+    uber:    uber.com
+    generic: any https:// URL
+
+  On URL detection:
+    - Issuer name is mapped (e.g., "buyme" → "BuyMe", "ontopo" → "Ontopo")
+    - List type determines voucher vs. reservation (from template default)
+    - Hebrew and English name extraction patterns run:
+        "הזמנתכם ל[NAME] בקישור"
+        "reservation at [NAME]"
+        "[NAME] Gift Card"
+    - Date patterns: DD/MM/YYYY, YYYY-MM-DD, Hebrew date formats
+    - Time patterns: HH:MM, "בשעה HH:MM", "at H:MM AM/PM"
+    - Address patterns: "כתובת:", "address:", "רחוב", "street"
+
+Web Scraping (Ontopo Integration):
+  For Ontopo reservation URLs containing "/ticket/", the system:
+    1. Tries four API endpoint patterns (api.ontopo.com/ticket/{id}, etc.)
+    2. Falls back to HTML scraping with CORS proxy (api.allorigins.win)
+    3. Parses: og:title, og:description, JSON-LD structured data,
+               HTML selectors for restaurant name, date, time, address
+    4. Shows "Fetching details from URL..." spinner during scraping
+
+A "Manual Fill Prompt" modal appears after scraping to guide the user through
+completing any fields that could not be extracted automatically.
+
+Section 2: Image Upload (Card Photo)
+======================================
+For "physical" list IDs, this section is visually promoted to the top.
+
+File selection (accept="image/*") triggers:
+
+  1. Size check: If file > 2MB, a confirm dialog asks whether to continue.
+
+  2. Compression: If file > 500KB, the image is compressed to 70% JPEG quality
+     with a maximum width of 1200px using an off-screen Canvas element.
+     The size indicator shows: "450KB → 310KB (compressed)"
+
+  3. Immediate base64 preview: The compressed base64 is set as imageUrl in
+     formData immediately so the preview appears without waiting for upload.
+
+  4. Supabase Storage upload (in parallel):
+     File is uploaded to: {household_id}/{listId}/{timestamp}.{ext}
+     Bucket: voucher-images (private)
+     On success: A 10-year signed URL replaces the base64 in imageUrl.
+     On failure: The base64 fallback remains in use.
+     Indicator: "Saving to cloud..." spinner shows during upload.
+
+  5. OCR (Optical Character Recognition) with Tesseract.js:
+     Language: heb+eng (Hebrew + English combined model)
+     The OCR text is analyzed to extract:
+
+       Digital codes:
+         Pattern: 6+ consecutive digits
+         Multiple codes separated by " / " (e.g., "1234567 / 7654321")
+
+       URLs:
+         Pattern: https?:// followed by URL characters (handles OCR line breaks
+         by joining fragments)
+         If a URL is found, Smart Paste logic runs on the cleaned text.
+
+       Monetary values:
+         Pattern: ₪, $, €, £, ¥ adjacent to numbers (e.g., "₪200", "$50.00")
+
+       Dates:
+         Patterns: DD/MM/YYYY, YYYY-MM-DD, "expiry", "valid until", "expires"
+         Set to expiryDate for vouchers or eventDate for reservations.
+
+       Times:
+         Pattern: HH:MM, with optional AM/PM
+         Set only for reservations.
+
+       Location/Address:
+         Hebrew keywords: רחוב, כתובת, מיקום, ברחוב
+         English keywords: street, address, location, at
+         Set only for reservations.
+
+     OCR indicator: "Scanning image..." spinner shows during OCR.
+
+     On completion: An alert shows what was extracted with an accuracy warning:
+       "OCR Extraction Complete! Extracted: Code, Value. Warning: OCR may
+       misread similar characters (like d→A, 9→Q). Please verify."
+
+  Image Preview:
+    After selection, a 128px-tall full-width image preview appears.
+    A red X button (top-right corner) clears the image.
+    The size indicator appears in a semi-transparent overlay (bottom-left).
+
+Section 3: Name (Required)
+============================
+Text input for the voucher or reservation name.
+Placeholder: "e.g., Azrieli Gift Card"
+Required field — Add/Update button is disabled if empty.
+
+Section 4: Type-Specific Fields
+=================================
+For Vouchers:
+  Value      "e.g., ₪200 or 2 Movie Tickets"
+  Issuer     "e.g., BuyMe, Azrieli"
+  Expiry     Date picker
+
+For Reservations:
+  Event Date Date picker
+  Time       Time picker
+  Address    Text input "e.g., 123 Main St, Tel Aviv"
+
+Section 5: Code / Barcode / URL
+================================
+Shared by both types.
+Placeholder: "e.g., ABC123456 or https://buyme.co.il/..."
+If the code contains " / " (multiple codes from OCR), a green info line appears:
+  "Multiple codes detected and saved"
+
+Voucher Card Display
+=====================
+Each voucher is displayed as a card in the grid with:
+
+For Vouchers:
+  Type label (small, uppercase): e.g., "GIFT CARD" or "VOUCHER"
+  Name (large, bold)
+  Issuer (below name, smaller)
+  Value (2xl bold, burgundy)
+  Expiry status (color-coded):
+    Expired:          Red text (#DC2626) — "Expired"
+    Today:            Amber text (#F59E0B) — "Expires Today"
+    Within 7 days:    Amber text — "{N} days left"
+    Within 30 days:   Tan text (#8E806A) — "{N} days left"
+    Beyond 30 days:   Tan text — "Expires {formatted date}"
+  Code display:
+    Monospace text
+    Copy icon button — tapping copies to clipboard
+    "Copied!" feedback for 2 seconds
+    If code is a URL, shows as shortened link
+  Image (full-width, if set)
+
+For Reservations:
+  Type label: "RESERVATION"
+  Name (large, bold)
+  Event date and time (color-coded same as voucher expiry logic):
+    Today:            "Today at {time}"
+    Tomorrow:         "Tomorrow at {time}"
+    Else:             "{Short date} at {time}"
+  Address (location pin icon + text)
+  Confirmation code (copyable)
+  Image (if set)
+
+Card Action Buttons (hover-reveal):
+  Edit button (pencil icon)        Opens the Add/Edit modal pre-filled
+  Delete button (trash icon)       Triggers delete confirmation modal
+  Refresh button (refresh icon)    Only shown when code is a BuyMe or Ontopo URL;
+                                   re-scrapes details from the URL
+
+
+================================================================================
+9. SETTINGS
+================================================================================
+
+The Settings modal is accessed by tapping the gear icon in the header.
+It is available in both landing mode and active mode.
+
+Household Members
+==================
+Displays all members of the current household, fetched via get_household_members().
+Each member row shows:
+  Crown icon (if member is the owner)
+  Display name
+  "(You)" suffix if this is the current user's own row
+  "Owner" suffix for the household owner
+  Remove button (UserMinus icon, red) — only visible to the owner, only for
+  non-owner members who are not the current user
+
+Removing a Member:
+  A browser confirm dialog: "Remove {name} from the household?"
+  On confirm: remove_household_member(memberId) RPC is called.
+  The removed member's profile is moved to a newly created household.
+  Their data (lists, tasks, vouchers) remains with the original household
+  since all data belongs to the household, not the individual user.
+
+Invite Your Partner (Owner Only)
+==================================
+This section is only visible and functional for the household owner.
+Non-owner members see: "Only the household owner can generate invite codes."
+
+For owners:
+  "Generate Invite Code" button calls create_household_invite(days_valid: 1).
+  On success:
+    An 8-character code is displayed in monospace 2xl bold text.
+    "Valid for 24 hours • Single-use" label below the code.
+    A Copy button (Clipboard icon) copies the code to the clipboard.
+    The Copy button turns green (checkmark) for 2 seconds on success.
+
+Join Another Household
+========================
+Available to all authenticated users.
+Text input for an 8-character invite code:
+  Auto-uppercases as the user types
+  Placeholder: "ABCD1234"
+  Maximum length: 8 characters
+
+"Join Household" button calls joinHousehold(code):
+  On success: Green "Successfully joined household!" confirmation shown.
+  On error:   Red error message shown (e.g., "Invalid or expired invite code.")
+  On lockout: "Too many failed attempts. Try again in X minute(s)."
+
+Delete Household (Owner Only)
+===============================
+Visible only to the household owner.
+
+Step 1: An outlined red button with Trash2 icon: "Delete Household"
+Step 2: Clicking expands an inline confirmation panel (red border, light red
+        background #FEF2F2):
+  Warning text:
+    "This action is irreversible and will permanently delete all data for all
+    members — shopping lists, tasks, vouchers, and everything else."
+  Confirmation input:
+    Label: "Type DELETE to confirm"
+    The "Delete Everything" button remains disabled until the exact text
+    "DELETE" is typed (case-sensitive).
+  Two buttons:
+    "Cancel" — collapses the panel, clears the input
+    "Delete Everything" — calls deleteHousehold()
+
+After successful deletion:
+  Server cascades and deletes all household data.
+  All member profiles are cascade-deleted.
+  The app calls signOut() to clear the session.
+  The auth screen is shown immediately.
+
+Sign Out
+=========
+A full-width red button with LogOut icon.
+A browser confirm dialog: "Are you sure you want to sign out?"
+On confirm, the session is cleared and the auth screen is shown.
+
+
+================================================================================
+10. DATA LAYER & DATABASE SCHEMA
+================================================================================
+
+Table Reference
+================
+
+  households
+    id          UUID PRIMARY KEY
+    name        TEXT NOT NULL
+    owner_id    UUID REFERENCES auth.users(id) ON DELETE SET NULL
+    created_at  TIMESTAMPTZ
+    updated_at  TIMESTAMPTZ
+
+  user_profiles
+    id            UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE
+    household_id  UUID REFERENCES households(id) ON DELETE CASCADE
+    display_name  TEXT
+    created_at    TIMESTAMPTZ
+    updated_at    TIMESTAMPTZ
+
+  household_invites
+    id           UUID PRIMARY KEY
+    household_id UUID REFERENCES households(id) ON DELETE CASCADE
+    invite_code  TEXT NOT NULL UNIQUE
+    created_by   UUID REFERENCES auth.users(id) ON DELETE CASCADE
+    expires_at   TIMESTAMPTZ NOT NULL
+    used_by      UUID REFERENCES auth.users(id) ON DELETE SET NULL
+    used_at      TIMESTAMPTZ
+    created_at   TIMESTAMPTZ
+
+  shopping_lists
+    id           UUID PRIMARY KEY
+    household_id UUID NOT NULL (FK → households ON DELETE CASCADE)
+    name         TEXT NOT NULL
+    context      TEXT
+    created_at   TIMESTAMPTZ
+    updated_at   TIMESTAMPTZ
+
+  shopping_items
+    id         UUID PRIMARY KEY
+    list_id    UUID REFERENCES shopping_lists(id) ON DELETE CASCADE
+    text       TEXT NOT NULL
+    quantity   TEXT
+    checked    BOOLEAN DEFAULT false
+    context    TEXT
+    created_at TIMESTAMPTZ
+    updated_at TIMESTAMPTZ
+
+  master_list_items
+    id         UUID PRIMARY KEY
+    list_id    UUID REFERENCES shopping_lists(id) ON DELETE CASCADE
+    text       TEXT NOT NULL
+    category   TEXT
+    created_at TIMESTAMPTZ
+    updated_at TIMESTAMPTZ
+
+  task_lists
+    id           UUID PRIMARY KEY
+    household_id UUID NOT NULL (FK → households ON DELETE CASCADE)
+    name         TEXT NOT NULL
+    context      TEXT
+    created_at   TIMESTAMPTZ
+    updated_at   TIMESTAMPTZ
+
+  tasks
+    id               UUID PRIMARY KEY
+    list_id          UUID REFERENCES task_lists(id) ON DELETE CASCADE
+    text             TEXT NOT NULL
+    status           TEXT DEFAULT 'To Do'
+    priority         TEXT
+    due_date         DATE
+    assignee         TEXT
+    is_urgent        BOOLEAN DEFAULT false
+    source_subhub_id UUID
+    notes            TEXT
+    created_at       TIMESTAMPTZ
+    updated_at       TIMESTAMPTZ
+
+  voucher_lists
+    id           UUID PRIMARY KEY
+    household_id UUID NOT NULL (FK → households ON DELETE CASCADE)
+    name         TEXT NOT NULL
+    context      TEXT
+    default_type TEXT CHECK (default_type IN ('voucher', 'reservation'))
+    created_at   TIMESTAMPTZ
+    updated_at   TIMESTAMPTZ
+
+  voucher_items
+    id          UUID PRIMARY KEY
+    list_id     UUID REFERENCES voucher_lists(id) ON DELETE CASCADE
+    type        TEXT NOT NULL CHECK (type IN ('voucher', 'reservation'))
+    name        TEXT NOT NULL
+    notes       TEXT
+    valid_from  DATE
+    expiry_date DATE
+    value       TEXT
+    used        BOOLEAN DEFAULT false
+    issuer      TEXT
+    code        TEXT
+    image_url   TEXT
+    event_date  TEXT
+    event_time  TEXT
+    location    TEXT
+    date_time   TIMESTAMPTZ
+    created_at  TIMESTAMPTZ
+    updated_at  TIMESTAMPTZ
+
+Supabase Realtime Subscriptions
+=================================
+The following tables broadcast INSERT, UPDATE, DELETE changes in real time:
+  shopping_lists, shopping_items, master_list_items,
+  task_lists, tasks,
+  voucher_lists, voucher_items
+
+Subscription is set up with Supabase's Realtime channels, filtered to the
+current user's household_id. Changes from a partner device appear
+instantaneously without any page refresh.
+
+Service Layer
+==============
+Four service modules abstract all Supabase calls:
+
+  supabaseShoppingService.ts   Shopping lists + items + master list
+  supabaseTaskService.ts       Task lists + tasks
+  supabaseMasterListService.ts Master list sync (selective update)
+  supabaseVoucherService.ts    Voucher lists + items
+
+Each service maps between the flat database row format and the richer
+in-memory TypeScript interfaces used by components.
+
+Optimistic Updates
+===================
+All user actions (add item, toggle checkbox, edit, delete) update the local
+React state immediately before the Supabase call completes. This makes the
+app feel instant even on slow connections. If the server call fails, the
+local state is not automatically reverted — the user would need to refresh.
+
+Task List Ordering
+===================
+Task lists are fetched from Supabase ordered by created_at ASC. After
+Promise.all resolves (parallel fetches for each list's tasks), the results
+are reassembled in the original database order to prevent random position
+changes on each load.
+
+
+================================================================================
+11. UI/UX DESIGN SYSTEM
+================================================================================
+
+Color Palette
+==============
+  Name                  Hex         Usage
+  --------------------  ----------  ------------------------------------------
+  Burgundy (Primary)    #630606     Buttons, icons, headings, active states
+  Tan (Secondary)       #8E806A     Labels, placeholders, inactive text
+  Background            #F5F2E7     Page background, modal backgrounds
+  White                 #FFFFFF     Card backgrounds, input backgrounds
+  Red (Destructive)     #DC2626     Delete buttons, error states, High urgency
+  Green (Success)       #10B981     Success states, Low urgency, copy feedback
+  Amber (Warning)       #F59E0B     Warning states, Medium urgency, near-expiry
+  Error Background      #FEE2E2     Auth error banners
+  Success Background    #D1FAE5     Auth success banners
+
+Opacity Variants:
+  Hover background:     #63060611   (burgundy, 7% opacity)
+  Border (light):       #8E806A33   (tan, 20% opacity)
+  Header backdrop:      rgba(245,242,231,0.9) with backdrop-filter blur
+
+Ghost Button Style (used throughout):
+  Background:  transparent
+  Border:      1.5px solid #630606
+  Color:       #630606
+  Hover:       background #63060611
+  Width/Height: 36px × 36px, border-radius: 9999px (full circle)
+
+Active / Filled Button Style:
+  Background:  #630606
+  Color:       white
+  Border:      none
+  Hover:       opacity 0.9
+
+Typography
+===========
+  Font family:    Inter, system-ui, sans-serif
+  Headings:       Bold, color #630606
+  Body text:      Regular weight, color #8E806A
+  Monospace:      font-mono class (for invite codes and barcodes)
+  Labels:         text-xs (12px) or text-sm (14px)
+
+Layout Dimensions
+==================
+  Header height:          64px (h-16)
+  Bottom nav height:      80px (h-20)
+  Carousel card width:    80vw
+  Carousel card height:   60vh
+  Side padding (carousel): 10vw
+  Master List Drawer:     384px (w-96) on desktop, full width on mobile
+  Modal max width:        max-w-md (448px) or max-w-2xl (672px)
+  Modal padding:          24px (p-6)
+  Card border radius:     16px (rounded-2xl)
+  Button border radius:   8px (rounded-lg) or 9999px (rounded-full)
+
+Responsive Breakpoints
+=======================
+  Mobile (default): Single-column list layouts
+  md (768px+):      Two-column grids for hub list cards, voucher cards
+  lg (1024px+):     Three-column voucher card grids
+  xl (1280px+):     Four-column voucher card grids
+
+Dynamic Viewport Height
+========================
+The app uses 100dvh (dynamic viewport height) instead of 100vh throughout.
+This accounts for the browser's dynamic toolbar (address bar, navigation bar)
+on iOS Safari and Chrome for Android, which appear and disappear as the user
+scrolls. Using dvh prevents layout overflow and content being hidden behind
+the browser chrome.
+
+Scroll Behavior
+================
+  Carousel:   overflow-x-auto, scroll-snap-type x mandatory, snap-align center
+  Lists:       overflow-y-auto within their containers
+  Modals:      overflow-y-auto (max-h-[90vh])
+  Drawers:     overflow-y-auto with fixed positioning
+
+  All scrollbars are hidden globally:
+    .hide-scrollbar::-webkit-scrollbar { display: none }
+    scrollbar-width: none (Firefox)
+    -ms-overflow-style: none (IE/Edge)
+
+Touch Optimizations
+====================
+  touch-action: manipulation     Applied to all buttons, inputs, links
+                                 (removes 300ms tap delay on mobile)
+  touch-action: pan-y            Applied to vertical list containers
+                                 (prevents accidental horizontal swipes)
+  touch-action: pan-x            Applied to the carousel container
+
+Icon System
+============
+All icons use Lucide React. Icon-to-context mapping is based on keyword
+matching of list/hub names. Priority order:
+
+  1. Direct exact match of list name to icon keyword
+  2. Keyword contained within the list name
+  3. Contextual fallback (shop/buy → ShoppingBag, task/do → ListTodo, etc.)
+  4. Ultimate fallback: LayoutList
+
+Sample mappings:
+  Shopping, Grocery, Supermarket → ShoppingBag
+  Pharmacy, Medicine             → Pill
+  Home, House                    → Home
+  Renovation, DIY                → Hammer
+  Baby, Infant                   → Baby
+  Pet, Dog                       → Dog / Cat
+  Camping, Outdoor               → Tent
+  Travel, Vacation               → Plane
+  Party, Celebration             → Sparkles
+  Garden                         → Trees
+  Movie, Cinema                  → Film
+  BuyMe, Gift                    → Gift
+  Ontopo, Restaurant             → UtensilsCrossed
+  Card, Physical                 → CreditCard
+  Urgent                         → Flame
+  Task, Todo                     → CheckSquare / ListTodo
+
+
+================================================================================
+12. ERROR HANDLING & USER FEEDBACK
+================================================================================
+
+Loading States
+===============
+  App initialization:  Full-screen centered spinner with "Loading..." text
+                       Safety net: loading forced to false after 8 seconds
+  OCR scanning:        Inline spinner + "Scanning image..." text in the form
+  Image uploading:     Inline spinner + "Saving to cloud..." text in the form
+  Web scraping:        Inline spinner + "Fetching details from URL..." text
+  API operations:      Button text changes to "{verb}ing..." and is disabled
+                       Examples: "Generating...", "Joining...", "Deleting..."
+
+Error Messages
+===============
+  Authentication errors:  Red banner below the form fields
+                          Background: #FEE2E2, Text: #991B1B
+                          Examples:
+                            "Failed to sign in. Please check your credentials."
+                            "Failed to create account."
+                            "Password must be at least 6 characters."
+
+  Rate limit error:       "Too many failed attempts. Try again in X minute(s)."
+                          Shown in the "Join Household" section
+
+  Join errors:            "Invalid or expired invite code."
+                          "Only the household owner can create invite codes."
+
+  API failures:           alert() dialogs for SettingsModal operations
+                          console.error() for all caught exceptions
+
+Success Feedback
+=================
+  Item added to list:     Immediate optimistic render
+  Voucher code copied:    Copy button turns green (Check icon) for 2 seconds
+  Join household:         Green "Successfully joined household!" banner
+  Invite code generated:  Code displayed with copy button
+  Image uploaded:         Size indicator updates with " · saved to cloud"
+
+Validation Rules
+=================
+  List names:             Non-empty after trim
+  Task names:             Non-empty after trim
+  Voucher names:          Non-empty (required, enforces form validation)
+  Password:               Minimum 6 characters
+  Invite code input:      Maximum 8 characters, auto-uppercase
+  Delete confirmation:    Must type exactly "DELETE" (case-sensitive)
+  Image size:             Warning dialog if > 2MB (continues if confirmed)
+
+Confirmation Modals (ConfirmationModal Component)
+==================================================
+Used for all destructive operations:
+  - Delete shopping list / bulk delete lists
+  - Delete shopping items / bulk delete items / clear completed items
+  - Delete task list / bulk delete lists
+  - Delete task / bulk delete tasks / delete completed tasks
+  - Delete voucher list / bulk delete lists
+  - Delete voucher item
+  - Sign out
+
+All confirmation modals share a consistent pattern:
+  Backdrop: black/50 overlay
+  Card:     White rounded-2xl, max-w-md
+  Title:    Bold burgundy heading
+  Message:  Descriptive text explaining what will be lost
+  Buttons:  Cancel (grey outline) + Confirm (action text, solid color)
+
+
+================================================================================
+13. PERFORMANCE & BUILD CONFIGURATION
+================================================================================
+
+Code Splitting Strategy
+========================
+The Vite build splits output into five chunks to enable parallel loading and
+efficient browser caching:
+
+  vendor-react.js       React + ReactDOM (~190KB gzipped: ~60KB)
+  vendor-supabase.js    Supabase SDK (~163KB gzipped: ~43KB)
+  vendor-tesseract.js   Tesseract OCR (~17KB gzipped: ~7KB)
+  vendor-ui.js          Lucide icons (~15KB gzipped: ~6KB)
+  index.js              All application code (~165KB gzipped: ~36KB)
+
+The OCR library (vendor-tesseract.js) is a separate chunk because it only
+needs to load when the user opens the Voucher add form.
+
+Database Query Optimization
+=============================
+  Indexes on all foreign keys and frequently-filtered columns:
+    idx_shopping_lists_household     household_id on shopping_lists
+    idx_shopping_items_list          list_id on shopping_items
+    idx_task_lists_household         household_id on task_lists
+    idx_tasks_list                   list_id on tasks
+    idx_tasks_urgent                 is_urgent (partial, WHERE is_urgent = true)
+    idx_tasks_due_date               due_date (partial, WHERE due_date IS NOT NULL)
+    idx_voucher_lists_household      household_id on voucher_lists
+    idx_voucher_items_list           list_id on voucher_items
+    idx_household_invites_code       invite_code (for fast lookup during join)
+    idx_households_owner             owner_id on households
+
+Realtime Subscriptions
+=======================
+Realtime channels are set up once on authentication and filtered by
+household_id to minimize unnecessary data transfer. Each subscription
+reacts to INSERT, UPDATE, DELETE events and merges changes into the
+local state without full re-fetches.
+
+Keyboard Detection
+===================
+The useKeyboardHeight hook only listens to the Visual Viewport resize event
+(not scroll events). A 120px threshold prevents iOS Safari's toolbar height
+fluctuations (typically 50-60px) from triggering false "keyboard open"
+detections. This ensures bottom padding is only added when a real soft
+keyboard is visible.
+
+Carousel Scroll Detection
+==========================
+The hub detection algorithm runs on multiple triggers with increasing delays
+to ensure correctness across all browser behaviors:
+  requestAnimationFrame:  First opportunity after paint
+  setTimeout (300ms):     Catches browser scroll restoration
+  setTimeout (800ms):     Second safety net for slower devices
+  scroll event:           Live detection while scrolling
+  scrollend event:        Clean final detection when scroll stops
+  IntersectionObserver:   Threshold 0.5, root = carousel container
+
+Using a useRef (activeHubRef) for the current hub state ensures the scroll
+event listeners never become stale and never need to be re-attached when
+the active hub changes.
+
+Optimistic UI
+==============
+All user-initiated changes (add, edit, delete, toggle) update React state
+before the network call returns. The database write happens in the background.
+This makes every interaction feel instantaneous on the user's device.
+
+Touch Performance
+==================
+touch-action: manipulation is applied globally to all interactive elements
+(buttons, inputs, links, [role="button"]). This removes the 300ms touch
+delay that browsers add to detect double-tap zoom gestures, making every
+tap feel immediate on mobile devices.
+
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+
+HomeHub_Complete_Documentation.txt
+Generated: February 2026
+Application Version: As of commit 9730c21

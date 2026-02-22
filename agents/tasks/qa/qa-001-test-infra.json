@@ -1,0 +1,38 @@
+{
+  "id": "qa-001",
+  "title": "Test Infrastructure Setup",
+  "agent": "qa",
+  "phase": "0.2",
+  "priority": "critical",
+  "status": "done",
+  "depends_on": [],
+  "blocks": ["qa-002", "qa-003", "qa-004", "qa-005"],
+  "created": "2026-02-22",
+  "updated": "2026-02-22",
+  "description": "Set up the full testing infrastructure: Vitest for unit/component tests, Playwright for e2e, test utilities, mock factories, and CI-compatible scripts.",
+  "acceptance_criteria": [
+    "Vitest installed and configured with React Testing Library",
+    "Playwright installed and configured",
+    "Test directory structure: tests/unit/, tests/components/, tests/integration/, e2e/",
+    "Mock utilities: mockSupabaseClient, mockLocalStorage, test fixtures for all data types",
+    "package.json scripts: 'test' (vitest), 'test:e2e' (playwright), 'test:coverage' (vitest --coverage)",
+    "At least 1 smoke test passing for each test runner",
+    "vitest.config.ts with path aliases matching vite.config.ts"
+  ],
+  "files_to_touch": [
+    "vitest.config.ts (create)",
+    "playwright.config.ts (create)",
+    "tests/setup.ts (create — global test setup)",
+    "tests/mocks/supabase.ts (create)",
+    "tests/mocks/localStorage.ts (create)",
+    "tests/fixtures/ (create — sample data for all types)",
+    "tests/unit/.gitkeep",
+    "tests/components/.gitkeep",
+    "tests/integration/.gitkeep",
+    "e2e/.gitkeep",
+    "package.json (add test scripts)"
+  ],
+  "open_questions": [],
+  "completion_summary": "All acceptance criteria met. Installed vitest@4.0.18, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, jsdom, @playwright/test. Created: vitest.config.ts (jsdom env, globals, coverage, @/ alias), playwright.config.ts (Chromium, webServer auto-start), tests/setup.ts (jest-dom matchers, mock reset hooks), tests/mocks/supabase.ts (createMockSupabaseClient with chainable query builder + auth + storage stubs), tests/mocks/localStorage.ts (createMockLocalStorage + installMockLocalStorage), tests/fixtures/ with factory functions for all data types: ShoppingItem, MasterListItem, Task, TaskListInstance, Voucher, Reservation, Bill, User, Household — all accept partial overrides. package.json scripts added: test, test:watch, test:coverage, test:e2e, test:e2e:ui. 12 unit smoke tests passing (vitest). Playwright configured with Chromium and e2e/smoke.spec.ts smoke test. Note: e2e tests require a running dev server; run 'npm run dev' then 'npm run test:e2e', or use the webServer auto-start in playwright.config.ts.",
+  "notes": "Keep mock factories flexible — they should accept partial overrides. Example: createMockVoucher({ value: 100 }) returns full Voucher object with only value overridden."
+}
