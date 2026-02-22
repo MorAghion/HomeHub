@@ -204,16 +204,16 @@ This must run BEFORE any other work. Non-negotiable.
 
 ## Git Rules (CRITICAL)
 - main = production. NEVER commit directly to main.
-- All agent work happens on the dev branch.
-- Deploy to production: Human merges dev → main manually.
+- All agent work happens on the master branch.
+- Deploy to production: Human merges master → main manually.
 - Current deployment: Vercel auto-deploys main to home-hub-five.vercel.app
 
 ## Git Workflow (CRITICAL)
 - main = production (auto-deploys via Vercel). NEVER commit to main.
-- dev = working branch. All PRs merge here.
+- master = working branch. All PRs merge here.
 - Before starting ANY task:
-  1. git checkout dev
-  2. git pull origin dev
+  1. git checkout master
+  2. git pull origin master
   3. git checkout -b agent/{task-id}-{short-description}
 - While working: commit frequently to your branch
 - When done:
@@ -221,10 +221,10 @@ This must run BEFORE any other work. Non-negotiable.
   2. git push origin agent/{task-id}-{short-description}
   3. Alert the human that the branch is ready for review
 - NEVER merge your own branch
-- NEVER push to dev or main directly
+- NEVER push to master or main directly
 
 ## Merge Conflict Protocol
-- After merging a PR into dev, all active agents must pull latest:
-  git checkout dev && git pull origin dev
-  git checkout agent/{your-branch} && git merge dev
+- After merging a PR into master, all active agents must pull latest:
+  git checkout master && git pull origin master
+  git checkout agent/{your-branch} && git merge master
 - If conflicts arise, the agent resolves them and commits

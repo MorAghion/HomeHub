@@ -4,11 +4,11 @@
   "agent": "qa",
   "phase": "0.2",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["qa-001"],
   "blocks": [],
   "created": "2026-02-22",
-  "updated": "2026-02-22",
+  "updated": "2026-02-23",
   "description": "Write tests for Home Tasks Hub: task CRUD, urgency levels, urgent aggregation, deep-link flashlight, clear completed.",
   "acceptance_criteria": [
     "Component tests: task creation form validates and submits",
@@ -25,6 +25,6 @@
     "tests/integration/tasks-flow.test.tsx"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "30 tests passing (0 failures). Created 4 test files: TaskCard.test.tsx (9 component tests — name, urgency badges with correct colors, assignee, due date, completed strikethrough, empty state), CreateTaskForm.test.tsx (8 component tests — form rendering, submit creates task with correct urgency/status, default Medium urgency, empty name blocked, input clears after add), UrgentTasks.test.tsx (9 component tests — urgent view heading, subtitle, task names, empty state, source sub-hub link, no add form, no edit button, toggle calls onUpdateUrgentTask, nav calls onNavigateToSource), tasks-flow.test.tsx (5 integration tests — create task, High urgency badge, toggle complete, delete with confirm, clear completed). Note: ConfirmationModal mocked as a simplified test double. Note: urgency badge color tests use rgb() values as rendered by jsdom.",
   "notes": ""
 }

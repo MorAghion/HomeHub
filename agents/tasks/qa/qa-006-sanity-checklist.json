@@ -4,11 +4,11 @@
   "agent": "qa",
   "phase": "0.2",
   "priority": "medium",
-  "status": "todo",
+  "status": "review",
   "depends_on": [],
   "blocks": [],
   "created": "2026-02-22",
-  "updated": "2026-02-22",
+  "updated": "2026-02-23",
   "description": "Create a comprehensive manual sanity checklist document for pre-release regression testing across all target devices.",
   "acceptance_criteria": [
     "SANITY_CHECKLIST.md created in repo root",
@@ -22,6 +22,6 @@
     "SANITY_CHECKLIST.md (create)"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "SANITY_CHECKLIST.md created in repo root. Covers: Authentication (7 checks), Shopping Hub (23 checks — sub-hub nav, active list CRUD, master list drawer, bubbles, auto-categorise), Tasks Hub (26 checks — create, manage, bulk edit, urgent aggregation), Vouchers Hub (20 checks), Reservations Hub (8 checks), Settings (4 checks), Cross-cutting (Navigation 4, Responsive 6, i18n/RTL 10, LTR regression 5, Offline 3, Visual regression snapshot table). Device matrix: iPhone SE, iPhone 14, Pixel 7, iPad, Desktop Chrome, Desktop Firefox. Each check has description + expected result + pass/fail checkbox. Sign-off table with release decision included.",
   "notes": "This is a document task — no code changes. The checklist should be usable by a non-developer."
 }
