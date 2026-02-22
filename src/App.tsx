@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
@@ -28,6 +29,7 @@ import type {
 
 function App() {
   const { user, profile, loading } = useAuth();
+  const { t } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
 
   const keyboardHeight = useKeyboardHeight();
 
@@ -610,7 +612,7 @@ function App() {
           }}
         >
           <ShoppingBag size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Shopping</span>
+          <span className="text-xs font-medium">{t('shopping:title')}</span>
         </button>
 
         <button
@@ -622,7 +624,7 @@ function App() {
           }}
         >
           <ListTodo size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Tasks</span>
+          <span className="text-xs font-medium">{t('tasks:title')}</span>
         </button>
 
         <button
@@ -634,7 +636,7 @@ function App() {
           }}
         >
           <Gift size={24} strokeWidth={2} />
-          <span className="text-xs font-medium">Vouchers</span>
+          <span className="text-xs font-medium">{t('vouchers:title')}</span>
         </button>
       </div>
     </div>
@@ -649,7 +651,7 @@ function App() {
       >
         <div className="text-center">
           <div className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#63060633', borderTopColor: '#630606' }}></div>
-          <p className="text-sm" style={{ color: '#8E806A' }}>Loading...</p>
+          <p className="text-sm" style={{ color: '#8E806A' }}>{t('common:loading')}</p>
         </div>
       </div>
     );
@@ -680,7 +682,7 @@ function App() {
             onClick={() => window.location.reload()}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
             style={{ color: '#630606' }}
-            title="Refresh"
+            title={t('common:refresh')}
           >
             <RotateCcw size={18} strokeWidth={2} />
           </button>
@@ -694,7 +696,7 @@ function App() {
             onClick={() => setIsSettingsOpen(true)}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-[#63060611]"
             style={{ color: '#630606' }}
-            title="Settings"
+            title={t('common:settings')}
           >
             <Settings size={20} />
           </button>
@@ -738,10 +740,10 @@ function App() {
                   <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
                     <ShoppingBag size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
                     <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
-                      Shopping Lists
+                      {t('shopping:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(lists).length} {Object.keys(lists).length === 1 ? 'active list' : 'active lists'}
+                      {t('common:activeList', { count: Object.keys(lists).length })}
                     </p>
                   </div>
                 </div>
@@ -760,10 +762,10 @@ function App() {
                   <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
                     <ListTodo size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
                     <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
-                      Home Tasks
+                      {t('tasks:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length} {Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length === 1 ? 'active list' : 'active lists'}
+                      {t('common:activeList', { count: Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length })}
                     </p>
                   </div>
                 </div>
@@ -782,10 +784,10 @@ function App() {
                   <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
                     <Gift size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
                     <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
-                      Vouchers & Cards
+                      {t('vouchers:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {Object.keys(voucherLists).length} {Object.keys(voucherLists).length === 1 ? 'active list' : 'active lists'}
+                      {t('common:activeList', { count: Object.keys(voucherLists).length })}
                     </p>
                   </div>
                 </div>

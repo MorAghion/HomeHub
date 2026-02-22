@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Tesseract from 'tesseract.js';
 import type { VoucherItem, Voucher, Reservation } from '../types/base';
 import VoucherCard from './VoucherCard';
@@ -28,6 +29,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
   const [extractionResults, setExtractionResults] = useState<string[]>([]);
 
   const { profile } = useAuth();
+  const { t } = useTranslation('vouchers');
 
   // Debug: Log list info on mount
   console.log('📂 VoucherList opened:', {
@@ -1252,7 +1254,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
                 {listName}
               </h1>
               <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
-                {vouchers.length} items
+                {t('voucher', { count: vouchers.length })}
               </p>
             </div>
           </div>
@@ -1262,7 +1264,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
             className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
             style={{ backgroundColor: '#630606' }}
           >
-            + Add Voucher
+            {t('addVoucher')}
           </button>
         </div>
       </header>
@@ -1273,17 +1275,17 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🎫</div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#630606' }}>
-              No Vouchers Yet
+              {t('noVouchersYet')}
             </h2>
             <p className="text-sm mb-6" style={{ color: '#8E806A' }}>
-              Add your first voucher to get started
+              {t('noVouchersAdd')}
             </p>
             <button
               onClick={openAddModal}
               className="px-6 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#630606' }}
             >
-              Add Your First Voucher
+              {t('addVoucher')}
             </button>
           </div>
         )}
@@ -1317,7 +1319,7 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-                  {editingVoucher ? 'Edit' : 'Add'} {formData.itemType === 'reservation' ? 'Reservation' : 'Voucher'}
+                  {editingVoucher ? t('common:edit') : t('addVoucher')}
                 </h2>
                 <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
                   Type: {formData.itemType} • List: {listName}
@@ -1707,9 +1709,9 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: V
         isOpen={deleteConfirmation !== null}
         onClose={() => setDeleteConfirmation(null)}
         onConfirm={() => deleteConfirmation && handleDeleteVoucher(deleteConfirmation)}
-        title="Delete Voucher?"
-        message="Are you sure you want to delete this voucher? This action cannot be undone."
-        confirmText="Delete"
+        title={t('deleteVoucher')}
+        message={t('deleteVoucherMessage')}
+        confirmText={t('deleteConfirm')}
         isDestructive
       />
     </div>

@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "critical",
-  "status": "todo",
+  "status": "done",
   "depends_on": ["arch-001"],
   "blocks": ["qa-002"],
   "created": "2026-02-22",
@@ -27,6 +27,6 @@
     "Remove old dynamic card renderer references for reservation type"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Created 3 files in src/components/reservations/: ReservationCard.tsx (displays name, formatted date badge with upcoming/past color states, address with MapPin icon, time with Clock icon, sage green #8A9A8B accent strip — visually distinct from VoucherCard which uses burgundy), ReservationDetailModal.tsx (bottom-sheet on mobile / centered on sm+, CalendarDays + Clock + MapPin icons, zoomable image, past-event badge, edit/delete buttons), ReservationGrid.tsx (1→2→3 col grid, empty state with Add CTA in sage green). All typed with Reservation from src/types/reservation.ts. Zero tsc errors.",
   "notes": "Design should be visually distinct from VoucherCard (different accent or icon treatment) so users can tell them apart at a glance."
 }

@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "high",
-  "status": "todo",
+  "status": "done",
   "depends_on": ["arch-001"],
   "blocks": ["qa-002"],
   "created": "2026-02-22",
@@ -25,6 +25,6 @@
     "Remove or refactor old unified create form"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Created CreateVoucherForm.tsx (src/components/vouchers/) with fields: name (required), value (number/decimal, ₪), issuer, expiry_date (date picker), code, image upload (Supabase Storage → voucher-images bucket), notes (textarea), Smart Paste (BuyMe URL auto-fills issuer+name on paste). Created CreateReservationForm.tsx (src/components/reservations/) with fields: name (required), event_date (date picker), time (time picker), address, image upload (same bucket, reservations/ prefix), notes, Smart Paste (Ontopo URL auto-fills name on paste). Both forms: onSave callback returns typed Omit<Voucher|Reservation, 'id'|'createdAt'> to parent for Supabase write; uploading/saving disabled states; cancel button. Consistent styling, reservation form uses sage green accents. Zero tsc errors.",
   "notes": "Keep form styling consistent. Consider extracting shared form elements (image upload, notes field) into a shared component."
 }

@@ -4,11 +4,12 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "critical",
-  "status": "todo",
+  "status": "done",
   "depends_on": ["arch-001"],
   "blocks": ["qa-002"],
   "created": "2026-02-22",
   "updated": "2026-02-22",
+  "completion_summary": "Created 3 files in src/components/vouchers/: VoucherCard.tsx (displays name, ₪ value, issuer, expiry badge with color-coded expired/soon states, copy-code button with clipboard feedback, image icon when imageUrl present, burgundy accent strip, opens detail modal on tap), VoucherDetailModal.tsx (bottom-sheet on mobile / centered on sm+, full details including zoomable image, monospace code block with copy button, edit/delete action buttons), VoucherGrid.tsx (responsive 1→2→3 col grid, empty state with Add CTA). All typed with Voucher from src/types/voucher.ts. Zero tsc errors.",
   "description": "Replace the dynamic card renderer for vouchers with a static VoucherCard.tsx component. No conditional type-checking at render time. Card displays: name, value (formatted as currency), issuer, expiry date. Includes photo icon (if image attached) and copy/link icon. Full details accessible via modal.",
   "acceptance_criteria": [
     "VoucherCard.tsx created in src/components/vouchers/",

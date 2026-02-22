@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Pencil } from 'lucide-react';
 import InputModal from './InputModal';
 import ConfirmationModal from './ConfirmationModal';
@@ -33,6 +34,7 @@ function ShoppingHub({
     listId?: string;
   } | null>(null);
 
+  const { t } = useTranslation('shopping');
   const listArray = Object.values(lists);
 
   const toggleListSelection = (listId: string) => {
@@ -89,7 +91,7 @@ function ShoppingHub({
               ←
             </button>
             <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#630606' }}>
-              Shopping Lists
+              {t('title')}
             </h1>
           </div>
 
@@ -104,7 +106,7 @@ function ShoppingHub({
                   color: '#630606',
                   border: '1.5px solid #630606'
                 }}
-                title="New List"
+                title={t('newList')}
               >
                 <Plus size={18} strokeWidth={2.5} />
               </button>
@@ -123,7 +125,7 @@ function ShoppingHub({
                   color: isEditMode ? 'white' : '#630606',
                   border: isEditMode ? 'none' : '1.5px solid #630606'
                 }}
-                title={isEditMode ? 'Done' : 'Edit'}
+                title={isEditMode ? t('common:done', 'Done') : t('common:edit', 'Edit')}
               >
                 {isEditMode ? (
                   <span className="text-sm font-medium">✓</span>
@@ -141,7 +143,7 @@ function ShoppingHub({
             <div className="flex items-center gap-3">
               {selectedListsForDeletion.size > 0 && (
                 <span className="text-sm font-medium" style={{ color: '#630606' }}>
-                  {selectedListsForDeletion.size} selected
+                  {t('common:selected_other', { count: selectedListsForDeletion.size })}
                 </span>
               )}
               <button
@@ -149,7 +151,7 @@ function ShoppingHub({
                 className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
-                {selectedListsForDeletion.size === listArray.length ? 'Deselect All' : 'Select All'}
+                {selectedListsForDeletion.size === listArray.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
             <div className="flex gap-2">
@@ -159,7 +161,7 @@ function ShoppingHub({
                   className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
                   style={{ backgroundColor: '#630606' }}
                 >
-                  Delete Selected
+                  {t('common:deleteSelected')}
                 </button>
               )}
               <button
@@ -167,7 +169,7 @@ function ShoppingHub({
                 className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606' }}
               >
-                Cancel
+                {t('common:cancel')}
               </button>
             </div>
           </div>
@@ -211,7 +213,7 @@ function ShoppingHub({
                       {list.name}
                     </h2>
                     <p className="text-sm" style={{ color: '#8E806A', opacity: 0.7 }}>
-                      {list.items.length} item{list.items.length !== 1 ? 's' : ''}
+                      {t('common:activeList', { count: list.items.length })}
                     </p>
                   </div>
 
@@ -269,7 +271,7 @@ function ShoppingHub({
                     {list.name}
                   </h2>
                   <p className="text-sm" style={{ color: '#8E806A', opacity: 0.7 }}>
-                    {list.items.length} item{list.items.length !== 1 ? 's' : ''}
+                    {t('common:activeList', { count: list.items.length })}
                   </p>
                 </button>
               )}
@@ -283,9 +285,9 @@ function ShoppingHub({
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={onCreateList}
-        title="Create New List"
-        placeholder="Enter list name..."
-        submitText="Create"
+        title={t('createNewList')}
+        placeholder={t('enterListName')}
+        submitText={t('create')}
       />
 
       {/* Edit List Modal */}
@@ -293,10 +295,10 @@ function ShoppingHub({
         isOpen={editingListId !== null}
         onClose={() => setEditingListId(null)}
         onSubmit={handleEditList}
-        title="Edit List Name"
-        placeholder="Enter new name..."
+        title={t('editListName')}
+        placeholder={t('enterNewName')}
         initialValue={editingListId ? lists[editingListId]?.name || '' : ''}
-        submitText="Save"
+        submitText={t('common:save')}
       />
 
       {/* Delete Confirmation Modal */}
@@ -310,15 +312,15 @@ function ShoppingHub({
             handleDeleteSingle(deleteConfirmation.listId);
           }
         }}
-        title={deleteConfirmation?.type === 'bulk' ? 'Delete Selected Lists?' : 'Delete List?'}
+        title={deleteConfirmation?.type === 'bulk' ? t('deleteSelectedLists') : t('deleteList')}
         message={
           deleteConfirmation?.type === 'bulk'
-            ? `Are you sure you want to delete ${selectedListsForDeletion.size} list${selectedListsForDeletion.size !== 1 ? 's' : ''}? This will also clear their Master Lists.`
+            ? t(selectedListsForDeletion.size === 1 ? 'deleteSelectedListsMessage_one' : 'deleteSelectedListsMessage_other', { count: selectedListsForDeletion.size })
             : deleteConfirmation?.listId
-            ? `Are you sure you want to delete "${lists[deleteConfirmation.listId]?.name}"? This will also clear its Master List.`
+            ? t('deleteListMessage', { name: lists[deleteConfirmation.listId]?.name })
             : ''
         }
-        confirmText="Delete"
+        confirmText={t('deleteConfirm')}
         isDestructive
       />
     </div>
