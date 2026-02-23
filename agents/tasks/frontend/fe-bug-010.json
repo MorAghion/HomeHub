@@ -1,11 +1,36 @@
 {
   "id": "fe-bug-010",
-  "title": "Add new list click does nothing (regression of fe-bug-006)",
-  "severity": "critical",
-  "status": "review",
-  "assigned_to": "frontend",
-  "affected_files": ["src/App.tsx"],
-  "root_cause": "When fe-bug-006 converted onCreateList from .then() callback to async/await, setCurrentScreen('vouchers') was dropped. Before the fix, the .then() chain included navigation. After the fix, onCreateList creates the list and sets activeVoucherListId, but never calls setCurrentScreen('vouchers'). The user stays on the hub view. The template modal closes (making it look like nothing happened), and the newly created list appears as a card but the add-voucher/add-reservation form never opens. Expected MVP behavior: clicking a template creates the list AND navigates into it so the user can immediately add items.",
-  "fix_applied": "Added setCurrentScreen('vouchers') to the onCreateList async callbacks for both VouchersHub and ReservationsHub in App.tsx, placed after setActiveVoucherListId(newList.id). Now clicking a template: creates list → sets active list → navigates to VoucherList view. User arrives at the (empty) list and can add items with the '+' button.",
-  "completion_summary": "Two-line addition in App.tsx (one for VouchersHub onCreateList, one for ReservationsHub onCreateList). Build passed clean."
+  "title": "Vouchers & Reservations — add new list option click does nothing (regression fe-bug-006)",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "critical",
+  "status": "todo",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual review",
+  "description": "In VouchersHub and ReservationsHub, clicking a template option in the 'New List' modal does nothing — the modal stays open and no list is created. This is a regression from the fe-bug-006 fix which changed handleTemplateSelect to await onCreateList and only close the modal on success.",
+  "steps_to_reproduce": [
+    "1. Navigate to Vouchers hub",
+    "2. Click the + (New Voucher List) button",
+    "3. Template selection modal opens",
+    "4. Click any template (e.g. BuyMe)",
+    "5. Expected: list is created, modal closes, list appears in hub",
+    "6. Actual: nothing happens — modal stays open, no list appears"
+  ],
+  "affected_files": [
+    "src/components/VouchersHub.tsx — handleTemplateSelect function",
+    "src/components/ReservationsHub.tsx — handleTemplateSelect function"
+  ],
+  "root_cause": "Unknown — the fe-bug-006 fix introduced async/await in handleTemplateSelect. Possible causes: (1) onCreateList prop is not properly passed or resolves/rejects unexpectedly; (2) isCreating state gets stuck at true; (3) the create call silently fails and modal stays open.",
+  "acceptance_criteria": [
+    "Clicking BuyMe template: onCreateList is called with correct args, modal closes",
+    "Clicking Ontopo template in ReservationsHub: onCreateList called, modal closes",
+    "On failed create: modal stays open but template button is re-enabled for retry",
+    "Regression tests in tests/components/vouchers/VouchersHub.test.tsx pass"
+  ],
+  "regression_tests": "tests/components/vouchers/VouchersHub.test.tsx (BUG-010 suite) + tests/components/reservations/ReservationsHub.test.tsx (BUG-010 suite) + e2e/vouchers.spec.ts (fe-bug-010 suite)",
+  "open_questions": [],
+  "completion_summary": ""
 }

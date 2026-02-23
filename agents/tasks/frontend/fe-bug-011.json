@@ -1,11 +1,36 @@
 {
   "id": "fe-bug-011",
-  "title": "Edit mode buttons uneven size/spacing",
-  "severity": "medium",
-  "status": "review",
-  "assigned_to": "frontend",
-  "affected_files": ["src/components/ShoppingHub.tsx", "src/components/TasksHub.tsx"],
-  "root_cause": "The Select All/Deselect All button uses px-3 py-1.5 text-xs while Delete Selected and Cancel use px-4 py-2 text-sm. This mismatch creates visually uneven button heights. The right-side button group wraps only the conditional Delete Selected button in a flex div with gap-2, while Cancel is always present but outside any gap container — leading to inconsistent spacing. No uniform height class (h-9 or h-10) is applied to enforce consistent sizing across buttons.",
-  "fix_applied": "Standardized all edit toolbar buttons to h-9 px-4 text-sm across ShoppingHub.tsx and TasksHub.tsx. Added gap-2 to the right-side flex container so Delete Selected and Cancel always have consistent spacing. RTL-safe: only logical Tailwind classes used (gap-*, h-*, px-*, py-*).",
-  "completion_summary": "Edited ShoppingHub.tsx and TasksHub.tsx edit toolbars. Build passed clean."
+  "title": "ShoppingList & HomeTasks — edit mode buttons uneven size, no spacing",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "medium",
+  "status": "todo",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual review",
+  "description": "In ShoppingList's bulk-delete mode and TaskList's bulk-edit mode, the action buttons (Delete Selected, Cancel, Select All, Check Selected) have inconsistent visual heights and insufficient spacing between them, making the toolbar look unpolished and hard to tap on mobile.",
+  "steps_to_reproduce": [
+    "1. Navigate to Shopping hub → open a list with items",
+    "2. Click the trash-can (Bulk Delete Mode) button",
+    "3. Observe the action bar — Delete Selected and Cancel buttons appear uneven in height",
+    "4. Repeat for Tasks hub → open a list → click Edit → observe the same layout issue"
+  ],
+  "affected_files": [
+    "src/components/ShoppingList.tsx — bulk delete mode action bar (isBulkDeleteMode section)",
+    "src/components/TaskList.tsx — bulk edit mode action bar (isBulkDeleteMode section)"
+  ],
+  "root_cause": "Button containers may be missing gap classes, or buttons have mismatched padding (py-) values, causing unequal rendered heights. Possible that one row uses gap-2 and another doesn't, or buttons lack flex-1 causing width mismatches.",
+  "acceptance_criteria": [
+    "All action buttons in ShoppingList bulk delete bar have matching py-* padding",
+    "All action buttons in TaskList bulk edit bar have matching py-* padding",
+    "Button row containers use flex gap-2 (or equivalent) for spacing",
+    "All buttons in a row use flex-1 for equal width",
+    "Regression tests in tests/components/shopping/ShoppingList.editMode.test.tsx pass",
+    "Regression tests in tests/components/tasks/TaskList.editMode.test.tsx pass"
+  ],
+  "regression_tests": "tests/components/shopping/ShoppingList.editMode.test.tsx + tests/components/tasks/TaskList.editMode.test.tsx + e2e/shopping.spec.ts (fe-bug-011 suite)",
+  "open_questions": [],
+  "completion_summary": ""
 }
