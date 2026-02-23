@@ -1,0 +1,23 @@
+{
+  "id": "fe-bug-008",
+  "title": "Carousel still doesn't light up after login — requires manual refresh (regression of fe-bug-004)",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "regression_of": "fe-bug-004",
+  "root_cause": "Unknown — fe-bug-004 was marked as fixed in Wave 4 but the issue persists. The carousel activation logic is still not reacting to data being available after login. Requires deeper investigation.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Observe the hubs carousel on the dashboard",
+    "3. Carousel items are not lit up / active",
+    "4. Manually refresh the page",
+    "5. Carousel items now light up correctly"
+  ],
+  "affected_files": [],
+  "fix_applied": null,
+  "completion_summary": null
+}

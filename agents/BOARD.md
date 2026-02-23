@@ -118,7 +118,12 @@ None.
 
 ## 🐛 Active Bugs
 
-None.
+| Bug | Title | Priority | Agent | Status |
+|-----|-------|----------|-------|--------|
+| fe-bug-008 | Carousel doesn't light up after login (regression fe-bug-004) | 🔴 High | 🎨 Frontend | todo |
+| fe-bug-009 | Vouchers hub — master lists (Ontopo, Movies & Shows) can be deleted | 🔴 High | 🎨 Frontend | todo |
+| fe-bug-010 | Vouchers & Reservations — add new list option click does nothing (regression fe-bug-006) | 🔴 Critical | 🎨 Frontend | todo |
+| fe-bug-011 | ShoppingList & HomeTasks — edit mode buttons uneven size, no spacing | 🟡 Medium | 🎨 Frontend | todo |
 
 ---
 

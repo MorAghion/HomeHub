@@ -1,0 +1,24 @@
+{
+  "id": "fe-bug-009",
+  "title": "Vouchers hub — master/template lists (e.g. Ontopo, Movies & Shows) can be deleted from main menu",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "Unknown — delete action is exposed on master/template lists in the Vouchers hub main menu. These lists should not be deletable by the user (or should require confirmation and be protected as templates).",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Navigate to Vouchers hub",
+    "3. Observe the list of voucher lists (e.g. Ontopo, Movies & Shows)",
+    "4. A delete option is visible/accessible on these lists",
+    "5. User can delete them from the main vouchers menu"
+  ],
+  "affected_files": [
+    "src/components/VouchersHub.tsx"
+  ],
+  "fix_applied": null,
+  "completion_summary": null
+}
