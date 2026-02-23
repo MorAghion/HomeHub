@@ -1379,6 +1379,7 @@ function App() {
         <VoucherList
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}
+        listType={currentVoucherList.defaultType ?? 'voucher'}
         vouchers={currentVouchers}
         autoOpenAdd={autoOpenAdd}
         onUpdateVouchers={async (newVouchers) => {

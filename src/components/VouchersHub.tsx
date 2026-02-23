@@ -85,7 +85,7 @@ function VouchersHub({
     // fe-bug-006: await the create, pass template.name as display name, close only on success
     setIsCreating(true);
     try {
-      await onCreateList(templateId, template?.name, template?.defaultType);
+      await onCreateList(templateId, template?.name, template?.defaultType ?? 'voucher');
       setIsTemplateModalOpen(false);
       setSelectedTemplate(null);
     } catch (err) {
