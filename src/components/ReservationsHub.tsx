@@ -158,22 +158,29 @@ function ReservationsHub({
               )}
               <button
                 onClick={toggleSelectAll}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
+                className="h-9 px-4 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
                 {selectedListsForDeletion.size === listArray.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               {selectedListsForDeletion.size > 0 && (
                 <button
                   onClick={() => setDeleteConfirmation({ type: 'bulk' })}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                  style={{ backgroundColor: '#DC2626' }}
+                  className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-all"
+                  style={{ backgroundColor: '#630606' }}
                 >
                   {t('common:deleteSelected')}
                 </button>
               )}
+              <button
+                onClick={cancelEditMode}
+                className="h-9 px-4 rounded-lg text-sm font-medium hover:bg-white transition-colors"
+                style={{ color: '#630606' }}
+              >
+                {t('common:cancel')}
+              </button>
             </div>
           </div>
         )}
@@ -204,52 +211,70 @@ function ReservationsHub({
         {listArray.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {listArray.map((list) => (
-              <div key={list.id} className="relative">
-                {isEditMode && (
-                  <>
+              <div
+                key={list.id}
+                className="bg-white rounded-2xl shadow-sm transition-all hover:shadow-md"
+                style={{ border: isEditMode && selectedListsForDeletion.has(list.id) ? '2px solid #630606' : '1px solid #8E806A22' }}
+              >
+                {isEditMode ? (
+                  <div className="flex items-center gap-4 p-6">
+                    {/* Checkbox */}
                     <div
                       onClick={() => toggleListSelection(list.id)}
-                      className="absolute -top-2 -end-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
+                      className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
                       style={{
                         borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
-                        backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'white',
+                        backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'transparent',
                       }}
                     >
                       {selectedListsForDeletion.has(list.id) && (
                         <span className="text-white text-xs font-bold">✓</span>
                       )}
                     </div>
+                    {/* Content */}
+                    <div className="flex-1 cursor-pointer" onClick={() => toggleListSelection(list.id)}>
+                      <div className="mb-2">
+                        {(() => {
+                          const Icon = getContextIcon(list.name);
+                          return <Icon size={28} strokeWidth={2} style={{ color: '#630606' }} />;
+                        })()}
+                      </div>
+                      <h2 className="text-xl font-semibold mb-1" style={{ color: '#630606' }}>
+                        {list.name}
+                      </h2>
+                      <p className="text-sm" style={{ color: '#8E806A' }}>
+                        {list.items.length} {list.items.length === 1 ? 'reservation' : 'reservations'}
+                      </p>
+                    </div>
+                    {/* Delete */}
                     <button
                       onClick={() => setDeleteConfirmation({ type: 'single', listId: list.id })}
-                      className="absolute -top-2 -start-2 w-6 h-6 rounded-full flex items-center justify-center transition-all cursor-pointer z-10 bg-white hover:bg-red-50"
-                      style={{ border: '1.5px solid #DC262666' }}
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      style={{ color: '#630606' }}
                       title={t('deleteReservationList')}
                     >
-                      <Trash2 size={12} strokeWidth={2} style={{ color: '#DC2626' }} />
+                      <Trash2 size={20} strokeWidth={2} />
                     </button>
-                  </>
-                )}
-                <button
-                  onClick={() => !isEditMode && onSelectList(list.id)}
-                  className={`w-full bg-white p-6 rounded-2xl shadow-sm text-start transition-all ${
-                    !isEditMode ? 'hover:bg-white hover:shadow-md active:scale-[0.98]' : 'opacity-70'
-                  }`}
-                  style={{ border: selectedListsForDeletion.has(list.id) ? '2px solid #630606' : '1px solid #8E806A22' }}
-                  disabled={isEditMode}
-                >
-                  <div className="mb-3">
-                    {(() => {
-                      const Icon = getContextIcon(list.name);
-                      return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
-                    })()}
                   </div>
-                  <h2 className="text-xl font-semibold mb-3" style={{ color: '#630606' }}>
-                    {list.name}
-                  </h2>
-                  <p className="text-sm" style={{ color: '#8E806A' }}>
-                    {list.items.length} {list.items.length === 1 ? 'reservation' : 'reservations'}
-                  </p>
-                </button>
+                ) : (
+                  <button
+                    onClick={() => onSelectList(list.id)}
+                    className="w-full p-6 rounded-2xl text-start active:scale-[0.98]"
+                  >
+                    <div className="mb-3">
+                      {(() => {
+                        const Icon = getContextIcon(list.name);
+                        return <Icon size={32} strokeWidth={2} style={{ color: '#630606' }} />;
+                      })()}
+                    </div>
+                    <h2 className="text-xl font-semibold mb-3" style={{ color: '#630606' }}>
+                      {list.name}
+                    </h2>
+                    <p className="text-sm" style={{ color: '#8E806A' }}>
+                      {list.items.length} {list.items.length === 1 ? 'reservation' : 'reservations'}
+                    </p>
+                  </button>
+                )}
               </div>
             ))}
           </div>
