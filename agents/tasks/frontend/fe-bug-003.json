@@ -1,0 +1,23 @@
+{
+  "id": "fe-bug-003",
+  "title": "Active list count shows 0 briefly after login before updating to real value",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "medium",
+  "status": "review",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "lists, taskLists, and voucherLists all initialize as empty objects {}. Hub cards rendered Object.keys(x).length immediately, showing 0. The Supabase fetch is async so there is always a window where the data has not arrived yet and the count reads 0.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Observe the active list count on the dashboard/hub cards",
+    "3. Count shows 0 initially",
+    "4. After 1-2 seconds it updates to the real number"
+  ],
+  "affected_files": [
+    "src/App.tsx"
+  ],
+  "fix_applied": "Added three loading state flags: listsLoading, taskListsLoading, voucherListsLoading (all initialized true). Each is set to false after Supabase data loads (or on error). Hub cards in the landing carousel render '—' instead of the count while the corresponding loading flag is true.",
+  "completion_summary": "Fix complete. Build passes clean. Users will now see '—' in hub cards until real data arrives, eliminating the misleading 0 flash."
+}

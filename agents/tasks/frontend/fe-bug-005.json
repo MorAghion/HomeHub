@@ -1,0 +1,24 @@
+{
+  "id": "fe-bug-005",
+  "title": "Vouchers and Reservations not separated into two distinct hubs — still appear as one",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "review",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "fe-001/002/003 split the item-level components but hub-level separation was never wired up. All VoucherListInstance records (both voucher and reservation defaultType) were rendered in a single VouchersHub. A 4th carousel card for Reservations did not exist.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Observe the dashboard hub cards",
+    "3. Vouchers and Reservations appear as a single combined hub instead of two separate hubs"
+  ],
+  "affected_files": [
+    "src/App.tsx",
+    "src/components/VouchersHub.tsx",
+    "src/components/ReservationsHub.tsx (new)"
+  ],
+  "fix_applied": "Created ReservationsHub.tsx — shows only lists where defaultType === 'reservation', uses Calendar icon and reservation-specific templates (ontopo, movies, custom, physical). VouchersHub now filters listArray to exclude reservation-type lists (defaultType !== 'reservation'). App.tsx: expanded activeHub type to include 'reservations', added 4th carousel card in landing mode, added 4th hub card in active mode, added Reservations button to bottom nav. VoucherList back navigation now scrolls to 'reservations' or 'vouchers' based on the active list's defaultType.",
+  "completion_summary": "Fix complete. Build passes clean. Vouchers and Reservations now appear as separate hub cards in both landing and active carousel modes. Bottom nav has 4 buttons."
+}

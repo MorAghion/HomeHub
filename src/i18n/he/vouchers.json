@@ -44,5 +44,11 @@
   "deleteVoucher": "למחוק את השובר?",
   "deleteVoucherMessage": "האם למחוק את השובר? לא ניתן לבטל פעולה זו.",
   "voucher_one": "שובר אחד",
-  "voucher_other": "{{count}} שוברים"
+  "voucher_other": "{{count}} שוברים",
+  "noReservationsYet": "אין הזמנות עדיין",
+  "noReservationsDesc": "התחל לארגן הזמנות למסעדות, כרטיסים ואירועים",
+  "createFirstReservation": "צור את רשימת ההזמנות הראשונה שלך",
+  "newReservationList": "רשימת הזמנות חדשה",
+  "deleteReservationList": "למחוק רשימת הזמנות?",
+  "deleteReservationListMessage": "האם למחוק את רשימת ההזמנות וכל הפריטים שבה?"
 }
