@@ -69,7 +69,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
     if (error) {
       const msg = (error as any)?.message || '';
-      alert(msg.includes('owner') ? 'Only the household owner can generate invite codes.' : 'Failed to create invite code.');
+      alert(msg.includes('owner') ? t('ownerOnlyError') : t('failedCreateInvite'));
     } else {
       setInviteCode(code);
     }
@@ -90,7 +90,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setDeleteLoading(true);
     const { error } = await deleteHousehold();
     if (error) {
-      const msg = (error as any)?.message || 'Failed to delete household.';
+      const msg = (error as any)?.message || t('failedDeleteHousehold');
       alert(msg);
       setDeleteLoading(false);
     }
@@ -98,7 +98,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   const handleSignOut = async () => {
-    if (confirm('Are you sure you want to sign out?')) {
+    if (confirm(t('signOutConfirm'))) {
       await signOut();
       onClose();
     }
@@ -127,13 +127,13 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   const handleRemoveMember = async (memberId: string, memberName: string | null) => {
-    if (!confirm(`Remove ${memberName || 'this member'} from the household?`)) return;
+    if (!confirm(t('removeMemberConfirm', { name: memberName || t('unknown') }))) return;
 
     setRemovingMemberId(memberId);
     const { error } = await removeMember(memberId);
 
     if (error) {
-      const msg = (error as any)?.message || 'Failed to remove member.';
+      const msg = (error as any)?.message || t('failedRemoveMember');
       alert(msg);
     } else {
       await fetchHouseholdMembers();
@@ -156,7 +156,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-            Settings
+            {t('title')}
           </h2>
           <button
             onClick={onClose}
@@ -205,7 +205,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           <div className="flex items-center gap-2 mb-3">
             <Users size={20} style={{ color: '#630606' }} />
             <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
-              Household Members
+              {t('householdMembers')}
             </h3>
           </div>
           <div className="space-y-2">
@@ -220,13 +220,13 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <Crown size={14} style={{ color: '#630606', flexShrink: 0 }} />
                   )}
                   <p className="text-sm font-medium truncate" style={{ color: '#630606' }}>
-                    {member.display_name || 'Unknown'}
+                    {member.display_name || t('unknown')}
                   </p>
                   {member.id === profile?.id && (
-                    <span className="text-xs flex-shrink-0" style={{ color: '#8E806A' }}>(You)</span>
+                    <span className="text-xs flex-shrink-0" style={{ color: '#8E806A' }}>{t('you')}</span>
                   )}
                   {member.is_owner && (
-                    <span className="text-xs flex-shrink-0" style={{ color: '#8E806A' }}>Owner</span>
+                    <span className="text-xs flex-shrink-0" style={{ color: '#8E806A' }}>{t('owner')}</span>
                   )}
                 </div>
                 {/* Remove button — only visible to the owner, for non-owner members */}
@@ -248,13 +248,13 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         {/* Invite Partner — owner only */}
         <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#F5F2E7' }}>
           <h3 className="text-sm font-semibold mb-2" style={{ color: '#630606' }}>
-            Invite Your Partner
+            {t('invitePartner')}
           </h3>
 
           {isOwner ? (
             <>
               <p className="text-xs mb-3" style={{ color: '#8E806A' }}>
-                Generate a one-time code for your partner to join your household
+                {t('inviteDesc')}
               </p>
               {!inviteCode ? (
                 <button
@@ -263,7 +263,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   className="w-full py-2 px-4 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                   style={{ backgroundColor: '#630606' }}
                 >
-                  {loading ? 'Generating...' : 'Generate Invite Code'}
+                  {loading ? t('generating') : t('generateInviteCode')}
                 </button>
               ) : (
                 <div>
@@ -288,14 +288,14 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     </button>
                   </div>
                   <p className="text-xs text-center" style={{ color: '#8E806A' }}>
-                    Valid for 24 hours • Single-use
+                    {t('inviteValidity')}
                   </p>
                 </div>
               )}
             </>
           ) : (
             <p className="text-xs" style={{ color: '#8E806A' }}>
-              Only the household owner can generate invite codes.
+              {t('ownerOnlyInvite')}
             </p>
           )}
         </div>
@@ -303,16 +303,16 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         {/* Join a Household (for authenticated users with an invite code) */}
         <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#F5F2E7' }}>
           <h3 className="text-sm font-semibold mb-2" style={{ color: '#630606' }}>
-            Join Another Household
+            {t('joinHousehold')}
           </h3>
           <p className="text-xs mb-3" style={{ color: '#8E806A' }}>
-            Have an invite code? Enter it to switch to another household.
+            {t('joinDesc')}
           </p>
 
           {joinSuccess ? (
             <div className="flex items-center gap-2 text-sm py-2" style={{ color: '#10B981' }}>
               <Check size={16} />
-              Successfully joined household!
+              {t('joinSuccess')}
             </div>
           ) : (
             <form onSubmit={handleJoinHousehold} className="space-y-2">
@@ -323,7 +323,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   setJoinCode(e.target.value.toUpperCase());
                   setJoinError(null);
                 }}
-                placeholder="Enter invite code (e.g. ABCD1234)"
+                placeholder={t('inviteCodePlaceholder')}
                 maxLength={8}
                 className="w-full px-3 py-2 rounded-lg border-2 font-mono text-sm font-medium tracking-widest focus:outline-none focus:border-[#630606] transition-colors uppercase"
                 style={{ borderColor: joinError ? '#DC2626' : '#8E806A33' }}
@@ -340,7 +340,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className="w-full py-2 px-4 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {joinLoading ? 'Joining...' : 'Join Household'}
+                {joinLoading ? t('joining') : t('joinButton')}
               </button>
             </form>
           )}
@@ -356,7 +356,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 style={{ backgroundColor: 'transparent', color: '#DC2626', border: '1.5px solid #DC2626' }}
               >
                 <Trash2 size={16} />
-                Delete Household
+                {t('deleteHousehold')}
               </button>
             ) : (
               <div className="p-4 rounded-xl space-y-3" style={{ border: '1.5px solid #DC2626', backgroundColor: '#FEF2F2' }}>
@@ -364,17 +364,17 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   <Trash2 size={18} style={{ color: '#DC2626', flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <p className="text-sm font-semibold" style={{ color: '#DC2626' }}>
-                      Delete Household?
+                      {t('deleteHouseholdConfirm')}
                     </p>
                     <p className="text-xs mt-1" style={{ color: '#7F1D1D' }}>
-                      This action is <strong>irreversible</strong> and will permanently delete all data for all members — shopping lists, tasks, vouchers, and everything else.
+                      {t('deleteHouseholdDesc')}
                     </p>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium mb-1" style={{ color: '#7F1D1D' }}>
-                    Type <strong>DELETE</strong> to confirm
+                    {t('typeDeleteToConfirm')}
                   </label>
                   <input
                     type="text"
@@ -394,7 +394,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     style={{ color: '#6B7280', border: '1px solid #D1D5DB' }}
                     disabled={deleteLoading}
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     onClick={handleDeleteHousehold}
@@ -402,7 +402,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     className="flex-1 py-2 rounded-lg text-sm font-medium text-white transition-all disabled:opacity-40"
                     style={{ backgroundColor: '#DC2626' }}
                   >
-                    {deleteLoading ? 'Deleting...' : 'Delete Everything'}
+                    {deleteLoading ? t('deleting') : t('deleteEverything')}
                   </button>
                 </div>
               </div>
@@ -417,7 +417,7 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           style={{ backgroundColor: '#DC2626', color: 'white' }}
         >
           <LogOut size={18} />
-          Sign Out
+          {t('signOut')}
         </button>
       </div>
     </div>

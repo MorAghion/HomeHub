@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["fe-006"],
   "blocks": ["qa-007"],
   "created": "2026-02-22",
@@ -65,6 +65,6 @@
   ],
 
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Task 1 (Settings translations): Audited SettingsModal.tsx — found 20+ hardcoded strings. Added all missing keys to en/settings.json and he/settings.json (householdMembers, you, owner, unknown, invitePartner, inviteDesc, generating, generateInviteCode, inviteValidity, ownerOnlyInvite, joinHousehold, joinDesc, joinSuccess, inviteCodePlaceholder, joining, joinButton, deleteHousehold, deleteHouseholdConfirm, deleteHouseholdDesc, typeDeleteToConfirm, deleting, deleteEverything, cancel, signOutConfirm, removeMemberConfirm, failedCreateInvite, ownerOnlyError, failedDeleteHousehold, failedRemoveMember). Updated all confirm()/alert() calls and JSX strings to use t(). Task 2 (Hebrew context mapping): Created src/utils/he/contextMapping.ts (all 12 contexts, Hebrew keywords + Hebrew item names), src/utils/he/suggestions.ts (Hebrew keyword matching + Hebrew suggestion items), src/utils/he/iconMapping.ts (Hebrew keyword → same LucideIcon values). Created src/utils/contextResolver.ts as language-aware single export point — same function signatures as originals, no component logic changes needed. Updated 4 callers (ShoppingHub, VouchersHub, TasksHub, MasterListDrawer) to import from contextResolver.ts. Build passes clean: zero TypeScript errors.",
   "notes": "The user explicitly requested a separate Hebrew mapping file rather than modifying contextMapping.ts data inline."
 }
