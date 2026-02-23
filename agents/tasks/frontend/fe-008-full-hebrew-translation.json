@@ -1,0 +1,53 @@
+{
+  "id": "fe-008",
+  "title": "Full Hebrew translation audit — all windows, modals, and components",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "medium",
+  "status": "todo",
+  "depends_on": ["fe-006", "fe-006-cont"],
+  "blocks": ["qa-007"],
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human",
+  "description": "Audit every screen, modal, drawer, and component in the app for untranslated or hardcoded strings. Every piece of user-facing text must support Hebrew via i18n. This is a comprehensive sweep — not just new additions but the entire existing codebase.",
+  "scope": [
+    "All pages and route-level screens",
+    "All modals (confirmation dialogs, detail modals, create/edit forms)",
+    "All drawers (MasterListDrawer, etc.)",
+    "All hub components (ShoppingHub, TasksHub, VouchersHub, etc.)",
+    "All card components (VoucherCard, ReservationCard, TaskCard, etc.)",
+    "All form components (create, edit, delete confirmation)",
+    "All empty states and loading states",
+    "All error messages and toast notifications",
+    "All button labels, placeholders, and aria labels",
+    "AuthScreen — sign in, sign up, join household flows",
+    "SettingsModal — all sections",
+    "Navigation labels and hub titles"
+  ],
+  "approach": [
+    "1. Run: grep -r 'className\\|return\\|<' src/components src/pages --include='*.tsx' to find hardcoded strings",
+    "2. For each component: identify all visible strings not wrapped in t()",
+    "3. Add missing keys to src/i18n/en/{namespace}.json",
+    "4. Add Hebrew translations to src/i18n/he/{namespace}.json",
+    "5. Replace hardcoded strings with t('namespace:key') calls",
+    "6. Use existing namespaces where appropriate: common, shopping, tasks, vouchers, reservations, settings",
+    "7. Create new namespaces only if needed (e.g. auth)"
+  ],
+  "conventions": [
+    "No hardcoded user-facing strings in JSX — all through t()",
+    "Pluralization via i18next _one/_other keys where needed",
+    "RTL-safe — logical Tailwind properties only (ms-, me-, ps-, pe-)",
+    "Do not translate: brand names (BuyMe, Ontopo), technical strings, console logs"
+  ],
+  "acceptance_criteria": [
+    "Zero hardcoded user-facing strings in any component",
+    "All i18n/he/ files have a matching key for every i18n/en/ key",
+    "App fully usable in Hebrew — no English strings visible when language is set to Hebrew",
+    "No regressions in English mode",
+    "npm run build passes clean"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "This task is for later — do not start until fe-bug-003 through fe-bug-006 are resolved and merged."
+}
