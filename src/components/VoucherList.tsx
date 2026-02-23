@@ -32,14 +32,6 @@ function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack, aut
   const { profile } = useAuth();
   const { t } = useTranslation('vouchers');
 
-  // Debug: Log list info on mount
-  console.log('📂 VoucherList opened:', {
-    listName,
-    listId,
-    itemCount: vouchers.length,
-    items: vouchers.map(v => ({ name: v.name, type: v.itemType }))
-  });
-
   // Detect sub-hub type for specialized UI
   const isBuyMe = listId.includes('buyme');
   const isOntopo = listId.includes('ontopo');

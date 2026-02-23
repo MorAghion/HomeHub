@@ -1026,7 +1026,7 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
-                  setAutoOpenAdd(true); // fe-bug-010: open add form immediately on first load
+                  setAutoOpenAdd(true);
                   setCurrentScreen('vouchers');
                 }}
                 onDeleteList={(listId) => {
