@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "review",
+  "status": "done",
   "depends_on": ["fe-006"],
   "blocks": ["qa-007"],
   "created": "2026-02-22",

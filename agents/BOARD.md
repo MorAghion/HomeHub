@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-22 22:30 UTC
-**Current Phase:** 0.2 — Test Suite → Wave 3 in progress
+**Last updated:** 2026-02-23 11:45 UTC
+**Current Phase:** 0.2/0.4 — Test Suite + Hebrew Localization COMPLETE → Wave 4 ready
 
 ---
 
@@ -9,9 +9,11 @@
 | Wave | Tasks | Agents | Status | Started | Completed | Notes |
 |------|-------|--------|--------|---------|-----------|-------|
 | Wave 1 | arch-001, qa-001, fe-007 | 🏗️🧪🎨 | ✅ Done | 2026-02-22 14:00 | 2026-02-22 16:45 | All parallel, 3 critical foundations |
-| Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ Frontend + Architect | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
-| Wave 3 | qa-003, qa-004, qa-005, qa-006 | 🧪 QA | ⏳ Queued | — | — | Remaining test suite |
+| Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
 | Wave 3b | fe-bug-001, fe-bug-002, qa-002 | 🎨🧪 | ✅ Done | 2026-02-22 21:30 | 2026-02-22 22:30 | Both bugs validated + 87 tests passing |
+| Wave 3c | qa-003, qa-004, qa-006 | 🧪 | ✅ Done | 2026-02-23 00:00 | 2026-02-23 01:00 | 112 new unit tests + SANITY_CHECKLIST.md (199 total) |
+| Wave 3d | fe-006-rtl, fe-006-cont, qa-005 | 🎨🧪 | ✅ Done | 2026-02-23 10:00 | 2026-02-23 11:45 | Hebrew RTL, context mapping, 35 E2E tests |
+| Wave 4 | qa-007, qa-008, be-002 | 🧪⚙️ | ⏳ Queued | — | — | RTL testing, test errors scan, PWA manifest |
 
 ---
 
@@ -19,10 +21,10 @@
 
 ```
 Phase 0.1 ██████████100%  (5/5 tasks done)   arch-001 ✅ | fe-001 ✅ | fe-002 ✅ | fe-003 ✅ | qa-001 ✅
-Phase 0.2 ████░░░░░░ 33%  (2/6 tasks done)   qa-001 ✅ | qa-002 ✅ | qa-003 ⏳ | qa-004 ⏳ | qa-005 ⏳ | qa-006 ⏳
-Phase 0.3 ████░░░░░░ 33%  (1/3 tasks done)   arch-002 ✅ | be-001 🔒 | fe-004 🔒
-Phase 0.4 ████░░░░░░ 33%  (1/3 tasks done)   fe-005 ✅ | fe-006 ⏳ | qa-007 🔒
-Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be-002 ⏳
+Phase 0.2 ██████████100%  (6/6 tasks done)   qa-001 ✅ | qa-002 ✅ | qa-003 ✅ | qa-004 ✅ | qa-005 ✅ | qa-006 ✅
+Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
+Phase 0.4 ██████████100%  (3/3 tasks done)   fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅
+Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be-002 ⏳
 ```
 
 ---
@@ -31,16 +33,18 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 
 | Action | From Agent | Urgency | Status |
 |--------|-----------|---------|--------|
-| `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking (FE cannot query new tables until applied) | ✅ Done (applied via SQL Editor) |
-| Run `supabase/15-oauth-tokens.sql` in SQL Editor, then return verification query output to Architect | 🏗️ arch-002 | 🔴 Blocking | ✅ Done — table_exists=1, rls_enabled=true, index_count=4, policy_count=4, unique_constraint=1 |
+| `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking | ✅ Done |
+| Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
+| Review + merge `agent/qa-003-004-006-unit-tests` → main | 🧪 QA | 🟡 Pending | ⏳ Awaiting PR review |
+| Review + merge `agent/qa-005-e2e-suite` → main | 🧪 QA | 🟡 Pending | ✅ Merged (PR #6) |
 
 ---
 
 ## 🖥️ Active Agents
 
-| Terminal | Agent | Task | Started | Notes |
-|----------|-------|------|---------|-------|
-| — | — | Wave 3b complete — awaiting Wave 3 launch | — | Run QA for qa-003/004/005/006 |
+| Terminal | Agent | Task | Notes |
+|----------|-------|------|-------|
+| — | — | Wave 4 ready to launch | qa-007 (RTL tests), qa-008 (fix test errors), be-002 (PWA) |
 
 ---
 
@@ -58,11 +62,11 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
-| qa-002: Voucher/Reservation tests | 🧪 QA | ✅ done | fe-001, fe-002, fe-003, qa-001 | All V2 |
-| qa-003: Shopping Hub tests | 🧪 QA | ⏳ todo | qa-001 | All V2 |
-| qa-004: Home Tasks tests | 🧪 QA | ⏳ todo | qa-001 | All V2 |
-| qa-005: E2E test suite | 🧪 QA | ⏳ todo | qa-001 | All V2 |
-| qa-006: Sanity checklist | 🧪 QA | ⏳ todo | — | — |
+| qa-002: Voucher/Reservation tests | 🧪 QA | ✅ done | fe-001, fe-002, fe-003, qa-001 | — |
+| qa-003: Shopping Hub tests | 🧪 QA | ✅ done | qa-001 | — |
+| qa-004: Home Tasks tests | 🧪 QA | ✅ done | qa-001 | — |
+| qa-005: E2E test suite | 🧪 QA | ✅ done | qa-001 | — |
+| qa-006: Sanity checklist | 🧪 QA | ✅ done | — | — |
 
 ## 🚦 Phase 0.3 — Gmail OAuth
 
@@ -77,8 +81,9 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
 | fe-005: i18n framework setup | 🎨 Frontend | ✅ done | — | fe-006 |
-| fe-006: RTL layout + translations | 🎨 Frontend | ⏳ todo | fe-005 | qa-007 |
-| qa-007: RTL testing | 🧪 QA | 🔒 blocked | fe-006 | — |
+| fe-006: RTL layout + translations | 🎨 Frontend | ✅ done | fe-005 | qa-007 |
+| fe-006-cont: Hebrew context mapping + settings i18n | 🎨 Frontend | ✅ done | fe-006 | qa-007 |
+| qa-007: RTL testing | 🧪 QA | 🟢 unblocked | fe-006, fe-006-cont | — |
 
 ## 🚦 Phase 0.5 — Responsive + PWA Foundation
 
@@ -87,14 +92,19 @@ Phase 0.5 █████░░░░░ 50%  (1/2 tasks done)   fe-007 ✅ | be
 | fe-007: Responsive audit + fix | 🎨 Frontend | ✅ done | — | — |
 | be-002: PWA manifest + service worker | ⚙️ Backend | ⏳ todo | — | — |
 
+## 🚦 Backlog — Test Maintenance
+
+| Task | Agent | Status | Notes |
+|------|-------|--------|-------|
+| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Run after latest FE changes (fe-006, fe-006-cont) |
+
 ---
 
 ## 📬 Open Handoffs
 
 | From | To | Message | Urgency |
 |------|----|---------|---------|
-| 🧪 qa-001 | 🧪 qa-002, qa-003, qa-004, qa-005 | Test infrastructure ready. Available: 12 mock factories in `tests/fixtures/` (all accept partial overrides), `tests/mocks/supabase.ts` (mockSupabaseClient with chainable query builder), `tests/mocks/localStorage.ts`, Vitest smoke tests passing, Playwright configured. Run `npm test` (unit), `npm run test:e2e` (Playwright), `npm run test:coverage`. | 🟢 Info |
-| 🎨 fe-005 | 🎨 fe-006 | i18n ready. Namespaces: common, shopping, tasks, vouchers, reservations, settings. Languages: en, he. Language toggle in SettingsModal persists to localStorage. RTL support ready to wire up — proceed with fe-006. | 🟡 Ready |
+| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. Test RTL direction, Hebrew sub-hub context detection, settings page translations, LTR regression. Branches merged to main. | 🟡 Ready |
 
 ## ❓ Open Questions
 None.
@@ -103,8 +113,8 @@ None.
 
 | Task | Blocked By | Notes |
 |------|-----------|-------|
+| be-001 | arch-002 ✅ | be-001 can now proceed — arch-002 is done |
 | fe-004 | be-001 | — |
-| qa-007 | fe-006 | — |
 
 ## 🐛 Active Bugs
 
@@ -126,9 +136,14 @@ None.
 | fe-005 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | i18n framework: i18next + react-i18next, en/he translations, language toggle |
 | fe-005-bug-001 | 🎨 Frontend | 2026-02-22 20:00 | Wave 2 | Fixed sign-in stuck: removed blocking fetchProfile from signIn/signUp |
 | fe-bug-002 | 🎨 Frontend | 2026-02-22 21:30 | Wave 3b | Critical: sign-in button unresponsive — premature setLoading(false) fix |
-| fe-bug-001 | 🎨🧪 Frontend+QA | 2026-02-22 22:30 | Wave 3b | Perf validated: bundle 224KB→140KB, lazy chunks confirmed, auth spinner fixed |
-| fe-bug-002 | 🎨🧪 Frontend+QA | 2026-02-22 22:30 | Wave 3b | Critical validated: sign-in button flow correct, build clean, 6 test cases passed |
-| qa-002 | 🧪 QA | 2026-02-22 22:30 | Wave 3b | 87 tests passing: VoucherCard, ReservationCard, forms, integration flow |
+| fe-bug-001 | 🎨🧪 | 2026-02-22 22:30 | Wave 3b | Perf validated: bundle 224KB→140KB, lazy chunks confirmed |
+| qa-002 | 🧪 QA | 2026-02-22 22:30 | Wave 3b | 87 tests: VoucherCard, ReservationCard, forms, integration flow |
+| qa-003 | 🧪 QA | 2026-02-23 01:00 | Wave 3c | 64 tests: context engine, auto-categorize, smart-merge, shopping components + integration |
+| qa-004 | 🧪 QA | 2026-02-23 01:00 | Wave 3c | 30 tests: TaskCard, CreateTaskForm, UrgentTasks, tasks integration flow |
+| qa-006 | 🧪 QA | 2026-02-23 01:00 | Wave 3c | SANITY_CHECKLIST.md: 116 manual checks, 6-device matrix, RTL/LTR/offline |
+| fe-006 | 🎨 Frontend | 2026-02-23 10:00 | Wave 3d | RTL layout + Hebrew translations, logical Tailwind classes throughout |
+| fe-006-cont | 🎨 Frontend | 2026-02-23 10:30 | Wave 3d | Hebrew context mapping (12 contexts), settings i18n (20+ strings), contextResolver.ts |
+| qa-005 | 🧪 QA | 2026-02-23 11:45 | Wave 3d | 35 E2E tests: all hubs + settings + navigation, mobile Chrome project, auth setup |
 
 ---
 
