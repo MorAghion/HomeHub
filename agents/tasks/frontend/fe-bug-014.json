@@ -1,0 +1,28 @@
+{
+  "id": "fe-bug-014",
+  "title": "ReservationsHub does not update after list creation — requires manual refresh to show new list",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — production testing",
+  "related_to": "fe-bug-013",
+  "root_cause": "Unknown — after creating a reservation list (via Ontopo template) and closing the modal, the hub does not re-fetch or reactively update its list state. The list exists in Supabase (visible after refresh) but the local state is stale. ReservationsHub likely does not subscribe to voucherLists state changes, or the state update in App.tsx after onCreateList does not trigger a re-render of ReservationsHub.",
+  "steps_to_reproduce": [
+    "1. Navigate to Reservations hub (empty)",
+    "2. Tap 'Add New Reservation'",
+    "3. Select Ontopo template",
+    "4. Reservation modal opens — close it (Cancel or X)",
+    "5. Hub still shows empty state (no list visible)",
+    "6. Manually refresh the page",
+    "7. Reservation list now appears correctly"
+  ],
+  "affected_files": [
+    "src/components/ReservationsHub.tsx",
+    "src/App.tsx"
+  ],
+  "fix_applied": null,
+  "completion_summary": null
+}
