@@ -183,6 +183,13 @@ This must run BEFORE any other work. Non-negotiable.
 - E2E tests use `npm run dev` server + local Supabase
 - QA must NEVER run tests against production
 - Before running tests: ensure local Supabase is running and seeded with test fixtures
+- QA agent has full autonomy to run any read-only or test commands without asking for permission:
+  - `npm test`, `npm run test:e2e`, `npm run test:coverage`
+  - `npm run build`, `npm run dev`
+  - `git status`, `git log`, `git diff`
+  - Reading any file in the repo
+- QA agent does NOT need to ask permission before running tests, reading files, or executing build commands
+- QA agent DOES still need to follow the Git Workflow — feature branch, PR, no direct pushes
 
 ### Deployment Flow
 - All changes are developed locally
