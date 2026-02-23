@@ -1,0 +1,11 @@
+{
+  "id": "fe-bug-009",
+  "title": "Master lists deletable in Vouchers hub",
+  "severity": "high",
+  "status": "review",
+  "assigned_to": "frontend",
+  "affected_files": ["src/components/VouchersHub.tsx", "src/components/ReservationsHub.tsx"],
+  "root_cause": "In edit mode, all list cards show a selection checkbox but no per-card delete with confirmation. The only delete path is bulk-select then Delete Selected. While bulk delete does show a ConfirmationModal, handleDeleteSingle() and setDeleteConfirmation({type:'single'}) are never triggered from the UI — the wiring was missing. Lists like Ontopo/Movies & Shows (reservation type) that appear in ReservationsHub expose the same unguarded pattern. Users can accidentally multi-select and delete template-created lists.",
+  "fix_applied": "Added a trash icon (Trash2 from lucide-react) per list card in VouchersHub and ReservationsHub edit mode. Clicking it calls setDeleteConfirmation({ type: 'single', listId: list.id }), which triggers the existing ConfirmationModal with the deleteVoucherList / deleteReservationList title and message. This wires up the already-present handleDeleteSingle flow through a deliberate, confirmed UI action.",
+  "completion_summary": "Added Trash2 import, per-card trash button in edit mode in both VouchersHub.tsx and ReservationsHub.tsx. Build passed clean."
+}

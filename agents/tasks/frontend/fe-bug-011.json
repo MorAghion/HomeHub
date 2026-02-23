@@ -1,0 +1,11 @@
+{
+  "id": "fe-bug-011",
+  "title": "Edit mode buttons uneven size/spacing",
+  "severity": "medium",
+  "status": "review",
+  "assigned_to": "frontend",
+  "affected_files": ["src/components/ShoppingHub.tsx", "src/components/TasksHub.tsx"],
+  "root_cause": "The Select All/Deselect All button uses px-3 py-1.5 text-xs while Delete Selected and Cancel use px-4 py-2 text-sm. This mismatch creates visually uneven button heights. The right-side button group wraps only the conditional Delete Selected button in a flex div with gap-2, while Cancel is always present but outside any gap container — leading to inconsistent spacing. No uniform height class (h-9 or h-10) is applied to enforce consistent sizing across buttons.",
+  "fix_applied": "Standardized all edit toolbar buttons to h-9 px-4 text-sm across ShoppingHub.tsx and TasksHub.tsx. Added gap-2 to the right-side flex container so Delete Selected and Cancel always have consistent spacing. RTL-safe: only logical Tailwind classes used (gap-*, h-*, px-*, py-*).",
+  "completion_summary": "Edited ShoppingHub.tsx and TasksHub.tsx edit toolbars. Build passed clean."
+}

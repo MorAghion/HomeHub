@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Plus, Pencil } from 'lucide-react';
+import { Calendar, Plus, Pencil, Trash2 } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 import { getContextIcon } from '../utils/contextResolver';
 import type { VoucherListInstance } from '../types/base';
@@ -206,18 +206,28 @@ function ReservationsHub({
             {listArray.map((list) => (
               <div key={list.id} className="relative">
                 {isEditMode && (
-                  <div
-                    onClick={() => toggleListSelection(list.id)}
-                    className="absolute -top-2 -end-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
-                    style={{
-                      borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
-                      backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'white',
-                    }}
-                  >
-                    {selectedListsForDeletion.has(list.id) && (
-                      <span className="text-white text-xs font-bold">✓</span>
-                    )}
-                  </div>
+                  <>
+                    <div
+                      onClick={() => toggleListSelection(list.id)}
+                      className="absolute -top-2 -end-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all cursor-pointer z-10 bg-white"
+                      style={{
+                        borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
+                        backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'white',
+                      }}
+                    >
+                      {selectedListsForDeletion.has(list.id) && (
+                        <span className="text-white text-xs font-bold">✓</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setDeleteConfirmation({ type: 'single', listId: list.id })}
+                      className="absolute -top-2 -start-2 w-6 h-6 rounded-full flex items-center justify-center transition-all cursor-pointer z-10 bg-white hover:bg-red-50"
+                      style={{ border: '1.5px solid #DC262666' }}
+                      title={t('deleteReservationList')}
+                    >
+                      <Trash2 size={12} strokeWidth={2} style={{ color: '#DC2626' }} />
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={() => !isEditMode && onSelectList(list.id)}

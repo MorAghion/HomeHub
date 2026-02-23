@@ -1,0 +1,11 @@
+{
+  "id": "fe-bug-010",
+  "title": "Add new list click does nothing (regression of fe-bug-006)",
+  "severity": "critical",
+  "status": "review",
+  "assigned_to": "frontend",
+  "affected_files": ["src/App.tsx"],
+  "root_cause": "When fe-bug-006 converted onCreateList from .then() callback to async/await, setCurrentScreen('vouchers') was dropped. Before the fix, the .then() chain included navigation. After the fix, onCreateList creates the list and sets activeVoucherListId, but never calls setCurrentScreen('vouchers'). The user stays on the hub view. The template modal closes (making it look like nothing happened), and the newly created list appears as a card but the add-voucher/add-reservation form never opens. Expected MVP behavior: clicking a template creates the list AND navigates into it so the user can immediately add items.",
+  "fix_applied": "Added setCurrentScreen('vouchers') to the onCreateList async callbacks for both VouchersHub and ReservationsHub in App.tsx, placed after setActiveVoucherListId(newList.id). Now clicking a template: creates list → sets active list → navigates to VoucherList view. User arrives at the (empty) list and can add items with the '+' button.",
+  "completion_summary": "Two-line addition in App.tsx (one for VouchersHub onCreateList, one for ReservationsHub onCreateList). Build passed clean."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "fe-bug-008",
+  "title": "Carousel not lighting up after login",
+  "severity": "high",
+  "status": "review",
+  "assigned_to": "frontend",
+  "affected_files": ["src/App.tsx"],
+  "root_cause": "Scroll detection useEffect depends on [isLandingMode, user]. On fresh login, onAuthStateChange calls setUser() first (before awaiting fetchProfile), causing a render where user is set but profile is null. App still returns <AuthScreen /> at that point (because !profile gate). The effect runs but cardStackRef.current is null → early return. Then fetchProfile resolves → setProfile() → App now renders the main landing page, BUT user did not change again, so the [isLandingMode, user] effect does NOT re-run. Result: scroll detection listeners are never attached after a fresh login — only a page refresh (which starts with user+profile both set) works.",
+  "fix_applied": "Changed scroll detection useEffect deps from [isLandingMode, user] to [isLandingMode, profile?.household_id]. profile?.household_id changes from undefined to a UUID when profile is first loaded (the exact moment the carousel is mounted), ensuring the effect re-runs and registers scroll listeners correctly.",
+  "completion_summary": "One-line dep change in App.tsx. Build passed clean."
+}

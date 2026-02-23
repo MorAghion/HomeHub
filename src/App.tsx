@@ -575,7 +575,14 @@ function App() {
       clearTimeout(t2);
       observer.disconnect();
     };
-  }, [isLandingMode, user]); // user added: re-run after auth resolves so carousel is mounted (fe-bug-004)
+  // fe-bug-008: depend on profile?.household_id, not user.
+  // On fresh login, onAuthStateChange sets user BEFORE awaiting fetchProfile, so at the
+  // moment user changes, profile is still null and App returns <AuthScreen /> — the
+  // carousel doesn't exist yet and cardStackRef.current is null, so the effect returns
+  // early. When profile then resolves, user hasn't changed again, so the effect never
+  // re-runs. Using profile?.household_id (undefined → uuid) triggers the effect at the
+  // exact moment the main app (and its carousel) first mounts.
+  }, [isLandingMode, profile?.household_id]);
 
   // Scroll to initial hub on mount - Start in Landing Mode
   useEffect(() => {
@@ -1016,6 +1023,7 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
+                  setCurrentScreen('vouchers'); // fe-bug-010: navigate into the new list
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -1061,6 +1069,7 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
+                  setCurrentScreen('vouchers'); // fe-bug-010: navigate into the new list
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
