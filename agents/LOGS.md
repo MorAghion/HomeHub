@@ -1,5 +1,13 @@
 # Agent Log
 
+## 2026-02-23
+- 12:00 Wave 4 launched: fe-bug-003/004/005/006
+- 13:00 Wave 4 complete. FE fixed: count flash (003), carousel activation (004), hub split (005), add-list modal (006). PR #8 merged to master.
+- 13:30 fe-bug-007 (sign-in regression) fixed directly by human. Archived as done.
+- 13:45 Manual sanity testing resumed. Human reported 4 new bugs: fe-bug-008 (carousel), fe-bug-009 (master lists deletable), fe-bug-010 (add list click does nothing), fe-bug-011 (edit mode button layout).
+- 14:00 Wave 5 launched: FE fixed bugs 008-012 (including bonus fe-bug-012: modals not centered) + refactored mega-modal into AddVoucherModal + AddReservationModal + aligned hub edit mode patterns. QA wrote regression tests. All on branch agent/qa-bug-regression-008-011.
+- 14:30 Coordinator update: task JSONs updated (003/004/005/006 → done, 008-012 → review). BOARD.md updated. Migration 16 pending human action. PR open for Wave 5.
+
 ## 2026-02-22
 - 14:00 Wave 1 launched: arch-001, qa-001, fe-007
 - 15:30 Wave 1 complete. All passed. Committed.

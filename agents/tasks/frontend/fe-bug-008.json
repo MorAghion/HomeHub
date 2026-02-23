@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": [],
   "blocks": [],
   "created": "2026-02-23",
@@ -29,5 +29,6 @@
   ],
   "regression_tests": "tests/components/app/Carousel.test.tsx + e2e/navigation.spec.ts (fe-bug-008 suite)",
   "open_questions": [],
-  "completion_summary": ""
+  "fix_applied": "Added stable fallback in IntersectionObserver callback: if no entry has intersectionRatio > 0, activeHub is not overwritten. Shopping card defaults to lit state on initial load after login.",
+  "completion_summary": "Fix complete. Carousel lights up Shopping hub card immediately after login without requiring a refresh. Build passes clean."
 }

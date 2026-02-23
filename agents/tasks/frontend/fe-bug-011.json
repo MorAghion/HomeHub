@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "medium",
-  "status": "todo",
+  "status": "review",
   "depends_on": [],
   "blocks": [],
   "created": "2026-02-23",
@@ -32,5 +32,6 @@
   ],
   "regression_tests": "tests/components/shopping/ShoppingList.editMode.test.tsx + tests/components/tasks/TaskList.editMode.test.tsx + e2e/shopping.spec.ts (fe-bug-011 suite)",
   "open_questions": [],
-  "completion_summary": ""
+  "fix_applied": "Standardized edit toolbar in ShoppingList.tsx and TaskList.tsx: all buttons use h-10 py-2 px-4, container uses flex gap-2. Buttons use flex-1 for equal width. Applied same fix to VouchersHub and ReservationsHub bulk bars.",
+  "completion_summary": "Fix complete. Edit mode toolbars are now uniform across all hubs. Build passes clean."
 }

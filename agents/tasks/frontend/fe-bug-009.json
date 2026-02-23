@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.1",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": [],
   "blocks": [],
   "created": "2026-02-23",
@@ -36,5 +36,6 @@
   "open_questions": [
     "How should master lists be identified? By templateId field on VoucherListInstance, by isMaster boolean, or by matching against VOUCHER_TEMPLATES?"
   ],
-  "completion_summary": ""
+  "fix_applied": "Added isMaster guard in edit mode: lists created from built-in templates (Ontopo, Movies & Shows) are excluded from edit mode checkboxes. Select All skips master list IDs. Trash icon hidden on master list cards.",
+  "completion_summary": "Fix complete. Master template lists are no longer deletable in edit mode. User-created lists still show delete affordance. Build passes clean."
 }

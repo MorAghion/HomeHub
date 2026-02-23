@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-23 11:45 UTC
-**Current Phase:** 0.2/0.4 — Test Suite + Hebrew Localization COMPLETE → Wave 4 ready
+**Last updated:** 2026-02-23 14:30 UTC
+**Current Phase:** 0.x Bug Wave — FE fixes + QA regression tests on open PR, awaiting merge
 
 ---
 
@@ -13,7 +13,9 @@
 | Wave 3b | fe-bug-001, fe-bug-002, qa-002 | 🎨🧪 | ✅ Done | 2026-02-22 21:30 | 2026-02-22 22:30 | Both bugs validated + 87 tests passing |
 | Wave 3c | qa-003, qa-004, qa-006 | 🧪 | ✅ Done | 2026-02-23 00:00 | 2026-02-23 01:00 | 112 new unit tests + SANITY_CHECKLIST.md (199 total) |
 | Wave 3d | fe-006-rtl, fe-006-cont, qa-005 | 🎨🧪 | ✅ Done | 2026-02-23 10:00 | 2026-02-23 11:45 | Hebrew RTL, context mapping, 35 E2E tests |
-| Wave 4 | qa-007, qa-008, be-002 | 🧪⚙️ | ⏳ Queued | — | — | RTL testing, test errors scan, PWA manifest |
+| Wave 4 | fe-bug-003/004/005/006 | 🎨 | ✅ Done | 2026-02-23 12:00 | 2026-02-23 13:00 | Count flash, carousel, hub split, add-list modal |
+| Wave 5 | fe-bug-008/009/010/011/012 + QA regression tests | 🎨🧪 | ⏳ PR Open | 2026-02-23 13:00 | — | FE fixes done, QA tests written — awaiting merge |
+| Wave 6 | qa-007, qa-008, be-002 + QA execute Wave 5 tests | 🧪⚙️ | ⏳ Queued | — | — | After Wave 5 merge |
 
 ---
 
@@ -35,8 +37,10 @@ Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be
 |--------|-----------|---------|--------|
 | `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking | ✅ Done |
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
-| Review + merge `agent/qa-003-004-006-unit-tests` → main | 🧪 QA | 🟡 Pending | ⏳ Awaiting PR review |
+| Review + merge `agent/qa-003-004-006-unit-tests` → main | 🧪 QA | 🟡 Pending | ✅ Merged |
 | Review + merge `agent/qa-005-e2e-suite` → main | 🧪 QA | 🟡 Pending | ✅ Merged (PR #6) |
+| **Merge `agent/qa-bug-regression-008-011` → master** | 🎨🧪 Wave 5 | 🔴 Blocking | ⏳ PR open — needs merge |
+| **Run `supabase/16-restore-voucher-schema.sql` in SQL Editor** | 🎨 fe-bug-010 | 🔴 Blocking | ⏳ Required for Vouchers schema fix |
 
 ---
 
@@ -44,7 +48,7 @@ Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be
 
 | Terminal | Agent | Task | Notes |
 |----------|-------|------|-------|
-| — | — | Wave 4 ready to launch | qa-007 (RTL tests), qa-008 (fix test errors), be-002 (PWA) |
+| — | — | Wave 6 ready after PR merge | qa-007 (RTL), qa-008 (test errors), be-002 (PWA), QA run Wave 5 regression tests |
 
 ---
 
@@ -96,7 +100,7 @@ Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be
 
 | Task | Agent | Status | Notes |
 |------|-------|--------|-------|
-| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Run after latest FE changes (fe-006, fe-006-cont) |
+| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Run after Wave 5 merge |
 
 ---
 
@@ -104,7 +108,8 @@ Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be
 
 | From | To | Message | Urgency |
 |------|----|---------|---------|
-| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. Test RTL direction, Hebrew sub-hub context detection, settings page translations, LTR regression. Branches merged to main. | 🟡 Ready |
+| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. Test RTL direction, Hebrew sub-hub context detection, settings page translations, LTR regression. | 🟡 Ready |
+| 🎨 FE (Wave 5) | 🧪 QA | fe-bug-008/009/010/011/012 all fixed. Modal split: AddVoucherModal + AddReservationModal. Hub edit mode aligned. QA regression tests written on same branch. Awaiting merge + run. | 🔴 High |
 
 ## ❓ Open Questions
 None.
@@ -118,7 +123,13 @@ None.
 
 ## 🐛 Active Bugs
 
-None.
+| Bug | Title | Priority | Agent | Status |
+|-----|-------|----------|-------|--------|
+| fe-bug-008 | Carousel doesn't light up after login (regression fe-bug-004) | 🔴 High | 🎨 Frontend | review |
+| fe-bug-009 | Vouchers hub — master lists (Ontopo, Movies & Shows) deletable | 🔴 High | 🎨 Frontend | review |
+| fe-bug-010 | Add new list click does nothing in Vouchers/Reservations hub | 🔴 Critical | 🎨 Frontend | review |
+| fe-bug-011 | ShoppingList & HomeTasks edit mode buttons uneven size/no spacing | 🟡 Medium | 🎨 Frontend | review |
+| fe-bug-012 | Confirmation modals not centered on screen | 🟡 Medium | 🎨 Frontend | review |
 
 ---
 
@@ -144,6 +155,11 @@ None.
 | fe-006 | 🎨 Frontend | 2026-02-23 10:00 | Wave 3d | RTL layout + Hebrew translations, logical Tailwind classes throughout |
 | fe-006-cont | 🎨 Frontend | 2026-02-23 10:30 | Wave 3d | Hebrew context mapping (12 contexts), settings i18n (20+ strings), contextResolver.ts |
 | qa-005 | 🧪 QA | 2026-02-23 11:45 | Wave 3d | 35 E2E tests: all hubs + settings + navigation, mobile Chrome project, auth setup |
+| fe-bug-003 | 🎨 Frontend | 2026-02-23 13:00 | Wave 4 | Active list count flash: show '—' while loading |
+| fe-bug-004 | 🎨 Frontend | 2026-02-23 13:00 | Wave 4 | Carousel activation: added `user` to IntersectionObserver deps |
+| fe-bug-005 | 🎨 Frontend | 2026-02-23 13:00 | Wave 4 | Hub split: new ReservationsHub.tsx, 4th nav button, filtered lists |
+| fe-bug-006 | 🎨 Frontend | 2026-02-23 13:00 | Wave 4 | Add list modal: async create, modal closes only on success |
+| fe-bug-007 | 👤 Human | 2026-02-23 13:30 | — | Sign-in stuck regression — fixed directly by human |
 
 ---
 
