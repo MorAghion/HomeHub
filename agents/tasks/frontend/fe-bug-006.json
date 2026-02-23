@@ -1,0 +1,27 @@
+{
+  "id": "fe-bug-006",
+  "title": "Add voucher/reservation list broken — clicking 'Ontopo' (or any option) closes menu without creating list",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "review",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "Two-part bug: (1) onCreateList was typed as void so VouchersHub called it fire-and-forget — modal closed synchronously while Supabase insert was still pending; if the insert failed, modal closed silently with no list created. (2) templateId (e.g. 'ontopo') was passed as the list display name instead of template.name (e.g. 'Ontopo').",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Navigate to Vouchers or Reservations hub",
+    "3. Tap the add / create new list button",
+    "4. Menu appears with template options (e.g. Ontopo, BuyMe, etc.)",
+    "5. Tap 'Ontopo' (or any option)",
+    "6. Menu closes — no list is created, nothing happens"
+  ],
+  "affected_files": [
+    "src/components/VouchersHub.tsx",
+    "src/components/ReservationsHub.tsx",
+    "src/App.tsx"
+  ],
+  "fix_applied": "Changed onCreateList prop type from void to Promise<void>. Made handleTemplateSelect and handleConfirmType async — they now await the Supabase createList call and only close the modal on success. Added isCreating state to disable template buttons during creation. Updated App.tsx onCreateList handlers to be async. Also passes template.name as displayName so lists are named correctly (e.g. 'Ontopo' not 'ontopo').",
+  "completion_summary": "Fix complete. Build passes clean. Modal now closes only after successful Supabase insert. Creation errors are caught and logged without closing the modal. List names are correctly derived from template.name."
+}

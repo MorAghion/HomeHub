@@ -1,0 +1,24 @@
+{
+  "id": "fe-bug-004",
+  "title": "Hubs carousel does not light up / activate on login — requires manual page refresh",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "review",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "The scroll detection useEffect depended only on [isLandingMode]. On first login, the component renders AuthScreen (user = null) — the carousel is not mounted — so cardStackRef.current = null and the effect returns early. When auth resolves, user/profile change but isLandingMode remains true (unchanged), so the effect never re-runs. Page refresh works because auth resolves from localStorage before first render, so the carousel is mounted on the initial paint and the effect runs with a valid ref.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Observe the hubs carousel on the dashboard",
+    "3. Carousel items are not lit up / active",
+    "4. Manually refresh the page",
+    "5. Carousel items now light up correctly"
+  ],
+  "affected_files": [
+    "src/App.tsx"
+  ],
+  "fix_applied": "Added `user` to the scroll detection useEffect dependency array: [isLandingMode, user]. When user changes from null to non-null (auth resolves), the effect re-runs, finds a valid cardStackRef.current, and sets up scroll detection correctly.",
+  "completion_summary": "Fix complete. Build passes clean. Carousel will now detect the active hub immediately after login without requiring a page refresh."
+}
