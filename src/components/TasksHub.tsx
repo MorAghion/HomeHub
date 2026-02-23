@@ -153,17 +153,17 @@ function TasksHub({
               )}
               <button
                 onClick={toggleSelectAll}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
+                className="h-9 px-4 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
                 {selectedListsForDeletion.size === editableLists.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               {selectedListsForDeletion.size > 0 && (
                 <button
                   onClick={() => setDeleteConfirmation({ type: 'bulk' })}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
+                  className="h-9 px-4 rounded-lg text-sm font-medium text-white transition-all"
                   style={{ backgroundColor: '#630606' }}
                 >
                   {t('common:deleteSelected')}
@@ -171,7 +171,7 @@ function TasksHub({
               )}
               <button
                 onClick={cancelEditMode}
-                className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white transition-colors"
+                className="h-9 px-4 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606' }}
               >
                 {t('common:cancel')}

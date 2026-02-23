@@ -1,24 +1,41 @@
 {
   "id": "fe-bug-009",
-  "title": "Vouchers hub — master/template lists (e.g. Ontopo, Movies & Shows) can be deleted from main menu",
+  "title": "Vouchers hub — master lists (Ontopo, Movies & Shows) can be deleted",
   "agent": "frontend",
-  "phase": "0.x",
+  "phase": "0.1",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
+  "depends_on": [],
+  "blocks": [],
   "created": "2026-02-23",
   "updated": "2026-02-23",
-  "reported_by": "human — manual sanity testing",
-  "root_cause": "Unknown — delete action is exposed on master/template lists in the Vouchers hub main menu. These lists should not be deletable by the user (or should require confirmation and be protected as templates).",
+  "reported_by": "human — manual review",
+  "description": "In the Reservations hub, the Ontopo and Movies & Shows lists (created from built-in templates with defaultType:'reservation') can be selected and deleted in edit mode. These should be treated as permanent 'master' hub lists that cannot be deleted by the user.",
   "steps_to_reproduce": [
-    "1. Log in to the app",
-    "2. Navigate to Vouchers hub",
-    "3. Observe the list of voucher lists (e.g. Ontopo, Movies & Shows)",
-    "4. A delete option is visible/accessible on these lists",
-    "5. User can delete them from the main vouchers menu"
+    "1. Navigate to Reservations hub (or Vouchers hub)",
+    "2. Ensure Ontopo or Movies & Shows list exists",
+    "3. Click the Edit (pencil) button",
+    "4. Observe: Ontopo card shows a delete checkbox overlay",
+    "5. Click the checkbox to select it, then click Delete Selected",
+    "6. Expected: Ontopo cannot be selected/deleted",
+    "7. Actual: Ontopo is deleted"
   ],
   "affected_files": [
-    "src/components/VouchersHub.tsx"
+    "src/components/ReservationsHub.tsx — edit mode checkbox render logic",
+    "src/components/VouchersHub.tsx — edit mode checkbox render logic",
+    "src/types/base.ts — VoucherListInstance type (may need isMaster field)"
   ],
-  "fix_applied": null,
-  "completion_summary": null
+  "root_cause": "No protection flag or logic prevents master template lists from being rendered with a delete checkbox in edit mode. All lists in the grid unconditionally get the checkbox overlay when isEditMode=true.",
+  "acceptance_criteria": [
+    "Lists created from Ontopo and Movies & Shows templates do NOT show a delete checkbox in edit mode",
+    "Select All does not include master list IDs",
+    "Regular user-created lists still show delete checkboxes (no regression)",
+    "Regression tests in tests/components/reservations/ReservationsHub.test.tsx pass"
+  ],
+  "regression_tests": "tests/components/vouchers/VouchersHub.test.tsx (BUG-009 suite) + tests/components/reservations/ReservationsHub.test.tsx (BUG-009 suite) + e2e/vouchers.spec.ts (fe-bug-009 suite)",
+  "open_questions": [
+    "How should master lists be identified? By templateId field on VoucherListInstance, by isMaster boolean, or by matching against VOUCHER_TEMPLATES?"
+  ],
+  "fix_applied": "Added isMaster guard in edit mode: lists created from built-in templates (Ontopo, Movies & Shows) are excluded from edit mode checkboxes. Select All skips master list IDs. Trash icon hidden on master list cards.",
+  "completion_summary": "Fix complete. Master template lists are no longer deletable in edit mode. User-created lists still show delete affordance. Build passes clean."
 }

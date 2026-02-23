@@ -1,0 +1,11 @@
+{
+  "id": "fe-bug-012",
+  "title": "Confirmation modals not centered on screen",
+  "severity": "medium",
+  "status": "review",
+  "assigned_to": "frontend",
+  "affected_files": ["src/components/Modal.tsx"],
+  "root_cause": "Modal.tsx backdrop uses `items-end` which anchors the modal to the bottom of the screen like a bottom sheet. Should use `items-center` to vertically center it.",
+  "fix_applied": "Changed `items-end` to `items-center` on the backdrop div in Modal.tsx. Removed the redundant `pb-4` default padding (keyboard-aware padding is already handled via the paddingBottom style).",
+  "completion_summary": "One-line change in Modal.tsx. Build passed clean."
+}

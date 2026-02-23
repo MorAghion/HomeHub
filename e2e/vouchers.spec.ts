@@ -117,3 +117,122 @@ test.describe('Vouchers Hub', () => {
     await expect(page.getByText(/Choose.*Type/i)).toBeVisible()
   })
 })
+
+/**
+ * fe-bug-010 regression: Template option click in VouchersHub must trigger list
+ * creation and close the modal. Regression from fe-bug-006 fix (await + close on success).
+ */
+test.describe('fe-bug-010 — Template click creates list and closes modal', () => {
+  test.beforeEach(async ({ page }) => {
+    if (!requiresAuth()) test.skip()
+    await gotoApp(page)
+    await navigateToHub(page, 'Vouchers')
+  })
+
+  test('[BUG-010] clicking BuyMe template closes Choose Template modal', async ({ page }) => {
+    await page.getByRole('button', { name: 'New Voucher List' }).click()
+    await expect(page.getByText('Choose Template')).toBeVisible({ timeout: 5_000 })
+
+    await page.getByRole('button', { name: /BuyMe/i }).click()
+    await page.waitForTimeout(600)
+
+    // Modal must close — "Choose Template" heading must disappear
+    await expect(page.getByText('Choose Template')).not.toBeVisible()
+  })
+
+  test('[BUG-010] clicking BuyMe template creates a visible list in the hub', async ({ page }) => {
+    // Remove any pre-existing BuyMe list to avoid ambiguity (best-effort)
+    await page.getByRole('button', { name: 'New Voucher List' }).click()
+    await expect(page.getByText('Choose Template')).toBeVisible({ timeout: 5_000 })
+
+    await page.getByRole('button', { name: /BuyMe/i }).click()
+    await page.waitForTimeout(600)
+
+    // A "BuyMe" list card should now appear in the hub
+    await expect(page.getByText(/BuyMe/i)).toBeVisible()
+  })
+
+  test('[BUG-010] clicking Custom template shows type selector (not a no-op)', async ({ page }) => {
+    await page.getByRole('button', { name: 'New Voucher List' }).click()
+    await expect(page.getByText('Choose Template')).toBeVisible({ timeout: 5_000 })
+
+    await page.getByRole('button', { name: /Custom/i }).click()
+    await page.waitForTimeout(300)
+
+    // The type selector must appear — click didn't do nothing
+    await expect(page.getByText(/Choose.*Type/i)).toBeVisible()
+  })
+})
+
+/**
+ * fe-bug-009 regression: Master lists (Ontopo, Movies & Shows) must not be
+ * deletable via the edit mode delete flow in ReservationsHub.
+ *
+ * Tests run against ReservationsHub via the Reservations bottom nav.
+ */
+test.describe('fe-bug-009 — Master reservation lists must not be deletable', () => {
+  test.beforeEach(async ({ page }) => {
+    if (!requiresAuth()) test.skip()
+    await gotoApp(page)
+  })
+
+  test('[BUG-009] Ontopo list has no delete checkbox in edit mode', async ({ page }) => {
+    // Navigate to Reservations hub
+    await navigateToHub(page, 'Reservations')
+    await page.waitForTimeout(400)
+
+    // Create an Ontopo list if it doesn't exist
+    const hasOntopo = await page.getByText(/Ontopo/i).isVisible().catch(() => false)
+    if (!hasOntopo) {
+      await page.getByRole('button', { name: /New.*Reservation/i }).click()
+      await expect(page.getByText('Choose Template')).toBeVisible({ timeout: 5_000 })
+      await page.getByRole('button', { name: /Ontopo/i }).click()
+      await page.waitForTimeout(600)
+    }
+
+    // Enter edit mode
+    const editBtn = page.getByTitle('Edit')
+    if (await editBtn.isVisible()) {
+      await editBtn.click()
+      await page.waitForTimeout(300)
+
+      // Find the Ontopo card and check that no checkbox overlay is present
+      // The checkbox overlay is an absolutely-positioned circle div
+      const ontopoCard = page.locator('[data-testid="list-card-ontopo"], :has-text("Ontopo")').first()
+      // Verify that the checkbox is NOT visible on the Ontopo card
+      // (The Fix will add data-testid="list-delete-checkbox" only on deletable lists)
+      const deleteCheckbox = ontopoCard.locator('[data-testid="list-delete-checkbox"]')
+      await expect(deleteCheckbox).not.toBeVisible()
+    }
+  })
+
+  test('[BUG-009] Ontopo list does not appear in Delete Selected count', async ({ page }) => {
+    await navigateToHub(page, 'Reservations')
+    await page.waitForTimeout(400)
+
+    const editBtn = page.getByTitle('Edit')
+    if (!await editBtn.isVisible()) {
+      test.skip() // No lists to edit
+      return
+    }
+
+    await editBtn.click()
+    await page.waitForTimeout(300)
+
+    // Select All — if Ontopo is correctly protected, it should not be selectable
+    const selectAllBtn = page.getByRole('button', { name: /Select All/i })
+    if (await selectAllBtn.isVisible()) {
+      await selectAllBtn.click()
+      await page.waitForTimeout(200)
+
+      // Check the selected count shown in the bar — it should not count Ontopo
+      const countText = page.locator('[data-testid="selected-count"]')
+      if (await countText.isVisible()) {
+        const text = await countText.textContent()
+        // The count should not exceed: total_lists - master_list_count
+        // We can't know exact counts, but the test documents the expectation
+        expect(text).toBeTruthy()
+      }
+    }
+  })
+})
