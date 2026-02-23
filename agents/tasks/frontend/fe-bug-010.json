@@ -1,0 +1,27 @@
+{
+  "id": "fe-bug-010",
+  "title": "Vouchers & Reservations hub — clicking a list option in 'add new list' menu does nothing (regression)",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "regression_of": "fe-bug-006",
+  "root_cause": "Unknown — after fe-bug-006 fix (async modal close), clicking a list option (e.g. Ontopo, BuyMe) in the 'add new list' menu now does nothing at all. Expected behavior: selecting an option should open the relevant add-voucher or add-reservation details modal. Was working correctly in MVP.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Navigate to Vouchers hub (or Reservations hub)",
+    "3. Tap the add / create new list button",
+    "4. Menu appears with list template options (e.g. Ontopo, BuyMe, etc.)",
+    "5. Tap any option",
+    "6. Nothing happens — no modal opens, menu stays open or closes silently"
+  ],
+  "affected_files": [
+    "src/components/VouchersHub.tsx",
+    "src/components/ReservationsHub.tsx"
+  ],
+  "fix_applied": null,
+  "completion_summary": null
+}

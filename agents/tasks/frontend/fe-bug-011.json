@@ -1,0 +1,27 @@
+{
+  "id": "fe-bug-011",
+  "title": "ShoppingList & HomeTasks hub — edit mode buttons inconsistent size and missing spacing",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "medium",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual sanity testing",
+  "root_cause": "Unknown — edit mode action buttons (visible after tapping pencil icon → Select All) are not uniform in size and have no spacing between them, resulting in an asymmetrical, visually broken edit toolbar.",
+  "steps_to_reproduce": [
+    "1. Log in to the app",
+    "2. Navigate to ShoppingList hub (or HomeTasks hub)",
+    "3. Tap the pencil / edit icon",
+    "4. Tap 'Select All'",
+    "5. Observe the edit mode action buttons",
+    "6. Buttons are different sizes and have no gap between them — layout looks unbalanced"
+  ],
+  "affected_files": [
+    "src/components/ShoppingList.tsx",
+    "src/components/TaskList.tsx"
+  ],
+  "expected_behavior": "Edit mode toolbar buttons should be uniform in size, evenly spaced, and symmetrically laid out.",
+  "fix_applied": null,
+  "completion_summary": null
+}
