@@ -300,6 +300,9 @@ function App() {
   // Current vouchers for the active list
   const [currentVouchers, setCurrentVouchers] = useState<VoucherItem[]>([]);
 
+  // fe-bug-010: when true, VoucherList opens the add form automatically on mount
+  const [autoOpenAdd, setAutoOpenAdd] = useState(false);
+
   // ── Supabase: load voucher lists + subscribe ───────────────────────────────
   useEffect(() => {
     if (!profile?.household_id) return;
@@ -1023,7 +1026,8 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
-                  setCurrentScreen('vouchers'); // fe-bug-010: navigate into the new list
+                  setAutoOpenAdd(true); // fe-bug-010: open add form immediately on first load
+                  setCurrentScreen('vouchers');
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -1069,7 +1073,8 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
-                  setCurrentScreen('vouchers'); // fe-bug-010: navigate into the new list
+                  setAutoOpenAdd(true); // fe-bug-010: open add form immediately on first load
+                  setCurrentScreen('vouchers');
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -1375,6 +1380,7 @@ function App() {
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}
         vouchers={currentVouchers}
+        autoOpenAdd={autoOpenAdd}
         onUpdateVouchers={async (newVouchers) => {
           const prevVouchers = currentVouchers;
 
@@ -1408,6 +1414,7 @@ function App() {
         }}
         onBack={() => {
           const isReservation = voucherLists[activeVoucherListId]?.defaultType === 'reservation';
+          setAutoOpenAdd(false); // reset so returning to the list later doesn't re-open form
           setCurrentScreen('vouchers-hub');
           setTimeout(() => {
             scrollToHub(isReservation ? 'reservations' : 'vouchers');

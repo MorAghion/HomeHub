@@ -14,10 +14,11 @@ interface VoucherListProps {
   vouchers: VoucherItem[];
   onUpdateVouchers: (vouchers: VoucherItem[]) => void;
   onBack: () => void;
+  autoOpenAdd?: boolean; // fe-bug-010: open add form immediately on mount (after template creation)
 }
 
-function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack }: VoucherListProps) {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+function VoucherList({ listName, listId, vouchers, onUpdateVouchers, onBack, autoOpenAdd = false }: VoucherListProps) {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(autoOpenAdd);
   const [editingVoucher, setEditingVoucher] = useState<VoucherItem | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
