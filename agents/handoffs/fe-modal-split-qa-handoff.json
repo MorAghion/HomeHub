@@ -1,0 +1,143 @@
+{
+  "id": "fe-modal-split-qa-handoff",
+  "type": "task_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-23",
+  "branch": "agent/qa-bug-regression-008-011",
+  "commit": "b221adf",
+  "summary": "Refactored VoucherList mega-modal into two static modals: AddVoucherModal (voucher fields only) and AddReservationModal (reservation fields only). Extracted shared smart-paste/OCR/scrape logic into useVoucherForm(listType) hook. VoucherList now routes to the correct modal via a new listType prop. Also fixed VouchersHub to always pass 'voucher' as defaultType fallback for physical/custom templates.",
+  "deliverables": [
+    "src/hooks/useVoucherForm.ts — NEW: shared hook with smart-paste, OCR, scraping, image upload logic",
+    "src/components/AddVoucherModal.tsx — NEW: static voucher modal (name, value, issuer, expiry date, code)",
+    "src/components/AddReservationModal.tsx — NEW: static reservation modal (name, event date, time, address, code)",
+    "src/components/VoucherList.tsx — refactored: listType prop added, inline modal (~320 lines) replaced with routed static modals",
+    "src/App.tsx — passes listType={currentVoucherList.defaultType ?? 'voucher'} to VoucherList",
+    "src/components/VouchersHub.tsx — fixed: physical/custom template now passes defaultType ?? 'voucher'"
+  ],
+  "qa_test_cases": [
+    {
+      "id": "qa-modal-01",
+      "description": "VouchersHub → BuyMe → voucher modal opens with voucher-only fields",
+      "steps": [
+        "Go to Vouchers hub",
+        "Tap + to create a new list",
+        "Select the BuyMe template",
+        "Wait for navigation into the new list",
+        "Tap 'Add Voucher' button"
+      ],
+      "expected": "AddVoucherModal opens. Fields visible: Smart Paste, Card Photo, Name, Value, Issuer, Expiry Date, Code. NO event date, time, or address fields."
+    },
+    {
+      "id": "qa-modal-02",
+      "description": "ReservationsHub → Ontopo → reservation modal opens with reservation-only fields",
+      "steps": [
+        "Go to Reservations hub",
+        "Tap + to create a new list",
+        "Select the Ontopo template",
+        "Wait for navigation into the new list",
+        "Tap 'Add Voucher' button"
+      ],
+      "expected": "AddReservationModal opens. Fields visible: Smart Paste, Reservation Photo, Name, Event Date, Time, Address/Location, Code. NO value, issuer, or expiry date fields."
+    },
+    {
+      "id": "qa-modal-03",
+      "description": "VouchersHub → Physical Card → voucher modal (not reservation)",
+      "steps": [
+        "Go to Vouchers hub",
+        "Tap + → select Physical Card template",
+        "When prompted for type, select Vouchers & Gift Cards",
+        "Navigate into new list and open add modal"
+      ],
+      "expected": "AddVoucherModal opens with voucher fields (value, issuer, expiry). NOT reservation fields."
+    },
+    {
+      "id": "qa-modal-04",
+      "description": "ReservationsHub → Custom → reservation modal",
+      "steps": [
+        "Go to Reservations hub",
+        "Tap + → select Custom template (if available)",
+        "Navigate into new list and open add modal"
+      ],
+      "expected": "AddReservationModal opens with reservation fields (event date, time, address). defaultType correctly stored as 'reservation'."
+    },
+    {
+      "id": "qa-modal-05",
+      "description": "Edit an existing voucher card → voucher modal pre-populated",
+      "steps": [
+        "Open any voucher-type list that has at least one voucher item",
+        "Tap the edit (pencil) icon on a voucher card"
+      ],
+      "expected": "AddVoucherModal opens with all existing values pre-filled: name, value, issuer, expiry date, code. Title shows 'Edit Voucher'. Save button says 'Update'."
+    },
+    {
+      "id": "qa-modal-06",
+      "description": "Edit an existing reservation card → reservation modal pre-populated",
+      "steps": [
+        "Open any reservation-type list that has at least one reservation item",
+        "Tap the edit (pencil) icon on a reservation card"
+      ],
+      "expected": "AddReservationModal opens with all existing values pre-filled: name, event date, time, address, code. Title shows 'Edit Reservation'. Save button says 'Update'."
+    },
+    {
+      "id": "qa-modal-07",
+      "description": "Save a new voucher → data persists correctly in DB",
+      "steps": [
+        "Open a voucher-type list",
+        "Tap Add → fill in Name: 'Test Gift Card', Value: '₪100', Issuer: 'TestIssuer', Expiry Date: any future date, Code: 'ABC123'",
+        "Tap Add button",
+        "Reload the page / navigate away and back"
+      ],
+      "expected": "Card appears with correct name, value, issuer, expiry, code. Data persists after reload. itemType stored as 'voucher' in DB."
+    },
+    {
+      "id": "qa-modal-08",
+      "description": "Save a new reservation → data persists correctly in DB",
+      "steps": [
+        "Open a reservation-type list",
+        "Tap Add → fill in Name: 'Test Dinner', Event Date: any future date, Time: '20:00', Address: '123 Main St', Code: 'CONF-XYZ'",
+        "Tap Add button",
+        "Reload the page / navigate away and back"
+      ],
+      "expected": "Card appears showing date, time, and address. Data persists after reload. itemType stored as 'reservation' in DB."
+    },
+    {
+      "id": "qa-modal-09",
+      "description": "Smart paste in voucher modal — BuyMe URL auto-detects",
+      "steps": [
+        "Open a BuyMe list, tap Add",
+        "In the Smart Link / SMS Paste textarea, paste a BuyMe URL (e.g. https://buyme.co.il/...)",
+        "Wait 1-2 seconds for auto-fill"
+      ],
+      "expected": "Name and Code fields auto-populate from the URL. Issuer field shows 'BuyMe'. No reservation fields are affected."
+    },
+    {
+      "id": "qa-modal-10",
+      "description": "Smart paste in reservation modal — Ontopo URL auto-detects",
+      "steps": [
+        "Open an Ontopo list, tap Add",
+        "Paste an Ontopo SMS or URL into the Smart Paste textarea"
+      ],
+      "expected": "Name, Code, and (if parseable) Event Date / Time / Address auto-populate. No voucher fields are affected."
+    },
+    {
+      "id": "qa-modal-11",
+      "description": "Cancel modal → no data saved, form resets",
+      "steps": [
+        "Open any list, tap Add",
+        "Fill in the Name field with 'SHOULD NOT SAVE'",
+        "Tap Cancel"
+      ],
+      "expected": "Modal closes. No new card appears in the list. Re-opening Add shows empty form."
+    },
+    {
+      "id": "qa-modal-12",
+      "description": "autoOpenAdd — add form opens immediately after creating a new list",
+      "steps": [
+        "Go to Vouchers hub",
+        "Tap + and create any new list"
+      ],
+      "expected": "App navigates directly into the new list AND the add modal opens automatically without extra tap."
+    }
+  ]
+}
