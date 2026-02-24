@@ -80,6 +80,7 @@ vi.mock('@/components/ConfirmationModal', () => ({
 const defaultProps = {
   listName: 'Ontopo Reservations',
   listId: 'vouchers_ontopo',   // ontopo → defaultType: reservation
+  listType: 'reservation' as const,
   vouchers: [] as VoucherItem[],
   onUpdateVouchers: vi.fn(),
   onBack: vi.fn(),
@@ -124,7 +125,7 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
       target: { value: 'Restaurant Taizu' },
     })
     fireEvent.change(screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv'), {
@@ -132,7 +133,7 @@ describe('CreateReservationForm — reservation type', () => {
     })
 
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
     )
 
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledOnce()
@@ -147,7 +148,7 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
       target: { value: 'Dinner' },
     })
 
@@ -161,7 +162,7 @@ describe('CreateReservationForm — reservation type', () => {
     fireEvent.change(timeInput, { target: { value: '20:00' } })
 
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
     )
 
     const [vouchers] = defaultProps.onUpdateVouchers.mock.calls[0]
@@ -172,7 +173,7 @@ describe('CreateReservationForm — reservation type', () => {
   it('requires name — input has required attribute', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
-    const nameInput = screen.getByPlaceholderText('e.g., Azrieli Gift Card')
+    const nameInput = screen.getByPlaceholderText('e.g., Dinner at Taizu')
     expect((nameInput as HTMLInputElement).required).toBe(true)
   })
 
@@ -181,7 +182,7 @@ describe('CreateReservationForm — reservation type', () => {
     openAddModal()
     fireEvent.click(screen.getByText('Cancel'))
     expect(defaultProps.onUpdateVouchers).not.toHaveBeenCalled()
-    expect(screen.queryByPlaceholderText('e.g., Azrieli Gift Card')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('e.g., Dinner at Taizu')).not.toBeInTheDocument()
   })
 
   // ── Edit existing reservation ─────────────────────────────────────────────
@@ -196,7 +197,7 @@ describe('CreateReservationForm — reservation type', () => {
     fireEvent.click(screen.getByTitle('Edit'))
 
     expect(
-      (screen.getByPlaceholderText('e.g., Azrieli Gift Card') as HTMLInputElement).value
+      (screen.getByPlaceholderText('e.g., Dinner at Taizu') as HTMLInputElement).value
     ).toBe('Existing Reservation')
     expect(
       (screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv') as HTMLInputElement).value
@@ -211,11 +212,11 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} vouchers={[res]} />)
 
     fireEvent.click(screen.getByTitle('Edit'))
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
       target: { value: 'New Reservation Name' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
     )
 
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledOnce()

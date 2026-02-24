@@ -135,5 +135,6 @@ export interface VoucherListInstance {
   id: string;
   name: string;
   defaultType?: 'voucher' | 'reservation';  // Default item type for this list
+  isMaster?: boolean;  // Protected list — cannot be deleted by users
   items: VoucherItem[];
 }

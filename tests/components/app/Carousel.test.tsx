@@ -79,6 +79,7 @@ vi.mock('@/supabaseClient', () => ({
 vi.mock('@/utils/supabaseShoppingService', () => ({
   ShoppingService: {
     fetchLists: vi.fn().mockResolvedValue([]),
+    subscribeToLists: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
     subscribeToListItems: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
   },
 }))
@@ -92,6 +93,7 @@ vi.mock('@/utils/supabaseMasterListService', () => ({
 vi.mock('@/utils/supabaseTaskService', () => ({
   TaskService: {
     fetchAllLists: vi.fn().mockResolvedValue([]),
+    subscribeToLists: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
     subscribeToTasks: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
     fetchMasterItems: vi.fn().mockResolvedValue([]),
   },
@@ -101,6 +103,7 @@ vi.mock('@/utils/supabaseTaskService', () => ({
 vi.mock('@/utils/supabaseVoucherService', () => ({
   VoucherService: {
     fetchAllLists: vi.fn().mockResolvedValue([]),
+    subscribeToLists: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
     subscribeToItems: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
   },
 }))
@@ -130,20 +133,22 @@ vi.mock('@/hooks/useKeyboardHeight', () => ({
  */
 function setupIntersectionObserverWithZeroRatio() {
   const observedElements: Element[] = []
-  const MockIntersectionObserver = vi.fn().mockImplementation(
-    (callback: IntersectionObserverCallback) => ({
-      observe: (el: Element) => {
-        observedElements.push(el)
-        // Fire immediately with ratio 0 — no card is "winning"
-        callback(
-          [{ target: el, isIntersecting: false, intersectionRatio: 0 } as IntersectionObserverEntry],
-          {} as IntersectionObserver
-        )
-      },
-      disconnect: vi.fn(),
-      unobserve: vi.fn(),
-    })
-  )
+  class MockIntersectionObserver {
+    private cb: IntersectionObserverCallback
+    constructor(callback: IntersectionObserverCallback) {
+      this.cb = callback
+    }
+    observe(el: Element) {
+      observedElements.push(el)
+      // Fire immediately with ratio 0 — no card is "winning"
+      this.cb(
+        [{ target: el, isIntersecting: false, intersectionRatio: 0 } as IntersectionObserverEntry],
+        this as unknown as IntersectionObserver
+      )
+    }
+    disconnect() {}
+    unobserve() {}
+  }
   vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
   return observedElements
 }

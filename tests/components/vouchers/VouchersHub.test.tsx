@@ -82,9 +82,8 @@ describe('fe-bug-009 — Master lists must not be deletable', () => {
 
     fireEvent.click(screen.getByTitle('Edit'))
 
-    // In edit mode there should be a delete-affordance (round checkbox overlay)
-    // for regular lists. The overlay is an absolutely positioned circle div.
-    const checkboxOverlay = container.querySelector('.absolute.-top-2')
+    // In edit mode there should be a delete-affordance (inline checkbox) for regular lists.
+    const checkboxOverlay = container.querySelector('.w-6.h-6.rounded')
     expect(checkboxOverlay).toBeInTheDocument()
   })
 
@@ -114,21 +113,10 @@ describe('fe-bug-009 — Master lists must not be deletable', () => {
 
     fireEvent.click(screen.getByTitle('Edit'))
 
-    // The grid renders list cards in DOM order.
-    // Find the card container for the master list.
-    const relativeContainers = container.querySelectorAll('.relative')
-    // First card is masterList (BuyMe), second is regularList.
-    const masterCard = relativeContainers[0] as HTMLElement
-    const regularCard = relativeContainers[1] as HTMLElement
-
-    const masterCheckbox = masterCard.querySelector('.absolute.-top-2')
-    const regularCheckbox = regularCard.querySelector('.absolute.-top-2')
-
-    // Regular list SHOULD have a checkbox (existing behavior)
-    expect(regularCheckbox, 'regular list should have a delete checkbox').toBeInTheDocument()
-
-    // Master list MUST NOT have a delete checkbox (expected after bug fix)
-    expect(masterCheckbox, 'master list must not have a delete checkbox overlay').not.toBeInTheDocument()
+    // With isMaster protection: only the regular list gets a checkbox.
+    // Total checkboxes should be exactly 1 (regular list only, not the master list).
+    const allCheckboxes = container.querySelectorAll('.w-6.h-6.rounded')
+    expect(allCheckboxes.length, 'only regular list should have a delete checkbox').toBe(1)
   })
 
   it('[BUG-009] master list cannot be included in bulk delete selection', async () => {

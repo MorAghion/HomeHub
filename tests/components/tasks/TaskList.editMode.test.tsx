@@ -173,7 +173,7 @@ describe('fe-bug-011 — TaskList edit mode button layout', () => {
     fireEvent.click(screen.getByText('Select All'))
 
     const actionBtns = [
-      screen.getByText('Select All'),
+      screen.getByText('Deselect All'),  // After clicking Select All, button shows Deselect All
       screen.getByText(/Clear Completed/),
       screen.getByText(/Check Selected/),
       screen.getByText('Delete Selected'),

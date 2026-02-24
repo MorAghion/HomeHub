@@ -51,11 +51,13 @@ function ReservationsHub({
     setSelectedListsForDeletion(newSelected);
   };
 
+  const selectableLists = listArray.filter((l) => !l.isMaster);
+
   const toggleSelectAll = () => {
-    if (selectedListsForDeletion.size === listArray.length) {
+    if (selectedListsForDeletion.size === selectableLists.length) {
       setSelectedListsForDeletion(new Set());
     } else {
-      setSelectedListsForDeletion(new Set(listArray.map((list) => list.id)));
+      setSelectedListsForDeletion(new Set(selectableLists.map((list) => list.id)));
     }
   };
 
@@ -161,7 +163,7 @@ function ReservationsHub({
                 className="h-9 px-4 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
-                {selectedListsForDeletion.size === listArray.length ? t('common:deselectAll') : t('common:selectAll')}
+                {selectableLists.length > 0 && selectedListsForDeletion.size === selectableLists.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
             <div className="flex items-center gap-2">
@@ -218,21 +220,26 @@ function ReservationsHub({
               >
                 {isEditMode ? (
                   <div className="flex items-center gap-4 p-6">
-                    {/* Checkbox */}
-                    <div
-                      onClick={() => toggleListSelection(list.id)}
-                      className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
-                      style={{
-                        borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
-                        backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'transparent',
-                      }}
-                    >
-                      {selectedListsForDeletion.has(list.id) && (
-                        <span className="text-white text-xs font-bold">✓</span>
-                      )}
-                    </div>
+                    {/* Checkbox — hidden for master/protected lists */}
+                    {!list.isMaster && (
+                      <div
+                        onClick={() => toggleListSelection(list.id)}
+                        className="w-6 h-6 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
+                        style={{
+                          borderColor: selectedListsForDeletion.has(list.id) ? '#630606' : '#8E806A33',
+                          backgroundColor: selectedListsForDeletion.has(list.id) ? '#630606' : 'transparent',
+                        }}
+                      >
+                        {selectedListsForDeletion.has(list.id) && (
+                          <span className="text-white text-xs font-bold">✓</span>
+                        )}
+                      </div>
+                    )}
                     {/* Content */}
-                    <div className="flex-1 cursor-pointer" onClick={() => toggleListSelection(list.id)}>
+                    <div
+                      className="flex-1 cursor-pointer"
+                      onClick={() => !list.isMaster && toggleListSelection(list.id)}
+                    >
                       <div className="mb-2">
                         {(() => {
                           const Icon = getContextIcon(list.name);
@@ -246,15 +253,17 @@ function ReservationsHub({
                         {list.items.length} {list.items.length === 1 ? 'reservation' : 'reservations'}
                       </p>
                     </div>
-                    {/* Delete */}
-                    <button
-                      onClick={() => setDeleteConfirmation({ type: 'single', listId: list.id })}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-                      style={{ color: '#630606' }}
-                      title={t('deleteReservationList')}
-                    >
-                      <Trash2 size={20} strokeWidth={2} />
-                    </button>
+                    {/* Delete — hidden for master/protected lists */}
+                    {!list.isMaster && (
+                      <button
+                        onClick={() => setDeleteConfirmation({ type: 'single', listId: list.id })}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                        style={{ color: '#630606' }}
+                        title={t('deleteReservationList')}
+                      >
+                        <Trash2 size={20} strokeWidth={2} />
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <button
