@@ -4,7 +4,7 @@
   "agent": "qa",
   "phase": "0.2",
   "priority": "high",
-  "status": "review",
+  "status": "done",
   "depends_on": ["qa-001"],
   "blocks": [],
   "created": "2026-02-22",

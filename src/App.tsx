@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useKeyboardHeight } from './hooks/useKeyboardHeight'
-import { ShoppingBag, ListTodo, Gift, Settings, RotateCcw } from 'lucide-react'
+import { ShoppingBag, ListTodo, Gift, Calendar, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
 import TasksHub from './components/TasksHub'
 import VouchersHub from './components/VouchersHub'
+import ReservationsHub from './components/ReservationsHub'
 
 // Lazy-load detail views — only needed after the user navigates into a specific list.
 // Keeps them out of the initial bundle, cutting ~50KB from first load.
@@ -75,13 +76,18 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
 
   // Mobile Card Stack Navigation
-  const [activeHub, setActiveHub] = useState<'shopping' | 'tasks' | 'vouchers'>('shopping');
+  const [activeHub, setActiveHub] = useState<'shopping' | 'tasks' | 'vouchers' | 'reservations'>('shopping');
   const [isLandingMode, setIsLandingMode] = useState(true); // Landing vs Active mode
   const cardStackRef = useRef<HTMLDivElement>(null);
 
   // Settings Modal
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+
+  // Loading states — prevent count-flash-0 on login (fe-bug-003)
+  const [listsLoading, setListsLoading] = useState(true);
+  const [taskListsLoading, setTaskListsLoading] = useState(true);
+  const [voucherListsLoading, setVoucherListsLoading] = useState(true);
 
   // Shopping lists state — populated from Supabase on mount
   const [lists, setLists] = useState<Record<string, ListInstance>>({});
@@ -178,6 +184,7 @@ function App() {
             id: 'home-tasks_urgent', name: 'Urgent Tasks', tasks: urgentTasks,
           };
           setTaskLists(orderedRecord);
+          setTaskListsLoading(false);
           setActiveTaskListId((prev) => {
             if (prev === 'home-tasks_urgent') return prev;
             if (prev && listsRecord[prev]) return prev;
@@ -186,6 +193,7 @@ function App() {
         }
       } catch (err) {
         console.error('[Tasks] Failed to load from Supabase:', err);
+        if (isMounted) setTaskListsLoading(false);
       }
     };
 
@@ -306,6 +314,7 @@ function App() {
 
         if (isMounted) {
           setVoucherLists(listsRecord);
+          setVoucherListsLoading(false);
           setActiveVoucherListId((prev) => {
             if (prev && listsRecord[prev]) return prev;
             return Object.keys(listsRecord)[0] || '';
@@ -313,6 +322,7 @@ function App() {
         }
       } catch (err) {
         console.error('[Vouchers] Failed to load from Supabase:', err);
+        if (isMounted) setVoucherListsLoading(false);
       }
     };
 
@@ -382,6 +392,7 @@ function App() {
 
         if (isMounted) {
           setLists(listsRecord);
+          setListsLoading(false);
           // Keep saved activeListId if it still exists, else fall back to first list
           setActiveListId((prev) => {
             if (prev && listsRecord[prev]) return prev;
@@ -390,6 +401,7 @@ function App() {
         }
       } catch (err) {
         console.error('[Shopping] Failed to load from Supabase:', err);
+        if (isMounted) setListsLoading(false);
       }
     };
 
@@ -451,7 +463,7 @@ function App() {
   }, [activeListId]);
 
   // Card Stack Navigation Functions
-  const scrollToHub = (hub: 'shopping' | 'tasks' | 'vouchers') => {
+  const scrollToHub = (hub: 'shopping' | 'tasks' | 'vouchers' | 'reservations') => {
     // Set active hub BEFORE switching modes
     setActiveHub(hub);
     // Exit landing mode
@@ -460,7 +472,7 @@ function App() {
     // Wait for re-render to Active Mode, then scroll to correct hub
     setTimeout(() => {
       if (!cardStackRef.current) return;
-      const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[hub];
+      const hubIndex = { shopping: 0, tasks: 1, vouchers: 2, reservations: 3 }[hub];
       const cards = cardStackRef.current.children;
       const targetCard = cards[hubIndex] as HTMLElement;
 
@@ -487,6 +499,7 @@ function App() {
   useEffect(() => { activeHubRef.current = activeHub; }, [activeHub]);
 
   // Detect active card from scroll position (sync with bottom nav)
+  // fe-bug-004: depends on `user` so effect re-runs after auth resolves and carousel mounts
   useEffect(() => {
     const container = cardStackRef.current;
     if (!container) return;
@@ -496,7 +509,7 @@ function App() {
       const containerWidth = container.clientWidth;
       const centerPosition = scrollLeft + containerWidth / 2;
 
-      let closestHub: 'shopping' | 'tasks' | 'vouchers' = 'shopping';
+      let closestHub: 'shopping' | 'tasks' | 'vouchers' | 'reservations' = 'shopping';
       let minDistance = Infinity;
 
       Array.from(container.children).forEach((card) => {
@@ -506,7 +519,7 @@ function App() {
 
         if (distance < minDistance) {
           minDistance = distance;
-          const hubId = element.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
+          const hubId = element.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers' | 'reservations';
           if (hubId) closestHub = hubId;
         }
       });
@@ -545,7 +558,7 @@ function App() {
           if (entry.intersectionRatio > maxEntry.intersectionRatio) maxEntry = entry;
         });
         if (maxEntry && maxEntry.intersectionRatio > 0.5) {
-          const hubId = maxEntry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers';
+          const hubId = maxEntry.target.getAttribute('data-hub') as 'shopping' | 'tasks' | 'vouchers' | 'reservations';
           if (hubId && hubId !== activeHubRef.current) setActiveHub(hubId);
         }
       },
@@ -562,7 +575,7 @@ function App() {
       clearTimeout(t2);
       observer.disconnect();
     };
-  }, [isLandingMode]); // activeHub removed — read via ref instead
+  }, [isLandingMode, user]); // user added: re-run after auth resolves so carousel is mounted (fe-bug-004)
 
   // Scroll to initial hub on mount - Start in Landing Mode
   useEffect(() => {
@@ -570,7 +583,7 @@ function App() {
       // Small delay to ensure DOM is ready, then center on active hub
       setTimeout(() => {
         if (cardStackRef.current) {
-          const hubIndex = { shopping: 0, tasks: 1, vouchers: 2 }[activeHub];
+          const hubIndex = { shopping: 0, tasks: 1, vouchers: 2, reservations: 3 }[activeHub];
           const cards = cardStackRef.current.children;
           const targetCard = cards[hubIndex] as HTMLElement;
           if (targetCard) {
@@ -616,41 +629,53 @@ function App() {
         borderColor: 'rgba(99, 6, 6, 0.1)'
       }}
     >
-      <div className="flex items-center justify-around h-full px-6 max-w-md mx-auto">
+      <div className="flex items-center justify-around h-full px-2 max-w-md mx-auto">
         <button
           onClick={() => scrollToHub('shopping')}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all"
           style={{
             color: activeHub === 'shopping' ? '#630606' : '#8E806A',
             backgroundColor: activeHub === 'shopping' ? '#63060611' : 'transparent'
           }}
         >
-          <ShoppingBag size={24} strokeWidth={2} />
+          <ShoppingBag size={22} strokeWidth={2} />
           <span className="text-xs font-medium">{t('shopping:title')}</span>
         </button>
 
         <button
           onClick={() => scrollToHub('tasks')}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all"
           style={{
             color: activeHub === 'tasks' ? '#630606' : '#8E806A',
             backgroundColor: activeHub === 'tasks' ? '#63060611' : 'transparent'
           }}
         >
-          <ListTodo size={24} strokeWidth={2} />
+          <ListTodo size={22} strokeWidth={2} />
           <span className="text-xs font-medium">{t('tasks:title')}</span>
         </button>
 
         <button
           onClick={() => scrollToHub('vouchers')}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all"
+          className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all"
           style={{
             color: activeHub === 'vouchers' ? '#630606' : '#8E806A',
             backgroundColor: activeHub === 'vouchers' ? '#63060611' : 'transparent'
           }}
         >
-          <Gift size={24} strokeWidth={2} />
+          <Gift size={22} strokeWidth={2} />
           <span className="text-xs font-medium">{t('vouchers:title')}</span>
+        </button>
+
+        <button
+          onClick={() => scrollToHub('reservations')}
+          className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all"
+          style={{
+            color: activeHub === 'reservations' ? '#630606' : '#8E806A',
+            backgroundColor: activeHub === 'reservations' ? '#63060611' : 'transparent'
+          }}
+        >
+          <Calendar size={22} strokeWidth={2} />
+          <span className="text-xs font-medium">{t('vouchers:typeReservation').split(' ')[0]}</span>
         </button>
       </div>
     </div>
@@ -757,7 +782,7 @@ function App() {
                       {t('shopping:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {t('common:activeList', { count: Object.keys(lists).length })}
+                      {listsLoading ? '—' : t('common:activeList', { count: Object.keys(lists).length })}
                     </p>
                   </div>
                 </div>
@@ -779,7 +804,7 @@ function App() {
                       {t('tasks:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {t('common:activeList', { count: Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length })}
+                      {taskListsLoading ? '—' : t('common:activeList', { count: Object.keys(taskLists).filter(id => id !== 'home-tasks_urgent').length })}
                     </p>
                   </div>
                 </div>
@@ -801,7 +826,29 @@ function App() {
                       {t('vouchers:title')}
                     </h2>
                     <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
-                      {t('common:activeList', { count: Object.keys(voucherLists).length })}
+                      {voucherListsLoading ? '—' : t('common:activeList', { count: Object.values(voucherLists).filter(l => l.defaultType !== 'reservation').length })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Reservations Hub Card - Summary Mode */}
+                <div
+                  data-hub="reservations"
+                  onClick={() => scrollToHub('reservations')}
+                  className="snap-center flex-shrink-0 transition-all duration-300 cursor-pointer"
+                  style={{
+                    width: '80vw',
+                    opacity: activeHub === 'reservations' ? 1 : 0.4,
+                    transform: activeHub === 'reservations' ? 'scale(1)' : 'scale(0.9)'
+                  }}
+                >
+                  <div className="h-[60vh] bg-white rounded-3xl shadow-xl p-8 sm:p-12 flex flex-col items-center justify-center text-center">
+                    <Calendar size={48} strokeWidth={2} style={{ color: '#630606' }} className="mb-4 sm:mb-6 sm:w-16 sm:h-16" />
+                    <h2 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3" style={{ color: '#630606' }}>
+                      {t('vouchers:typeReservation')}
+                    </h2>
+                    <p className="text-sm sm:text-lg" style={{ color: '#8E806A' }}>
+                      {voucherListsLoading ? '—' : t('common:activeList', { count: Object.values(voucherLists).filter(l => l.defaultType === 'reservation').length })}
                     </p>
                   </div>
                 </div>
@@ -962,16 +1009,13 @@ function App() {
                   setActiveVoucherListId(id);
                   setCurrentScreen('vouchers');
                 }}
-                onCreateList={(_templateId, displayName, defaultType) => {
+                onCreateList={async (_templateId, displayName, defaultType) => {
                   if (!profile?.household_id) return;
                   const name = displayName || _templateId;
-                  VoucherService.createList(profile.household_id, name, defaultType)
-                    .then((newList) => {
-                      const full = { ...newList, items: [] };
-                      setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
-                      setActiveVoucherListId(newList.id);
-                    })
-                    .catch((err) => console.error('[Vouchers] createList failed:', err));
+                  const newList = await VoucherService.createList(profile.household_id, name, defaultType);
+                  const full = { ...newList, items: [] };
+                  setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
+                  setActiveVoucherListId(newList.id);
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -992,6 +1036,51 @@ function App() {
                   if (listIds.includes(activeVoucherListId)) setActiveVoucherListId('');
                   Promise.all(listIds.map((id) => VoucherService.deleteList(id)))
                     .catch((err) => console.error('[Vouchers] deleteLists failed:', err));
+                }}
+                onBack={returnToHome}
+              />
+            </div>
+          </div>
+
+          {/* Reservations Hub Card - Full Screen Active Mode */}
+          <div
+            data-hub="reservations"
+            className="snap-center min-w-full max-w-full flex-shrink-0 h-full flex flex-col"
+          >
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ touchAction: 'pan-y' }}>
+              <ReservationsHub
+                voucherLists={voucherLists}
+                onSelectList={(id) => {
+                  setActiveVoucherListId(id);
+                  setCurrentScreen('vouchers');
+                }}
+                onCreateList={async (_templateId, displayName, defaultType) => {
+                  if (!profile?.household_id) return;
+                  const name = displayName || _templateId;
+                  const newList = await VoucherService.createList(profile.household_id, name, defaultType);
+                  const full = { ...newList, items: [] };
+                  setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
+                  setActiveVoucherListId(newList.id);
+                }}
+                onDeleteList={(listId) => {
+                  setVoucherLists((prev) => {
+                    const next = { ...prev };
+                    delete next[listId];
+                    return next;
+                  });
+                  if (activeVoucherListId === listId) setActiveVoucherListId('');
+                  VoucherService.deleteList(listId)
+                    .catch((err) => console.error('[Reservations] deleteList failed:', err));
+                }}
+                onDeleteLists={(listIds) => {
+                  setVoucherLists((prev) => {
+                    const next = { ...prev };
+                    listIds.forEach((id) => delete next[id]);
+                    return next;
+                  });
+                  if (listIds.includes(activeVoucherListId)) setActiveVoucherListId('');
+                  Promise.all(listIds.map((id) => VoucherService.deleteList(id)))
+                    .catch((err) => console.error('[Reservations] deleteLists failed:', err));
                 }}
                 onBack={returnToHome}
               />
@@ -1309,9 +1398,10 @@ function App() {
           }
         }}
         onBack={() => {
+          const isReservation = voucherLists[activeVoucherListId]?.defaultType === 'reservation';
           setCurrentScreen('vouchers-hub');
           setTimeout(() => {
-            scrollToHub('vouchers');
+            scrollToHub(isReservation ? 'reservations' : 'vouchers');
           }, 0);
         }}
       />

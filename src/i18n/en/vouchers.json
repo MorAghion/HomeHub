@@ -44,5 +44,11 @@
   "deleteVoucher": "Delete Voucher?",
   "deleteVoucherMessage": "Are you sure you want to delete this voucher? This action cannot be undone.",
   "voucher_one": "{{count}} voucher",
-  "voucher_other": "{{count}} vouchers"
+  "voucher_other": "{{count}} vouchers",
+  "noReservationsYet": "No Reservations Yet",
+  "noReservationsDesc": "Start organizing your restaurant bookings, tickets, and events",
+  "createFirstReservation": "Create Your First Reservation List",
+  "newReservationList": "New Reservation List",
+  "deleteReservationList": "Delete Reservation List?",
+  "deleteReservationListMessage": "Are you sure you want to delete this reservation list and all its items?"
 }
