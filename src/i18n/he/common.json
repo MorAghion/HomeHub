@@ -21,5 +21,40 @@
   "activeTask_one": "משימה אחת פעילה",
   "activeTask_other": "{{count}} משימות פעילות",
   "activeVoucher_one": "שובר אחד פעיל",
-  "activeVoucher_other": "{{count}} שוברים פעילים"
+  "activeVoucher_other": "{{count}} שוברים פעילים",
+  "categories": {
+    "cleaning": "ניקיון",
+    "dairy": "מוצרי חלב",
+    "pantry": "מזווה",
+    "meat": "בשר",
+    "fish": "דגים",
+    "vegetables": "ירקות",
+    "fruit": "פירות",
+    "pharmaHygiene": "תרופות והיגיינה",
+    "camping": "קמפינג",
+    "documentsMoney": "מסמכים וכסף",
+    "baby": "תינוק",
+    "homeRenovation": "שיפוץ הבית",
+    "homeDecor": "עיצוב הבית",
+    "party": "מסיבה",
+    "pets": "חיות מחמד",
+    "gardening": "גינון",
+    "other": "אחר"
+  },
+  "masterList": {
+    "title": "רשימה ראשית",
+    "selectAll": "בחר הכל",
+    "quickSetup": "הגדרה מהירה",
+    "startWithSuggestion": "התחל עם הצעה מבוססת הקשר",
+    "quickAddFromTemplates": "הוספה מהירה מתבניות",
+    "expandTemplates": "הרחב תבניות",
+    "collapseTemplates": "כווץ תבניות",
+    "addItemsTitle": "הוסף {{count}} פריטים",
+    "addToMasterList": "הוסף לרשימה הראשית...",
+    "keepEmpty": "השאר ריק",
+    "itemNotFound": "פריט לא נמצא. להוסיף?",
+    "yes": "כן",
+    "no": "לא",
+    "noItems": "אין פריטים ברשימה הראשית"
+  }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Copy, Check, Pencil, Trash2, X } from 'lucide-react';
 import type { Voucher } from '../../types/voucher';
 
@@ -22,6 +23,7 @@ function isExpired(dateStr?: string): boolean {
 }
 
 function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: VoucherDetailModalProps) {
+  const { t } = useTranslation(['vouchers', 'common']);
   const [copied, setCopied] = useState(false);
   const [imgZoomed, setImgZoomed] = useState(false);
 
@@ -90,7 +92,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
           {/* Value */}
           {voucher.value && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Value</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('value')}</p>
               <p className="text-3xl font-bold" style={{ color: '#630606' }}>₪{voucher.value}</p>
             </div>
           )}
@@ -98,7 +100,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
           {/* Issuer */}
           {voucher.issuer && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Issuer</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('issuer')}</p>
               <p className="text-base font-medium" style={{ color: '#1a1a1a' }}>{voucher.issuer}</p>
             </div>
           )}
@@ -106,13 +108,13 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
           {/* Expiry */}
           {voucher.expiryDate && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Expiry Date</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('expiryDate')}</p>
               <p
                 className="text-base font-medium"
                 style={{ color: expired ? '#DC2626' : '#1a1a1a' }}
               >
                 {formatExpiry(voucher.expiryDate)}
-                {expired && ' — Expired'}
+                {expired && ` — ${t('expired')}`}
               </p>
             </div>
           )}
@@ -120,7 +122,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
           {/* Code */}
           {voucher.code && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Code</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('code')}</p>
               <div className="flex items-center gap-2 p-3 rounded-xl" style={{ backgroundColor: '#F5F2E7' }}>
                 <code className="flex-1 text-sm font-mono font-bold tracking-widest" style={{ color: '#630606' }}>
                   {voucher.code}
@@ -128,7 +130,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
                 <button
                   onClick={handleCopyCode}
                   className="p-1.5 rounded-lg transition-colors hover:bg-[#63060611]"
-                  title="Copy code"
+                  title={t('copyCode')}
                 >
                   {copied ? (
                     <Check size={16} strokeWidth={2.5} style={{ color: '#630606' }} />
@@ -143,7 +145,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
           {/* Notes */}
           {voucher.notes && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Notes</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('notes')}</p>
               <p className="text-sm whitespace-pre-wrap" style={{ color: '#5a5a5a' }}>{voucher.notes}</p>
             </div>
           )}
@@ -158,7 +160,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
                   style={{ backgroundColor: '#63060611', color: '#630606' }}
                 >
                   <Pencil size={15} strokeWidth={2} />
-                  Edit
+                  {t('common:edit')}
                 </button>
               )}
               {onDelete && (
@@ -168,7 +170,7 @@ function VoucherDetailModal({ voucher, isOpen, onClose, onEdit, onDelete }: Vouc
                   style={{ backgroundColor: '#DC262611', color: '#DC2626' }}
                 >
                   <Trash2 size={15} strokeWidth={2} />
-                  Delete
+                  {t('common:delete')}
                 </button>
               )}
             </div>
