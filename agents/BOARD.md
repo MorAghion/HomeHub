@@ -1,8 +1,6 @@
 # 📋 HomeHub Agent Board
-
-**Last updated:** 2026-02-24 20:00 UTC
-**Current Phase:** 0.x Bug Wave — fe-bug-015 fixed (PR open), qa-009 CI pipeline added
-
+**Last updated:** 2026-02-24 — Wave 7 launched
+**Current Phase:** 0.4/0.6 — Hebrew full support (fe-008/009) + QA Wave 7 (qa-007/008/009)
 
 ---
 
@@ -13,14 +11,12 @@
 | Wave 1 | arch-001, qa-001, fe-007 | 🏗️🧪🎨 | ✅ Done | 2026-02-22 14:00 | 2026-02-22 16:45 | All parallel, 3 critical foundations |
 | Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
 | Wave 3b | fe-bug-001, fe-bug-002, qa-002 | 🎨🧪 | ✅ Done | 2026-02-22 21:30 | 2026-02-22 22:30 | Both bugs validated + 87 tests passing |
-
 | Wave 3c | qa-003, qa-004, qa-006 | 🧪 | ✅ Done | 2026-02-23 00:00 | 2026-02-23 01:00 | 112 new unit tests + SANITY_CHECKLIST.md |
 | Wave 3d | fe-006, fe-006-cont, qa-005 | 🎨🧪 | ✅ Done | 2026-02-23 10:00 | 2026-02-23 11:45 | Hebrew RTL, context mapping, 35 E2E tests |
 | Wave 4 | fe-bug-003/004/005/006 | 🎨 | ✅ Done | 2026-02-23 12:00 | 2026-02-23 13:00 | Count flash, carousel, hub split, add-list modal |
 | Wave 5 | fe-bug-008/009/010/011/012 + QA regression tests | 🎨🧪 | ✅ Done | 2026-02-23 13:00 | 2026-02-23 15:00 | Merged PR #11 |
-| Wave 6 | fe-bug-013/014/015 | 🎨 | ⏳ PR Open | 2026-02-23 15:00 | — | 013/014 PR open, 015 PR open |
-| Wave 7 | qa-007, qa-008, qa-009, be-002 | 🧪⚙️ | ⏳ Queued | — | — | After Wave 6 merges |
-
+| Wave 6 | fe-bug-013/014/015 | 🎨 | ✅ Done | 2026-02-23 15:00 | 2026-02-24 | PRs #13–#16 merged → master → main deployed |
+| Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | 🚀 In Progress | 2026-02-24 | — | Hebrew full support + QA suite running in parallel |
 
 ---
 
@@ -30,9 +26,9 @@
 Phase 0.1 ██████████100%  (5/5 tasks done)   arch-001 ✅ | fe-001 ✅ | fe-002 ✅ | fe-003 ✅ | qa-001 ✅
 Phase 0.2 ██████████100%  (6/6 tasks done)   qa-002 ✅ | qa-003 ✅ | qa-004 ✅ | qa-005 ✅ | qa-006 ✅
 Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
-Phase 0.4 ██████████100%  (3/3 tasks done)   fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅
+Phase 0.4 ████░░░░░░  40%  (2/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 🚀 | fe-009 🚀
 Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be-002 ⏳
-Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa-008 ⏳ | qa-009 ⏳ | be-002 ⏳
+Phase 0.6 ░░░░░░░░░░   0%  (0/3 tasks done)  qa-007 🚀 | qa-008 🚀 | qa-009 🚀
 ```
 
 ---
@@ -43,24 +39,20 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 |--------|-----------|---------|--------|
 | `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking | ✅ Done |
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
-
-| Review + merge `agent/qa-003-004-006-unit-tests` → master | 🧪 QA | 🟡 Pending | ✅ Merged |
-| Review + merge `agent/qa-005-e2e-suite` → master | 🧪 QA | 🟡 Pending | ✅ Merged (PR #6) |
-| Merge Wave 5 PR #11 → master | 🎨🧪 | 🔴 Blocking | ✅ Merged |
-| **Run `supabase/16-restore-voucher-schema.sql` in SQL Editor** | 🎨 fe-bug-010 | 🔴 Blocking | ⏳ Still pending |
-| **Merge `agent/fe-bug-013-014-reservations-hub` → master** | 🎨 Wave 6 | 🔴 High | ⏳ PR open — change base to master before merging |
-| **Merge `agent/fe-bug-015-signin-debug` → master** | 🎨 Wave 6 | 🔴 Critical | ⏳ PR open — change base to master before merging |
-
+| Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
+| **Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor** | 🎨 fe-bug-010 | 🔴 Blocking | ⏳ Still pending |
+| **Review + merge Wave 7 PRs when agents complete** | 🎨🧪 Wave 7 | 🟡 Upcoming | ⏳ Pending agent completion |
 
 ---
 
 ## 🖥️ Active Agents
 
-| Terminal | Agent | Task | Notes |
-|----------|-------|------|-------|
-| — | — | Wave 6 ready after PR merge | qa-007 (RTL), qa-008 (test errors), be-002 (PWA), QA run Wave 5 regression tests |
-| — | — | Wave 7 ready after Wave 6 PRs merge | qa-007 (RTL), qa-008 (test errors), qa-009 (CI pipeline), be-002 (PWA) |
-
+| Terminal | Agent | Task | Branch |
+|----------|-------|------|--------|
+| Terminal 1 | 🎨 Frontend | fe-008 + fe-009 — Full Hebrew support | agent/fe-008-009-hebrew-full |
+| Terminal 2 | 🧪 QA | qa-007 — RTL/Hebrew testing (TDD mode) | agent/qa-007-rtl-testing |
+| Terminal 3 | 🧪 QA | qa-008 — Fix test suite errors | agent/qa-008-test-errors |
+| Terminal 4 | 🧪 QA | qa-009 — GitHub Actions CI pipeline | agent/qa-009-ci-pipeline |
 
 ---
 
@@ -99,7 +91,8 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 | fe-005: i18n framework setup | 🎨 Frontend | ✅ done | — | fe-006 |
 | fe-006: RTL layout + translations | 🎨 Frontend | ✅ done | fe-005 | qa-007 |
 | fe-006-cont: Hebrew context mapping + settings i18n | 🎨 Frontend | ✅ done | fe-006 | qa-007 |
-| qa-007: RTL testing | 🧪 QA | 🟢 unblocked | fe-006, fe-006-cont | — |
+| fe-008: Full Hebrew translation audit — all windows | 🎨 Frontend | 🚀 in_progress | fe-006-cont ✅ | qa-007 |
+| fe-009: Hebrew category/listCategory/context engine values | 🎨 Frontend | 🚀 in_progress | fe-006-cont ✅ | qa-007 |
 
 ## 🚦 Phase 0.5 — Responsive + PWA Foundation
 
@@ -110,14 +103,11 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 
 ## 🚦 Phase 0.6 — CI + Test Maintenance
 
-| Task | Agent | Status | Notes |
-|------|-------|--------|-------|
-| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Run after Wave 5 merge |
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
-| qa-007: RTL + Hebrew validation | 🧪 QA | ⏳ todo | fe-006-cont ✅ | — |
-| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Wave 6 merge | — |
-| qa-009: GitHub Actions CI pipeline | 🧪 QA | ⏳ todo | — | — |
+| qa-007: RTL + Hebrew validation (partially TDD) | 🧪 QA | 🚀 in_progress | fe-006-cont ✅ | — |
+| qa-008: Scan + fix test suite errors | 🧪 QA | 🚀 in_progress | — | — |
+| qa-009: GitHub Actions CI pipeline | 🧪 QA | 🚀 in_progress | — | — |
 
 ---
 
@@ -125,8 +115,18 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 
 | From | To | Message | Urgency |
 |------|----|---------|---------|
-| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. Test RTL direction, Hebrew sub-hub context detection, settings page translations, LTR regression. | 🟡 Ready |
-| 🎨 FE (Wave 5) | 🧪 QA | fe-bug-008/009/010/011/012 fixed. Modal split, hub edit mode aligned. QA regression tests written. Awaiting execution. | 🟡 Ready |
+| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. fe-008/009 running in parallel (TDD mode for qa-007). | 🟡 Ready |
+| 🎨 FE (Wave 5) | 🧪 QA | fe-bug-008–012 fixed. Modal split, hub edit mode aligned. Regression tests written. | ✅ Done |
+
+## 🐛 Active Bugs
+
+| Bug | Title | Priority | Status |
+|-----|-------|----------|--------|
+| fe-bug-013 | ReservationsHub wrong empty state after modal close | 🔴 High | review — fix in prod |
+| fe-bug-014 | ReservationsHub doesn't update after list creation | 🔴 Critical | review — fix in prod |
+| fe-bug-015 | Sign-in stuck (3rd recurrence) | 🔴 Critical | review — fix in prod |
+| fe-bug-003–006 | Count flash, carousel, hub split, add-list | mixed | review — fix in prod |
+| fe-bug-008–012 | Carousel, master delete, edit toolbar, modals | mixed | review — fix in prod |
 
 ## ❓ Open Questions
 None.
@@ -135,22 +135,8 @@ None.
 
 | Task | Blocked By | Notes |
 |------|-----------|-------|
-| be-001 | arch-002 ✅ | Can now proceed |
+| be-001 | Human: Gmail OAuth setup | arch-002 done, be-001 can now proceed when human is ready |
 | fe-004 | be-001 | — |
-| qa-008 | Wave 6 merge | Run after latest FE changes are in master |
-
-## 🐛 Active Bugs
-
-| Bug | Title | Priority | Agent | Status |
-|-----|-------|----------|-------|--------|
-| fe-bug-008 | Carousel not lighting up after login | 🔴 High | 🎨 Frontend | review |
-| fe-bug-009 | Master lists deletable in Vouchers hub | 🔴 High | 🎨 Frontend | review |
-| fe-bug-010 | Add new list click does nothing | 🔴 Critical | 🎨 Frontend | review |
-| fe-bug-011 | Edit mode buttons uneven size/spacing | 🟡 Medium | 🎨 Frontend | review |
-| fe-bug-012 | Confirmation modals not centered | 🟡 Medium | 🎨 Frontend | review |
-| fe-bug-013 | ReservationsHub shows wrong empty state after modal close | 🔴 High | 🎨 Frontend | review |
-| fe-bug-014 | ReservationsHub doesn't update after list creation | 🔴 Critical | 🎨 Frontend | review |
-| fe-bug-015 | Sign-in stuck on dev (3rd recurrence) | 🔴 Critical | 🎨 Frontend | review |
 
 ---
 
@@ -182,6 +168,7 @@ None.
 | fe-bug-006 | 🎨 Frontend | 2026-02-23 13:00 | Wave 4 | Add list modal: async create, modal closes only on success |
 | fe-bug-007 | 👤 Human | 2026-02-23 13:30 | — | Sign-in stuck regression — fixed directly by human |
 | fe-bug-008–012 | 🎨 Frontend | 2026-02-23 15:00 | Wave 5 | Carousel, master list delete, add-list flow, edit toolbar, modal centering |
+| fe-bug-013–015 | 🎨 Frontend | 2026-02-24 | Wave 6 | Race condition, reservations update, sign-in regression — all in prod |
 
 ---
 

@@ -49,5 +49,5 @@
   ],
   "open_questions": [],
   "completion_summary": "",
-  "notes": "This task is for later — do not start until fe-bug-003 through fe-bug-006 are resolved and merged."
+  "notes": "fe-bug-003 through fe-bug-015 are resolved and merged. This task is READY TO START. Pay special attention to hardcoded strings in src/utils/contextMapping.ts, src/utils/he/contextMapping.ts, src/utils/suggestions.ts, src/utils/contextResolver.ts — these contain listCategory values and category display strings that are rendered in the UI but may not go through t(). Also audit AddVoucherModal, AddReservationModal, VouchersHub, ReservationsHub — these were recently added and may have untranslated strings. See fe-009 for the companion task covering data-driven category/listCategory values specifically."
 }

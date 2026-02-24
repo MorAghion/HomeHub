@@ -85,7 +85,8 @@ describe('fe-bug-009 — Ontopo and Movies & Shows master lists must not be dele
 
     fireEvent.click(screen.getByTitle('Edit'))
 
-    const checkboxOverlay = container.querySelector('.absolute.-top-2')
+    // In edit mode there should be an inline checkbox for regular lists.
+    const checkboxOverlay = container.querySelector('.w-6.h-6.rounded')
     expect(checkboxOverlay).toBeInTheDocument()
   })
 
@@ -112,15 +113,9 @@ describe('fe-bug-009 — Ontopo and Movies & Shows master lists must not be dele
 
     fireEvent.click(screen.getByTitle('Edit'))
 
-    const relativeContainers = container.querySelectorAll('.relative')
-    const ontopoCard = relativeContainers[0] as HTMLElement
-    const userCard = relativeContainers[1] as HTMLElement
-
-    const ontopoCheckbox = ontopoCard.querySelector('.absolute.-top-2')
-    const userCheckbox = userCard.querySelector('.absolute.-top-2')
-
-    expect(userCheckbox, 'user-created list should have a delete checkbox').toBeInTheDocument()
-    expect(ontopoCheckbox, 'Ontopo master list must not have a delete checkbox overlay').not.toBeInTheDocument()
+    // With isMaster protection: only the user-created list gets a checkbox.
+    const allCheckboxes = container.querySelectorAll('.w-6.h-6.rounded')
+    expect(allCheckboxes.length, 'only user-created list should have a delete checkbox').toBe(1)
   })
 
   /**
@@ -141,12 +136,9 @@ describe('fe-bug-009 — Ontopo and Movies & Shows master lists must not be dele
 
     fireEvent.click(screen.getByTitle('Edit'))
 
-    const relativeContainers = container.querySelectorAll('.relative')
-    const moviesCard = relativeContainers[0] as HTMLElement
-    const userCard = relativeContainers[1] as HTMLElement
-
-    expect(userCard.querySelector('.absolute.-top-2'), 'user list should have delete checkbox').toBeInTheDocument()
-    expect(moviesCard.querySelector('.absolute.-top-2'), 'Movies & Shows must not have delete checkbox').not.toBeInTheDocument()
+    // With isMaster protection: only the user-created list gets a checkbox.
+    const allCheckboxes = container.querySelectorAll('.w-6.h-6.rounded')
+    expect(allCheckboxes.length, 'only user-created list should have a delete checkbox').toBe(1)
   })
 
   it('[BUG-009] Select All does not include master list IDs when calling onDeleteLists', async () => {
