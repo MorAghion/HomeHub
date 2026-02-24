@@ -41,6 +41,19 @@ function App() {
   const { user, profile, loading } = useAuth();
   const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
 
+  // [AUTH] Log auth state changes — helps diagnose sign-in stuck issues
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('[AUTH] App: auth state changed —', {
+        loading,
+        userPresent: !!user,
+        userId: user?.id ?? 'none',
+        profilePresent: !!profile,
+        householdId: profile?.household_id ?? 'none',
+      });
+    }
+  }, [user, profile, loading]);
+
   // Sync document dir with language so all RTL logical-property classes work
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'he' ? 'rtl' : 'ltr';
