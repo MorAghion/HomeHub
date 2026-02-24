@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["fe-006", "fe-006-cont"],
   "blocks": ["qa-007"],
   "created": "2026-02-24",
@@ -45,6 +45,6 @@
     "No regressions in English mode"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Created src/utils/categoryTranslation.ts with tCategory(category, t) helper. Added 17 category keys to common:categories (en+he). MasterListDrawer now renders tCategory(category, t) for all section headers — Cleaning/ניקיון, Dairy/מוצרי חלב, Pharma & Hygiene/תרופות והיגיינה, etc. he/contextMapping.ts already uses English listCategory keys as internal identifiers (by design). Build passes clean.",
   "notes": "Run alongside fe-008. Both tasks can be worked in parallel by the same agent on the same branch: agent/fe-008-009-hebrew-full."
 }

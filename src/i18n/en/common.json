@@ -40,5 +40,21 @@
     "pets": "Pets",
     "gardening": "Gardening",
     "other": "Other"
+  },
+  "masterList": {
+    "title": "Master List",
+    "selectAll": "Select All",
+    "quickSetup": "Quick Setup",
+    "startWithSuggestion": "Start with a context-based suggestion",
+    "quickAddFromTemplates": "Quick Add from Templates",
+    "expandTemplates": "Expand templates",
+    "collapseTemplates": "Collapse templates",
+    "addItemsTitle": "Add {{count}} items",
+    "addToMasterList": "Add to master list...",
+    "keepEmpty": "Keep Empty",
+    "itemNotFound": "Item not found. Add it?",
+    "yes": "Yes",
+    "no": "No",
+    "noItems": "No items in master list"
   }
 }

@@ -75,12 +75,14 @@ function VoucherListWrapper({
   initialVouchers = [] as VoucherItem[],
   listId = 'vouchers_buyme',
   listName = 'My Vouchers',
+  listType = 'voucher' as 'voucher' | 'reservation',
 }) {
   const [vouchers, setVouchers] = useState<VoucherItem[]>(initialVouchers)
   return (
     <VoucherList
       listName={listName}
       listId={listId}
+      listType={listType}
       vouchers={vouchers}
       onUpdateVouchers={setVouchers}
       onBack={vi.fn()}
@@ -188,17 +190,17 @@ describe('Vouchers integration — full CRUD flow', () => {
   })
 
   it('reservation flow — creates reservation in ontopo list', () => {
-    render(<VoucherListWrapper listId="vouchers_ontopo" listName="Ontopo" />)
+    render(<VoucherListWrapper listId="vouchers_ontopo" listName="Ontopo" listType="reservation" />)
 
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
       target: { value: 'Restaurant Test' },
     })
     fireEvent.change(screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv'), {
       target: { value: '5 HaYarkon St' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
     )
 
     expect(screen.getByText('Restaurant Test')).toBeInTheDocument()

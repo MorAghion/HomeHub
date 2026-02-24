@@ -40,5 +40,21 @@
     "pets": "חיות מחמד",
     "gardening": "גינון",
     "other": "אחר"
+  },
+  "masterList": {
+    "title": "רשימה ראשית",
+    "selectAll": "בחר הכל",
+    "quickSetup": "הגדרה מהירה",
+    "startWithSuggestion": "התחל עם הצעה מבוססת הקשר",
+    "quickAddFromTemplates": "הוספה מהירה מתבניות",
+    "expandTemplates": "הרחב תבניות",
+    "collapseTemplates": "כווץ תבניות",
+    "addItemsTitle": "הוסף {{count}} פריטים",
+    "addToMasterList": "הוסף לרשימה הראשית...",
+    "keepEmpty": "השאר ריק",
+    "itemNotFound": "פריט לא נמצא. להוסיף?",
+    "yes": "כן",
+    "no": "לא",
+    "noItems": "אין פריטים ברשימה הראשית"
   }
 }

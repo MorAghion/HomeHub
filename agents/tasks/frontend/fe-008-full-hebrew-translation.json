@@ -4,7 +4,7 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "medium",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["fe-006", "fe-006-cont"],
   "blocks": ["qa-007"],
   "created": "2026-02-23",
@@ -48,6 +48,6 @@
     "npm run build passes clean"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Added auth namespace (en+he). Translated AuthScreen, MasterListDrawer, VoucherDetailModal, ReservationDetailModal. Added common:categories and common:masterList keys. Created categoryTranslation.ts utility for listCategory display values. ReservationDetailModal dates now use Intl.DateTimeFormat for locale-aware formatting. Build passes clean.",
   "notes": "fe-bug-003 through fe-bug-015 are resolved and merged. This task is READY TO START. Pay special attention to hardcoded strings in src/utils/contextMapping.ts, src/utils/he/contextMapping.ts, src/utils/suggestions.ts, src/utils/contextResolver.ts — these contain listCategory values and category display strings that are rendered in the UI but may not go through t(). Also audit AddVoucherModal, AddReservationModal, VouchersHub, ReservationsHub — these were recently added and may have untranslated strings. See fe-009 for the companion task covering data-driven category/listCategory values specifically."
 }

@@ -1,3 +1,11 @@
+/**
+ * Category Translation Utility
+ *
+ * Maps listCategory English keys (used as internal data values) to
+ * their i18n translation keys under common:categories.
+ *
+ * Usage: tCategory('Pharma & Hygiene', t) → "תרופות והיגיינה" (in Hebrew)
+ */
 import type { TFunction } from 'i18next';
 
 const CATEGORY_KEY_MAP: Record<string, string> = {
@@ -20,6 +28,10 @@ const CATEGORY_KEY_MAP: Record<string, string> = {
   'Other': 'other',
 };
 
+/**
+ * Translates a listCategory English key to the current locale.
+ * Falls back to the original value if no translation key exists.
+ */
 export function tCategory(category: string, t: TFunction): string {
   const key = CATEGORY_KEY_MAP[category];
   if (!key) return category;
