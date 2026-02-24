@@ -19,8 +19,10 @@
     "7. Expected: 'No Reservations Yet' with Calendar icon"
   ],
   "affected_files": [
-    "src/components/ReservationsHub.tsx"
+    "src/App.tsx"
   ],
-  "fix_applied": null,
-  "completion_summary": null
+  "fix_applied": "App.tsx: onBack now uses setTimeout(100ms) instead of 0ms when scrolling back to the hub carousel. This gives the carousel time to remount before scrollIntoView runs, ensuring the scroll lands on the correct hub (ReservationsHub) instead of defaulting to ShoppingHub/VouchersHub. Bug 013 is a downstream symptom of Bug 014 — when voucherLists[activeVoucherListId] is undefined (due to the race condition fixed in Bug 014), isReservation evaluates to false and scrollToHub('vouchers') is called instead of scrollToHub('reservations').",
+  "status": "review",
+  "updated": "2026-02-23",
+  "completion_summary": "Both bugs share the same root cause: a race condition in loadVoucherData (App.tsx). The initial loadVoucherData() starts on mount, before any list is created. If the user creates a list quickly, the fetch result returns without the new list (it started before the INSERT). setVoucherLists(listsRecord) then overwrites the optimistic update, removing the new list from state. Fix: (1) Changed setVoucherLists to merge strategy { ...prev, ...listsRecord } so optimistic entries are preserved. (2) Changed setActiveVoucherListId to keep any actively-set ID rather than resetting to first DB list. (3) Increased onBack scroll delay from 0ms to 100ms for reliable carousel positioning."
 }
