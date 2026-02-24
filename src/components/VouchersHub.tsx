@@ -334,7 +334,7 @@ function VouchersHub({
             {!selectedTemplate ? (
               // Template Selection
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {VOUCHER_TEMPLATES.map((template) => (
+                {VOUCHER_TEMPLATES.filter((t) => t.defaultType !== 'reservation').map((template) => (
                   <button
                     key={template.id}
                     onClick={() => handleTemplateSelect(template.id)}

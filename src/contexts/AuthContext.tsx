@@ -75,62 +75,105 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    if (import.meta.env.DEV) console.log('[AUTH] AuthContext useEffect: mounting — initial loading:', loading);
+
     // Safety net: if nothing resolves within 8s, unblock the UI
-    const safetyTimer = setTimeout(() => setLoading(false), 8000);
+    const safetyTimer = setTimeout(() => {
+      if (import.meta.env.DEV) console.warn('[AUTH] AuthContext: safety timer fired (8s) — forcing loading=false');
+      setLoading(false);
+    }, 8000);
 
     // Get initial session — await profile so we never flash the auth screen
+    if (import.meta.env.DEV) console.log('[AUTH] AuthContext: calling getSession()...');
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
+        if (import.meta.env.DEV) console.log('[AUTH] AuthContext getSession: resolved — session present:', !!session, 'user:', session?.user?.email?.slice(0, 3) + '***');
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
+          if (import.meta.env.DEV) console.log('[AUTH] AuthContext getSession: fetching profile for user:', session.user.id);
           await fetchProfile(session.user.id);
+          if (import.meta.env.DEV) console.log('[AUTH] AuthContext getSession: profile fetch complete');
         }
         clearTimeout(safetyTimer);
+        if (import.meta.env.DEV) console.log('[AUTH] AuthContext getSession: setting loading=false');
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (import.meta.env.DEV) console.error('[AUTH] AuthContext getSession: error —', err);
         clearTimeout(safetyTimer);
         setLoading(false);
       });
 
-    // Listen for auth changes
+    // Listen for auth changes.
+    // IMPORTANT: This callback must NOT be async at the top level.
+    // Supabase JS v2 may hold an internal auth lock while the callback runs.
+    // An async callback that awaits Supabase queries (fetchProfile) would block
+    // the lock indefinitely, causing subsequent signInWithPassword calls to hang
+    // with no network activity. Fix: make the callback synchronous; schedule all
+    // async work via a detached promise (no await at the callback level).
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange fired — event:', event, 'session present:', !!session, 'user:', session?.user?.email?.slice(0, 3) + '***');
+
+      // Synchronous state updates — safe to call immediately
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-        // Only process pending invite on a fresh sign-in, not on token
-        // refreshes or initial session restores (which would cause a retry
-        // loop on every page load if a stale key is in localStorage)
-        if (event === 'SIGNED_IN') {
-          const pendingCode = localStorage.getItem('homehub-pending-invite');
-          if (pendingCode) {
-            localStorage.removeItem('homehub-pending-invite');
-            try {
-              let joined = false;
-              for (let attempt = 0; attempt < 5; attempt++) {
-                if (attempt > 0) {
-                  await new Promise((r) => setTimeout(r, 500 * attempt));
+
+      // Release the safety timer — we have a definitive auth result
+      clearTimeout(safetyTimer);
+
+      if (!session?.user) {
+        if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange: no user — clearing profile, loading=false');
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      // Detached async handler — runs OUTSIDE the onAuthStateChange lock.
+      // This is the correct Supabase v2 pattern: the callback itself is sync;
+      // all async work is scheduled but not awaited here.
+      const handleAuthSession = async () => {
+        if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange handleAuthSession: fetching profile for', session.user.id);
+        try {
+          await fetchProfile(session.user.id);
+          if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange handleAuthSession: profile fetched OK');
+
+          // Only process pending invite on a fresh sign-in — not on token refreshes
+          // or initial session restores (avoids retry loop on every page load)
+          if (event === 'SIGNED_IN') {
+            if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange: SIGNED_IN event — checking for pending invite');
+            const pendingCode = localStorage.getItem('homehub-pending-invite');
+            if (pendingCode) {
+              localStorage.removeItem('homehub-pending-invite');
+              try {
+                let joined = false;
+                for (let attempt = 0; attempt < 5; attempt++) {
+                  if (attempt > 0) {
+                    await new Promise((r) => setTimeout(r, 500 * attempt));
+                  }
+                  const { error } = await supabase.rpc('join_household_via_invite', {
+                    invite_code_param: pendingCode,
+                  });
+                  if (!error) { joined = true; break; }
                 }
-                const { error } = await supabase.rpc('join_household_via_invite', {
-                  invite_code_param: pendingCode,
-                });
-                if (!error) { joined = true; break; }
+                if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange: invite join result — joined:', joined);
+                if (joined) await fetchProfile(session.user.id);
+              } catch (err) {
+                console.error('[Auth] Failed to process pending invite:', err);
               }
-              if (joined) await fetchProfile(session.user.id);
-            } catch (err) {
-              console.error('[Auth] Failed to process pending invite:', err);
             }
           }
+        } catch (err) {
+          if (import.meta.env.DEV) console.error('[AUTH] onAuthStateChange handleAuthSession: error —', err);
+        } finally {
+          if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange handleAuthSession: setting loading=false');
+          setLoading(false);
         }
-      } else {
-        setProfile(null);
-      }
-      clearTimeout(safetyTimer);
-      setLoading(false);
+      };
+
+      handleAuthSession();
     });
 
     return () => subscription.unsubscribe();
@@ -161,11 +204,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (import.meta.env.DEV) console.log('[AUTH] signIn(): entry — email:', email.slice(0, 3) + '***');
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      if (import.meta.env.DEV) console.log('[AUTH] signIn(): calling supabase.auth.signInWithPassword...');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      if (import.meta.env.DEV) console.log('[AUTH] signIn(): supabase response — user:', data?.user?.id ?? 'none', 'error:', error ?? 'none');
 
       if (error) return { error };
 
@@ -175,6 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return { error: null };
     } catch (error) {
+      if (import.meta.env.DEV) console.error('[AUTH] signIn(): threw unexpectedly —', error);
       return { error };
     }
   };
