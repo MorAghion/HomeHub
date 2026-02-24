@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ShoppingItem, MasterListItem, DuplicateCheck } from '../types/base';
 import MasterListDrawer from './MasterListDrawer';
+import { tCategory } from '../utils/categoryTranslation';
 
 interface ShoppingListProps {
   listName: string;
@@ -25,6 +27,7 @@ function ShoppingList({
   capitalizeFirstLetter,
   autoCategorize,
 }: ShoppingListProps) {
+  const { t } = useTranslation(['shopping', 'common']);
   const [newItem, setNewItem] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
@@ -308,7 +311,7 @@ function ShoppingList({
               </button>
             )}
             <span className="text-sm font-medium" style={{ color: '#8E806A' }}>
-              {items.filter(i => !i.completed).length} items left
+              {t('shopping:itemsLeft', { count: items.filter(i => !i.completed).length })}
             </span>
           </div>
         </div>
@@ -325,7 +328,7 @@ function ShoppingList({
                 className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606', border: '1px solid #63060633' }}
               >
-                {selectedItemsForDeletion.size === items.length ? 'Deselect All' : 'Select All'}
+                {selectedItemsForDeletion.size === items.length ? t('common:deselectAll') : t('common:selectAll')}
               </button>
             </div>
             <div className="flex gap-2">
@@ -335,14 +338,14 @@ function ShoppingList({
                 className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all disabled:opacity-30"
                 style={{ backgroundColor: '#630606' }}
               >
-                Delete Selected
+                {t('common:deleteSelected')}
               </button>
               <button
                 onClick={cancelBulkDelete}
                 className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                 style={{ color: '#630606' }}
               >
-                Cancel
+                {t('common:cancel')}
               </button>
             </div>
           </div>
@@ -355,7 +358,7 @@ function ShoppingList({
               className="text-sm px-4 py-2 rounded-full hover:bg-[#63060611] transition-colors"
               style={{ color: '#630606' }}
             >
-              Clear Completed ({items.filter(i => i.completed).length})
+              {t('shopping:clearCompleted')} ({items.filter(i => i.completed).length})
             </button>
           </div>
         )}
@@ -368,7 +371,7 @@ function ShoppingList({
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            placeholder="Add something to the list..."
+            placeholder={t('shopping:addItem')}
             className="w-full p-5 rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-[#8E806A44] outline-none text-lg"
             style={{ color: '#8E806A' }}
           />
@@ -380,7 +383,7 @@ function ShoppingList({
             <div className="text-center py-12">
               <span className="text-6xl mb-4 block opacity-30">🛒</span>
               <p className="text-lg opacity-50" style={{ color: '#8E806A' }}>
-                Your shopping list is empty
+                {t('shopping:emptyList')}
               </p>
             </div>
           ) : (
@@ -394,7 +397,7 @@ function ShoppingList({
                     className="text-base font-bold uppercase tracking-wide mb-3 px-1 flex items-center gap-2"
                     style={{ color: '#630606' }}
                   >
-                    {category}
+                    {tCategory(category, t)}
                     <span className="text-xs font-normal normal-case opacity-60">
                       ({categoryItems.filter(i => !i.completed).length})
                     </span>
@@ -423,10 +426,10 @@ function ShoppingList({
                                   className="w-full p-2 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none text-sm"
                                   style={{ color: '#8E806A' }}
                                 >
-                                  <option value="">Other</option>
+                                  <option value="">{t('common:categories.other')}</option>
                                   {categories.map(cat => (
                                     <option key={cat} value={cat}>
-                                      {cat}
+                                      {tCategory(cat, t)}
                                     </option>
                                   ))}
                                 </select>
@@ -437,14 +440,14 @@ function ShoppingList({
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
                                   style={{ backgroundColor: '#630606' }}
                                 >
-                                  Save
+                                  {t('common:save')}
                                 </button>
                                 <button
                                   onClick={cancelEdit}
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors"
                                   style={{ color: '#8E806A' }}
                                 >
-                                  Cancel
+                                  {t('common:cancel')}
                                 </button>
                               </div>
                             </>
@@ -600,11 +603,10 @@ function ShoppingList({
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
             <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
               <h3 className="text-lg font-bold mb-2" style={{ color: '#630606' }}>
-                Item Already Exists
+                {t('shopping:itemAlreadyExists')}
               </h3>
               <p className="text-sm mb-6" style={{ color: '#8E806A' }}>
-                <span className="font-semibold">{duplicateCheck.name}</span> is already in the
-                list. Add it anyway?
+                {t('shopping:alreadyInList', { name: duplicateCheck.name })}
               </p>
               <div className="flex gap-3">
                 <button

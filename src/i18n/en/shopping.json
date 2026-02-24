@@ -21,7 +21,10 @@
   "alreadyInList": "\"{{name}}\" is already in the list. Add it anyway?",
   "openMasterList": "Open Master List",
   "quickSetup": "Quick Setup",
+  "startWithSuggestion": "Start with a context-based suggestion",
   "keepEmpty": "Keep Empty",
+  "addToMasterList": "Add to master list...",
+  "masterListTitle": "Master List",
   "noItemsInMasterList": "No items in master list",
   "list_one": "{{count}} list",
   "list_other": "{{count}} lists"

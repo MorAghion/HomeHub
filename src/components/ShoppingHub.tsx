@@ -288,6 +288,7 @@ function ShoppingHub({
         title={t('createNewList')}
         placeholder={t('enterListName')}
         submitText={t('create')}
+        cancelText={t('common:cancel')}
       />
 
       {/* Edit List Modal */}
@@ -299,6 +300,7 @@ function ShoppingHub({
         placeholder={t('enterNewName')}
         initialValue={editingListId ? lists[editingListId]?.name || '' : ''}
         submitText={t('common:save')}
+        cancelText={t('common:cancel')}
       />
 
       {/* Delete Confirmation Modal */}

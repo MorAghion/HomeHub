@@ -21,7 +21,10 @@
   "alreadyInList": "\"{{name}}\" כבר ברשימה. להוסיף בכל זאת?",
   "openMasterList": "פתח רשימה ראשית",
   "quickSetup": "הגדרה מהירה",
+  "startWithSuggestion": "התחל עם הצעה לפי הקשר",
   "keepEmpty": "השאר ריק",
+  "addToMasterList": "הוסף לרשימה ראשית...",
+  "masterListTitle": "רשימה ראשית",
   "noItemsInMasterList": "אין פריטים ברשימה הראשית",
   "list_one": "רשימה אחת",
   "list_other": "{{count}} רשימות"

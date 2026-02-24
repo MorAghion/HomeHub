@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MasterListItem } from '../types/base';
 import {
   getSuggestedContexts,
   getContextItems,
 } from '../utils/contextResolver';
+import { tCategory } from '../utils/categoryTranslation';
 
 interface MasterListDrawerProps {
   isOpen: boolean;
@@ -36,6 +38,7 @@ function MasterListDrawer({
   autoCategorize,
   currentListName,
 }: MasterListDrawerProps) {
+  const { t } = useTranslation(['shopping', 'common']);
   const [isMasterListEditMode, setIsMasterListEditMode] = useState(false);
   const [masterListSearch, setMasterListSearch] = useState('');
   const [masterListEditingId, setMasterListEditingId] = useState<string | null>(null);
@@ -150,7 +153,7 @@ function MasterListDrawer({
           {/* Drawer Header */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-              Master List
+              {t('shopping:masterListTitle')}
             </h2>
             <div className="flex items-center gap-2">
               {/* Select All Button (only in view mode) */}
@@ -161,7 +164,7 @@ function MasterListDrawer({
                   style={{ backgroundColor: '#630606' }}
                   title="Add all items to list"
                 >
-                  Select All
+                  {t('common:selectAll')}
                 </button>
               )}
               {/* Edit Mode Toggle */}
@@ -180,7 +183,7 @@ function MasterListDrawer({
                   border: isMasterListEditMode ? 'none' : '1px solid #63060633'
                 }}
               >
-                {isMasterListEditMode ? 'Done' : 'Edit'}
+                {isMasterListEditMode ? t('common:done') : t('common:edit')}
               </button>
               {/* Close Button */}
               <button
@@ -214,7 +217,7 @@ function MasterListDrawer({
                 type="text"
                 value={masterListSearch}
                 onChange={(e) => setMasterListSearch(e.target.value)}
-                placeholder="Search items..."
+                placeholder={t('common:search')}
                 className="w-full p-2.5 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#63060611] outline-none text-sm transition-all"
                 style={{ color: '#8E806A' }}
               />
@@ -228,7 +231,7 @@ function MasterListDrawer({
                 type="text"
                 value={newMasterItem}
                 onChange={(e) => setNewMasterItem(e.target.value)}
-                placeholder="Add to master list..."
+                placeholder={t('shopping:addToMasterList')}
                 className="w-full p-3 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none text-sm"
                 style={{ color: '#8E806A' }}
               />
@@ -289,10 +292,10 @@ function MasterListDrawer({
               <div className="flex flex-col items-center justify-center py-12 px-4 min-h-64">
                 {/* Header */}
                 <h3 className="text-lg font-semibold mb-2" style={{ color: '#630606' }}>
-                  Quick Setup
+                  {t('shopping:quickSetup')}
                 </h3>
                 <p className="text-sm mb-8 opacity-70" style={{ color: '#8E806A' }}>
-                  Start with a context-based suggestion
+                  {t('shopping:startWithSuggestion')}
                 </p>
 
                 {/* Suggestion Bubbles */}
@@ -326,7 +329,7 @@ function MasterListDrawer({
                     color: '#630606'
                   }}
                 >
-                  Keep Empty
+                  {t('shopping:keepEmpty')}
                 </button>
               </div>
             ) : Object.values(groupedMasterItems()).every(arr => arr.length === 0) ? (
@@ -361,7 +364,7 @@ function MasterListDrawer({
                   </>
                 ) : (
                   <p className="text-sm opacity-50" style={{ color: '#8E806A' }}>
-                    No items in master list
+                    {t('shopping:noItemsInMasterList')}
                   </p>
                 )}
               </div>
@@ -376,7 +379,7 @@ function MasterListDrawer({
                       className="text-sm font-bold uppercase tracking-wide mb-2 px-1"
                       style={{ color: '#630606' }}
                     >
-                      {category}
+                      {tCategory(category, t)}
                     </h3>
 
                     {/* Items */}
@@ -402,10 +405,10 @@ function MasterListDrawer({
                                     className="w-full p-2 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none text-xs"
                                     style={{ color: '#8E806A' }}
                                   >
-                                    <option value="">Other</option>
+                                    <option value="">{t('common:categories.other')}</option>
                                     {categories.map(cat => (
                                       <option key={cat} value={cat}>
-                                        {cat}
+                                        {tCategory(cat, t)}
                                       </option>
                                     ))}
                                   </select>
@@ -416,14 +419,14 @@ function MasterListDrawer({
                                     className="px-2 py-1 rounded text-xs font-medium text-white transition-colors"
                                     style={{ backgroundColor: '#630606' }}
                                   >
-                                    Save
+                                    {t('common:save')}
                                   </button>
                                   <button
                                     onClick={cancelMasterEdit}
                                     className="px-2 py-1 rounded text-xs font-medium hover:bg-gray-100 transition-colors"
                                     style={{ color: '#8E806A' }}
                                   >
-                                    Cancel
+                                    {t('common:cancel')}
                                   </button>
                                 </div>
                               </>
