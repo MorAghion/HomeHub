@@ -329,10 +329,19 @@ function App() {
         dbLists.forEach((list) => { listsRecord[list.id] = list; });
 
         if (isMounted) {
-          setVoucherLists(listsRecord);
+          // fe-bug-014: merge DB data over existing state instead of replacing.
+          // This prevents the initial-load race condition where loadVoucherData starts
+          // before a list is created, completes after the optimistic update, and wipes
+          // the newly-added list from state. DB data wins for confirmed IDs; optimistic
+          // entries not yet returned by the DB are preserved until the next fetch
+          // (triggered by the Supabase subscription once the INSERT propagates).
+          setVoucherLists((prev) => ({ ...prev, ...listsRecord }));
           setVoucherListsLoading(false);
           setActiveVoucherListId((prev) => {
-            if (prev && listsRecord[prev]) return prev;
+            // Keep any actively-set ID — it's either a confirmed DB list or an
+            // optimistic entry that hasn't propagated to fetchLists yet.
+            // VoucherList guards against a missing list with its own redirect.
+            if (prev) return prev;
             return Object.keys(listsRecord)[0] || '';
           });
         }
@@ -1430,9 +1439,11 @@ function App() {
           const isReservation = voucherLists[activeVoucherListId]?.defaultType === 'reservation';
           setAutoOpenAdd(false); // reset so returning to the list later doesn't re-open form
           setCurrentScreen('vouchers-hub');
+          // fe-bug-013: use 100ms (not 0ms) — the hub carousel remounts from scratch when
+          // coming back from VoucherList, and scrollIntoView must run after the first paint.
           setTimeout(() => {
             scrollToHub(isReservation ? 'reservations' : 'vouchers');
-          }, 0);
+          }, 100);
         }}
       />
       </div>

@@ -1,0 +1,30 @@
+{
+  "id": "fe-bug-014",
+  "title": "ReservationsHub does not update after list creation — requires manual refresh to show new list",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — production testing",
+  "related_to": "fe-bug-013",
+  "root_cause": "Unknown — after creating a reservation list (via Ontopo template) and closing the modal, the hub does not re-fetch or reactively update its list state. The list exists in Supabase (visible after refresh) but the local state is stale. ReservationsHub likely does not subscribe to voucherLists state changes, or the state update in App.tsx after onCreateList does not trigger a re-render of ReservationsHub.",
+  "steps_to_reproduce": [
+    "1. Navigate to Reservations hub (empty)",
+    "2. Tap 'Add New Reservation'",
+    "3. Select Ontopo template",
+    "4. Reservation modal opens — close it (Cancel or X)",
+    "5. Hub still shows empty state (no list visible)",
+    "6. Manually refresh the page",
+    "7. Reservation list now appears correctly"
+  ],
+  "affected_files": [
+    "src/App.tsx"
+  ],
+  "fix_applied": "App.tsx loadVoucherData: changed setVoucherLists(listsRecord) to setVoucherLists((prev) => ({ ...prev, ...listsRecord })). DB data wins for confirmed IDs; optimistic entries not yet in DB results are preserved. Also changed setActiveVoucherListId to keep any non-empty prev value instead of resetting when the new list ID isn't in listsRecord yet.",
+  "status": "review",
+  "updated": "2026-02-23",
+  "root_cause": "Race condition in the initial loadVoucherData() call. The effect runs on mount and begins an async fetchLists query. If the user creates a list before this initial fetch completes, the fetch returns data from before the INSERT. When it resolves, setVoucherLists(listsRecord) replaces the full state — including overwriting the optimistic entry added by onCreateList — removing the new list from state. On the subsequent subscription-triggered loadVoucherData call, the new list would be in the DB and state would be restored, but by then the user may have already navigated back and seen the empty state.",
+  "completion_summary": "Fixed in App.tsx by changing loadVoucherData to use a merge strategy (prev + listsRecord) instead of full replace. This preserves optimistic entries during the race window. The Supabase subscription-triggered loadVoucherData call will confirm the entry once the INSERT propagates. Also fixed setActiveVoucherListId to not reset to first-list when the new list isn't in listsRecord yet."
+}

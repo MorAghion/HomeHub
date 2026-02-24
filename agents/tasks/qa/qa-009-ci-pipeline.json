@@ -1,0 +1,29 @@
+{
+  "id": "qa-009",
+  "title": "Set up GitHub Actions CI pipeline — run build + tests on every PR",
+  "agent": "qa",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-24",
+  "updated": "2026-02-24",
+  "requested_by": "human",
+  "description": "Create a GitHub Actions workflow that runs automatically on every pull_request targeting master or main. The pipeline must block merging if build or tests fail.",
+  "acceptance_criteria": [
+    "Workflow triggers on: pull_request targeting master or main",
+    "Step 1: npm ci (clean install)",
+    "Step 2: npm run build (TypeScript + Vite — fails on type errors or build errors)",
+    "Step 3: npm test (Vitest unit tests — fails if any test fails)",
+    "PR shows green checkmark when all steps pass",
+    "PR shows red X and blocks merge when any step fails",
+    "Workflow file lives at .github/workflows/ci.yml",
+    "Node version matches project (check .nvmrc or package.json engines field)",
+    "E2E tests (Playwright) are NOT included — too slow for PR CI, run manually"
+  ],
+  "affected_files": [
+    ".github/workflows/ci.yml (new)"
+  ],
+  "notes": "Do not include npm run test:e2e in the CI pipeline — Playwright requires a running dev server and browser binaries, making it too slow for PR checks. Unit tests + build check is sufficient for blocking bad PRs.",
+  "fix_applied": null,
+  "completion_summary": null
+}
