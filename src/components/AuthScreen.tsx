@@ -15,17 +15,25 @@ function AuthScreen() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: entry — email present:', !!email, 'password present:', !!password, 'loading:', loading);
     setLoading(true);
     setError(null);
 
-    const { error } = await signIn(email, password);
+    if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: calling signIn()...');
+    try {
+      const { error } = await signIn(email, password);
+      if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: signIn() returned — error:', error ?? 'none');
 
-    if (error) {
-      setError(error.message || 'Failed to sign in');
+      if (error) {
+        setError(error.message || 'Failed to sign in');
+      }
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('[AUTH] handleSignIn: signIn() threw unexpectedly:', err);
+      setError('An unexpected error occurred. Please try again.');
     }
     // Always reset local button loading. On success, onAuthStateChange(SIGNED_IN)
-    // immediately sets authContext.loading=true, so the app shows the global spinner
-    // while profile fetches — the auth screen unmounts cleanly.
+    // fetches the profile in the background — the auth screen unmounts when user+profile are set.
+    if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: resetting local loading state');
     setLoading(false);
   };
 

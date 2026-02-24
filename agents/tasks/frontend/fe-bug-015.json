@@ -1,0 +1,30 @@
+{
+  "id": "fe-bug-015",
+  "title": "Sign-in stuck on dev — button unresponsive after click (regression of fe-bug-002/007)",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "critical",
+  "status": "todo",
+  "created": "2026-02-24",
+  "updated": "2026-02-24",
+  "reported_by": "human — dev testing",
+  "regression_of": "fe-bug-007",
+  "root_cause": "Unknown — sign-in stuck issue has recurred multiple times. Previous fixes: (1) fe-bug-002: premature setLoading(false) before auth resolved. (2) fe-bug-007: fixed by human directly. Root cause may not be fully addressed — likely related to loading state not resetting correctly on auth state change, or a new code path introduced in Wave 5 changes (modal split, App.tsx refactor) that re-introduced the issue.",
+  "steps_to_reproduce": [
+    "1. Open app on localhost:5173",
+    "2. Enter valid credentials",
+    "3. Click Sign In",
+    "4. Button appears stuck — does not complete sign-in",
+    "5. No console or network errors visible"
+  ],
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/contexts/AuthContext.tsx",
+    "src/App.tsx"
+  ],
+  "status": "review",
+  "updated": "2026-02-24",
+  "root_cause": "The onAuthStateChange callback in AuthContext.tsx was declared as `async` and used `await fetchProfile()` inside it. Supabase JS v2 holds an internal auth lock while the onAuthStateChange callback runs. An async callback that awaits Supabase DB queries (fetchProfile does two: user_profiles + households) occupies this lock for 200-800ms. If the user clicks Sign In while this lock is held (e.g., during INITIAL_SESSION processing at app boot), supabase.auth.signInWithPassword() queues behind the lock and never fires a network request — appearing to hang indefinitely. The button stays in 'Signing in...' state with no console output and no network activity, exactly as reported.",
+  "fix_applied": "AuthContext.tsx: changed onAuthStateChange callback from async to synchronous. All async work (fetchProfile, invite processing) now runs inside a detached `handleAuthSession()` async function that is called without await — this releases the Supabase lock immediately while async work continues in the background. AuthScreen.tsx: added try/catch around signIn() call and moved setLoading(false) into finally-equivalent to ensure it always resets. AuthScreen.tsx + AuthContext.tsx + App.tsx: added comprehensive [AUTH] diagnostic console.log statements at every step of the sign-in flow, guarded by import.meta.env.DEV (tree-shaken from production builds).",
+  "completion_summary": "Diagnostic logs added at: (1) handleSignIn entry, before/after signIn(), in catch. (2) signIn() entry, before/after signInWithPassword call, on error. (3) onAuthStateChange: event+session on every fire, before/after fetchProfile, before/after invite processing, on setLoading calls. (4) getSession: resolve and error paths. (5) App.tsx: useEffect that logs user/profile/loading on every auth state change. The root cause (async onAuthStateChange holding Supabase lock) was fixed: callback is now sync, async work runs detached. Previous fe-bug-002 and fe-bug-007 fixes remain intact — setLoading(false) is always called in handleSignIn."
+}
