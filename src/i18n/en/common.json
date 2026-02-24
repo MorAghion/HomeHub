@@ -21,5 +21,40 @@
   "activeTask_one": "{{count}} active task",
   "activeTask_other": "{{count}} active tasks",
   "activeVoucher_one": "{{count}} active voucher",
-  "activeVoucher_other": "{{count}} active vouchers"
+  "activeVoucher_other": "{{count}} active vouchers",
+  "categories": {
+    "cleaning": "Cleaning",
+    "dairy": "Dairy",
+    "pantry": "Pantry",
+    "meat": "Meat",
+    "fish": "Fish",
+    "vegetables": "Vegetables",
+    "fruit": "Fruit",
+    "pharmaHygiene": "Pharma & Hygiene",
+    "camping": "Camping",
+    "documentsMoney": "Documents & Money",
+    "baby": "Baby",
+    "homeRenovation": "Home Renovation",
+    "homeDecor": "Home Decor",
+    "party": "Party",
+    "pets": "Pets",
+    "gardening": "Gardening",
+    "other": "Other"
+  },
+  "masterList": {
+    "title": "Master List",
+    "selectAll": "Select All",
+    "quickSetup": "Quick Setup",
+    "startWithSuggestion": "Start with a context-based suggestion",
+    "quickAddFromTemplates": "Quick Add from Templates",
+    "expandTemplates": "Expand templates",
+    "collapseTemplates": "Collapse templates",
+    "addItemsTitle": "Add {{count}} items",
+    "addToMasterList": "Add to master list...",
+    "keepEmpty": "Keep Empty",
+    "itemNotFound": "Item not found. Add it?",
+    "yes": "Yes",
+    "no": "No",
+    "noItems": "No items in master list"
+  }
 }

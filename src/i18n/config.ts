@@ -7,6 +7,7 @@ import enTasks from './en/tasks.json';
 import enVouchers from './en/vouchers.json';
 import enReservations from './en/reservations.json';
 import enSettings from './en/settings.json';
+import enAuth from './en/auth.json';
 
 import heCommon from './he/common.json';
 import heShopping from './he/shopping.json';
@@ -14,6 +15,7 @@ import heTasks from './he/tasks.json';
 import heVouchers from './he/vouchers.json';
 import heReservations from './he/reservations.json';
 import heSettings from './he/settings.json';
+import heAuth from './he/auth.json';
 
 const savedLang = localStorage.getItem('homehub-lang') ?? 'en';
 
@@ -40,6 +42,7 @@ i18n.use(initReactI18next).init({
       vouchers: enVouchers,
       reservations: enReservations,
       settings: enSettings,
+      auth: enAuth,
     },
     he: {
       common: heCommon,
@@ -48,6 +51,7 @@ i18n.use(initReactI18next).init({
       vouchers: heVouchers,
       reservations: heReservations,
       settings: heSettings,
+      auth: heAuth,
     },
   },
   defaultNS: 'common',

@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MasterListItem } from '../types/base';
 import {
   getSuggestedContexts,
   getContextItems,
 } from '../utils/contextResolver';
+import { tCategory } from '../utils/categoryTranslation';
 
 interface MasterListDrawerProps {
   isOpen: boolean;
@@ -36,6 +38,7 @@ function MasterListDrawer({
   autoCategorize,
   currentListName,
 }: MasterListDrawerProps) {
+  const { t } = useTranslation('common');
   const [isMasterListEditMode, setIsMasterListEditMode] = useState(false);
   const [masterListSearch, setMasterListSearch] = useState('');
   const [masterListEditingId, setMasterListEditingId] = useState<string | null>(null);
@@ -150,7 +153,7 @@ function MasterListDrawer({
           {/* Drawer Header */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-              Master List
+              {t('masterList.title')}
             </h2>
             <div className="flex items-center gap-2">
               {/* Select All Button (only in view mode) */}
@@ -159,9 +162,9 @@ function MasterListDrawer({
                   onClick={onAddAllFromMasterList}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors text-white"
                   style={{ backgroundColor: '#630606' }}
-                  title="Add all items to list"
+                  title={t('masterList.selectAll')}
                 >
-                  Select All
+                  {t('masterList.selectAll')}
                 </button>
               )}
               {/* Edit Mode Toggle */}
@@ -180,7 +183,7 @@ function MasterListDrawer({
                   border: isMasterListEditMode ? 'none' : '1px solid #63060633'
                 }}
               >
-                {isMasterListEditMode ? 'Done' : 'Edit'}
+                {isMasterListEditMode ? t('done') : t('edit')}
               </button>
               {/* Close Button */}
               <button
@@ -214,7 +217,7 @@ function MasterListDrawer({
                 type="text"
                 value={masterListSearch}
                 onChange={(e) => setMasterListSearch(e.target.value)}
-                placeholder="Search items..."
+                placeholder={t('search')}
                 className="w-full p-2.5 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#63060611] outline-none text-sm transition-all"
                 style={{ color: '#8E806A' }}
               />
@@ -228,7 +231,7 @@ function MasterListDrawer({
                 type="text"
                 value={newMasterItem}
                 onChange={(e) => setNewMasterItem(e.target.value)}
-                placeholder="Add to master list..."
+                placeholder={t('masterList.addToMasterList')}
                 className="w-full p-3 rounded-lg border border-[#8E806A33] focus:ring-2 focus:ring-[#8E806A44] outline-none text-sm"
                 style={{ color: '#8E806A' }}
               />
@@ -240,12 +243,12 @@ function MasterListDrawer({
             <div className="mb-6 p-4 bg-[#63060608] rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-medium uppercase tracking-wide" style={{ color: '#630606' }}>
-                  Quick Add from Templates
+                  {t('masterList.quickAddFromTemplates')}
                 </p>
                 <button
                   onClick={() => setIsTemplatesSectionCollapsed(!isTemplatesSectionCollapsed)}
                   className="p-1 hover:opacity-70 transition-opacity"
-                  aria-label={isTemplatesSectionCollapsed ? "Expand templates" : "Collapse templates"}
+                  aria-label={isTemplatesSectionCollapsed ? t('masterList.expandTemplates') : t('masterList.collapseTemplates')}
                 >
                   <svg
                     className="w-4 h-4 transition-transform"
@@ -273,7 +276,7 @@ function MasterListDrawer({
                         border: `1px solid #630606`,
                         color: '#630606'
                       }}
-                      title={`Add ${suggestion.itemCount} items`}
+                      title={t('masterList.addItemsTitle', { count: suggestion.itemCount })}
                     >
                       {suggestion.displayLabel}
                     </button>
@@ -289,10 +292,10 @@ function MasterListDrawer({
               <div className="flex flex-col items-center justify-center py-12 px-4 min-h-64">
                 {/* Header */}
                 <h3 className="text-lg font-semibold mb-2" style={{ color: '#630606' }}>
-                  Quick Setup
+                  {t('masterList.quickSetup')}
                 </h3>
                 <p className="text-sm mb-8 opacity-70" style={{ color: '#8E806A' }}>
-                  Start with a context-based suggestion
+                  {t('masterList.startWithSuggestion')}
                 </p>
 
                 {/* Suggestion Bubbles */}
@@ -308,7 +311,7 @@ function MasterListDrawer({
                           border: `1px solid #630606`,
                           color: '#630606'
                         }}
-                        title={`${suggestion.itemCount} items`}
+                        title={t('masterList.addItemsTitle', { count: suggestion.itemCount })}
                       >
                         {suggestion.displayLabel}
                       </button>
@@ -326,7 +329,7 @@ function MasterListDrawer({
                     color: '#630606'
                   }}
                 >
-                  Keep Empty
+                  {t('masterList.keepEmpty')}
                 </button>
               </div>
             ) : Object.values(groupedMasterItems()).every(arr => arr.length === 0) ? (
@@ -335,7 +338,7 @@ function MasterListDrawer({
                   // Quick-Add UI
                   <>
                     <p className="text-sm mb-4" style={{ color: '#8E806A' }}>
-                      Item not found. Add it?
+                      {t('masterList.itemNotFound')}
                     </p>
                     <div className="flex gap-3 justify-center">
                       <button
@@ -348,20 +351,20 @@ function MasterListDrawer({
                         className="px-6 py-2 rounded-lg font-medium text-white"
                         style={{ backgroundColor: '#630606' }}
                       >
-                        Yes
+                        {t('masterList.yes')}
                       </button>
                       <button
                         onClick={() => setMasterListSearch('')}
                         className="px-6 py-2 rounded-lg font-medium hover:bg-gray-100"
                         style={{ color: '#8E806A', border: '1px solid #8E806A33' }}
                       >
-                        No
+                        {t('masterList.no')}
                       </button>
                     </div>
                   </>
                 ) : (
                   <p className="text-sm opacity-50" style={{ color: '#8E806A' }}>
-                    No items in master list
+                    {t('masterList.noItems')}
                   </p>
                 )}
               </div>
@@ -376,7 +379,7 @@ function MasterListDrawer({
                       className="text-sm font-bold uppercase tracking-wide mb-2 px-1"
                       style={{ color: '#630606' }}
                     >
-                      {category}
+                      {tCategory(category, t)}
                     </h3>
 
                     {/* Items */}
@@ -416,14 +419,14 @@ function MasterListDrawer({
                                     className="px-2 py-1 rounded text-xs font-medium text-white transition-colors"
                                     style={{ backgroundColor: '#630606' }}
                                   >
-                                    Save
+                                    {t('save')}
                                   </button>
                                   <button
                                     onClick={cancelMasterEdit}
                                     className="px-2 py-1 rounded text-xs font-medium hover:bg-gray-100 transition-colors"
                                     style={{ color: '#8E806A' }}
                                   >
-                                    Cancel
+                                    {t('cancel')}
                                   </button>
                                 </div>
                               </>

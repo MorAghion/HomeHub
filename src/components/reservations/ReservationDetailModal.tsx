@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Clock, CalendarDays, Pencil, Trash2, X } from 'lucide-react';
 import type { Reservation } from '../../types/reservation';
 
@@ -10,14 +11,15 @@ interface ReservationDetailModalProps {
   onDelete?: (id: string) => void;
 }
 
-function formatDate(dateStr?: string): string {
+function formatDate(dateStr: string | undefined, lang: string): string {
   if (!dateStr) return '';
   const [year, month, day] = dateStr.split('-');
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  return new Intl.DateTimeFormat(lang === 'he' ? 'he-IL' : 'en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 }
 
 function isPast(dateStr?: string, timeStr?: string): boolean {
@@ -27,6 +29,7 @@ function isPast(dateStr?: string, timeStr?: string): boolean {
 }
 
 function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete }: ReservationDetailModalProps) {
+  const { t, i18n } = useTranslation(['reservations', 'common']);
   const [imgZoomed, setImgZoomed] = useState(false);
 
   if (!isOpen) return null;
@@ -74,7 +77,7 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
               className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
               style={{ backgroundColor: '#8E806A11', color: '#8E806A' }}
             >
-              Past event
+              {t('reservations:pastEvent')}
             </span>
           </div>
         )}
@@ -98,13 +101,13 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
           {/* Date & Time */}
           {(reservation.eventDate || reservation.time) && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: '#8E806A' }}>Date & Time</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: '#8E806A' }}>{t('reservations:dateAndTime')}</p>
               <div className="space-y-1.5">
                 {reservation.eventDate && (
                   <div className="flex items-center gap-2">
                     <CalendarDays size={16} strokeWidth={2} style={{ color: '#8A9A8B' }} />
                     <p className="text-base font-medium" style={{ color: '#1a1a1a' }}>
-                      {formatDate(reservation.eventDate)}
+                      {formatDate(reservation.eventDate, i18n.language)}
                     </p>
                   </div>
                 )}
@@ -123,7 +126,7 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
           {/* Address */}
           {reservation.address && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: '#8E806A' }}>Address</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-2" style={{ color: '#8E806A' }}>{t('reservations:address')}</p>
               <div className="flex items-start gap-2">
                 <MapPin size={16} strokeWidth={2} className="mt-0.5 flex-shrink-0" style={{ color: '#8A9A8B' }} />
                 <p className="text-sm" style={{ color: '#1a1a1a' }}>{reservation.address}</p>
@@ -134,7 +137,7 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
           {/* Notes */}
           {reservation.notes && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>Notes</p>
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>{t('reservations:notes')}</p>
               <p className="text-sm whitespace-pre-wrap" style={{ color: '#5a5a5a' }}>{reservation.notes}</p>
             </div>
           )}
@@ -149,7 +152,7 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
                   style={{ backgroundColor: '#8A9A8B22', color: '#4A6B4C' }}
                 >
                   <Pencil size={15} strokeWidth={2} />
-                  Edit
+                  {t('common:edit')}
                 </button>
               )}
               {onDelete && (
@@ -159,7 +162,7 @@ function ReservationDetailModal({ reservation, isOpen, onClose, onEdit, onDelete
                   style={{ backgroundColor: '#DC262611', color: '#DC2626' }}
                 >
                   <Trash2 size={15} strokeWidth={2} />
-                  Delete
+                  {t('common:delete')}
                 </button>
               )}
             </div>

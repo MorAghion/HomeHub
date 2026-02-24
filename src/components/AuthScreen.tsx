@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Home } from 'lucide-react';
 
 function AuthScreen() {
+  const { t } = useTranslation('auth');
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'join'>('signin');
   const [email, setEmail] = useState('');
@@ -25,11 +27,11 @@ function AuthScreen() {
       if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: signIn() returned — error:', error ?? 'none');
 
       if (error) {
-        setError(error.message || 'Failed to sign in');
+        setError(error.message || t('errorSignIn'));
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('[AUTH] handleSignIn: signIn() threw unexpectedly:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errorUnexpected'));
     }
     // Always reset local button loading. On success, onAuthStateChange(SIGNED_IN)
     // fetches the profile in the background — the auth screen unmounts when user+profile are set.
@@ -46,11 +48,11 @@ function AuthScreen() {
     const { error } = await signUp(email, password, displayName);
 
     if (error) {
-      setError(error.message || 'Failed to sign up');
+      setError(error.message || t('errorSignUp'));
       setLoading(false);
     } else {
       // Sign-up requires email confirmation — user stays on auth screen, so reset loading.
-      setMessage('Account created! You can now sign in.');
+      setMessage(t('accountCreated'));
       setMode('signin');
       setPassword('');
       setLoading(false);
@@ -70,7 +72,7 @@ function AuthScreen() {
 
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
-      setError(signUpError.message || 'Failed to create account');
+      setError(signUpError.message || t('errorCreateAccount'));
     }
     // Always reset local button loading — global spinner takes over on success.
     setLoading(false);
@@ -91,7 +93,7 @@ function AuthScreen() {
             HomeHub
           </h1>
           <p className="text-sm" style={{ color: '#8E806A' }}>
-            Organize your home, together.
+            {t('tagline')}
           </p>
         </div>
 
@@ -115,7 +117,7 @@ function AuthScreen() {
                 color: mode === 'signin' ? 'white' : '#630606',
               }}
             >
-              Sign In
+              {t('signIn')}
             </button>
             <button
               onClick={() => {
@@ -133,7 +135,7 @@ function AuthScreen() {
                 color: mode === 'signup' ? 'white' : '#630606',
               }}
             >
-              Sign Up
+              {t('signUp')}
             </button>
             <button
               onClick={() => {
@@ -151,7 +153,7 @@ function AuthScreen() {
                 color: mode === 'join' ? 'white' : '#630606',
               }}
             >
-              Join
+              {t('join')}
             </button>
           </div>
 
@@ -172,7 +174,7 @@ function AuthScreen() {
             <form onSubmit={handleSignIn}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Email
+                  {t('email')}
                 </label>
                 <input
                   type="email"
@@ -186,7 +188,7 @@ function AuthScreen() {
               </div>
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Password
+                  {t('password')}
                 </label>
                 <input
                   type="password"
@@ -204,7 +206,7 @@ function AuthScreen() {
                 className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? t('signingIn') : t('signIn')}
               </button>
             </form>
           )}
@@ -214,7 +216,7 @@ function AuthScreen() {
             <form onSubmit={handleSignUp}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Display Name
+                  {t('displayName')}
                 </label>
                 <input
                   type="text"
@@ -227,7 +229,7 @@ function AuthScreen() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Email
+                  {t('email')}
                 </label>
                 <input
                   type="email"
@@ -241,7 +243,7 @@ function AuthScreen() {
               </div>
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Password
+                  {t('password')}
                 </label>
                 <input
                   type="password"
@@ -254,7 +256,7 @@ function AuthScreen() {
                   placeholder="••••••••"
                 />
                 <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
-                  Minimum 6 characters
+                  {t('passwordMinLength')}
                 </p>
               </div>
               <button
@@ -263,7 +265,7 @@ function AuthScreen() {
                 className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                {loading ? t('creatingAccount') : t('createAccount')}
               </button>
             </form>
           )}
@@ -273,7 +275,7 @@ function AuthScreen() {
             <form onSubmit={handleJoinHousehold}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Invite Code
+                  {t('inviteCode')}
                 </label>
                 <input
                   type="text"
@@ -286,12 +288,12 @@ function AuthScreen() {
                   placeholder="ABCD1234"
                 />
                 <p className="text-xs mt-1 text-center" style={{ color: '#8E806A' }}>
-                  Enter the 8-character code from your partner
+                  {t('inviteCodeHelp')}
                 </p>
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Your Name
+                  {t('yourName')}
                 </label>
                 <input
                   type="text"
@@ -300,12 +302,12 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="Your name"
+                  placeholder="Mor"
                 />
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Email
+                  {t('email')}
                 </label>
                 <input
                   type="email"
@@ -319,7 +321,7 @@ function AuthScreen() {
               </div>
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Password
+                  {t('password')}
                 </label>
                 <input
                   type="password"
@@ -338,7 +340,7 @@ function AuthScreen() {
                 className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {loading ? 'Joining...' : 'Join Household'}
+                {loading ? t('joining') : t('joinHousehold')}
               </button>
             </form>
           )}
@@ -346,7 +348,7 @@ function AuthScreen() {
 
         {/* Footer */}
         <p className="text-center text-xs mt-6" style={{ color: '#8E806A' }}>
-          Your data is encrypted and secure
+          {t('footer')}
         </p>
       </div>
     </div>
