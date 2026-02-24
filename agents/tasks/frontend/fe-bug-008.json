@@ -1,0 +1,34 @@
+{
+  "id": "fe-bug-008",
+  "title": "Carousel doesn't light up after login (regression fe-bug-004)",
+  "agent": "frontend",
+  "phase": "0.1",
+  "priority": "high",
+  "status": "review",
+  "depends_on": [],
+  "blocks": [],
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — manual review",
+  "description": "After logging in, the dashboard carousel hub cards all appear dimmed (opacity: 0.4) instead of the first card (Shopping) appearing lit (opacity: 1). The IntersectionObserver effect re-runs when 'user' state changes (as added in fe-bug-004 fix), but on re-run the observer callback fires with intersectionRatio: 0 for all cards — causing activeHub to be incorrectly reset, leaving no card in the active/lit state.",
+  "steps_to_reproduce": [
+    "1. Open the app (not yet logged in)",
+    "2. Log in with valid credentials",
+    "3. Observe the carousel dashboard — all 4 hub cards appear dimmed",
+    "4. Expected: Shopping card (leftmost) lit (opacity:1, scale:1)",
+    "5. Actual: all cards show opacity:0.4, scale:0.9"
+  ],
+  "affected_files": [
+    "src/App.tsx — IntersectionObserver useEffect (deps: [isLandingMode, user]) around line 501-578"
+  ],
+  "root_cause": "The IntersectionObserver effect that re-runs on [isLandingMode, user] calls setActiveHub with incorrect data when no card has a positive intersectionRatio. The initial activeHub='shopping' gets overwritten by the observer result.",
+  "acceptance_criteria": [
+    "After login, Shopping hub card has opacity:1 and scale(1) without requiring any scroll",
+    "activeHub state stays 'shopping' when IntersectionObserver returns no intersecting entries",
+    "Regression tests in tests/components/app/Carousel.test.tsx pass"
+  ],
+  "regression_tests": "tests/components/app/Carousel.test.tsx + e2e/navigation.spec.ts (fe-bug-008 suite)",
+  "open_questions": [],
+  "fix_applied": "Added stable fallback in IntersectionObserver callback: if no entry has intersectionRatio > 0, activeHub is not overwritten. Shopping card defaults to lit state on initial load after login.",
+  "completion_summary": "Fix complete. Carousel lights up Shopping hub card immediately after login without requiring a refresh. Build passes clean."
+}

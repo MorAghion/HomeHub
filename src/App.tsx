@@ -313,6 +313,9 @@ function App() {
   // Current vouchers for the active list
   const [currentVouchers, setCurrentVouchers] = useState<VoucherItem[]>([]);
 
+  // fe-bug-010: when true, VoucherList opens the add form automatically on mount
+  const [autoOpenAdd, setAutoOpenAdd] = useState(false);
+
   // ── Supabase: load voucher lists + subscribe ───────────────────────────────
   useEffect(() => {
     if (!profile?.household_id) return;
@@ -588,7 +591,14 @@ function App() {
       clearTimeout(t2);
       observer.disconnect();
     };
-  }, [isLandingMode, user]); // user added: re-run after auth resolves so carousel is mounted (fe-bug-004)
+  // fe-bug-008: depend on profile?.household_id, not user.
+  // On fresh login, onAuthStateChange sets user BEFORE awaiting fetchProfile, so at the
+  // moment user changes, profile is still null and App returns <AuthScreen /> — the
+  // carousel doesn't exist yet and cardStackRef.current is null, so the effect returns
+  // early. When profile then resolves, user hasn't changed again, so the effect never
+  // re-runs. Using profile?.household_id (undefined → uuid) triggers the effect at the
+  // exact moment the main app (and its carousel) first mounts.
+  }, [isLandingMode, profile?.household_id]);
 
   // Scroll to initial hub on mount - Start in Landing Mode
   useEffect(() => {
@@ -1029,6 +1039,8 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
+                  setAutoOpenAdd(true);
+                  setCurrentScreen('vouchers');
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -1074,6 +1086,8 @@ function App() {
                   const full = { ...newList, items: [] };
                   setVoucherLists((prev) => ({ ...prev, [newList.id]: full }));
                   setActiveVoucherListId(newList.id);
+                  setAutoOpenAdd(true); // fe-bug-010: open add form immediately on first load
+                  setCurrentScreen('vouchers');
                 }}
                 onDeleteList={(listId) => {
                   setVoucherLists((prev) => {
@@ -1378,7 +1392,9 @@ function App() {
         <VoucherList
         listName={currentVoucherList.name}
         listId={currentVoucherList.id}
+        listType={currentVoucherList.defaultType ?? 'voucher'}
         vouchers={currentVouchers}
+        autoOpenAdd={autoOpenAdd}
         onUpdateVouchers={async (newVouchers) => {
           const prevVouchers = currentVouchers;
 
@@ -1412,6 +1428,7 @@ function App() {
         }}
         onBack={() => {
           const isReservation = voucherLists[activeVoucherListId]?.defaultType === 'reservation';
+          setAutoOpenAdd(false); // reset so returning to the list later doesn't re-open form
           setCurrentScreen('vouchers-hub');
           setTimeout(() => {
             scrollToHub(isReservation ? 'reservations' : 'vouchers');

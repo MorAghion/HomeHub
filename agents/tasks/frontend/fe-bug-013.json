@@ -1,0 +1,26 @@
+{
+  "id": "fe-bug-013",
+  "title": "ReservationsHub empty state shows 'No Vouchers Yet' with old icon after closing add-reservation modal",
+  "agent": "frontend",
+  "phase": "0.x",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-23",
+  "updated": "2026-02-23",
+  "reported_by": "human — production testing",
+  "root_cause": "Unknown — ReservationsHub empty state likely falls through to VouchersHub empty state UI (wrong text + old icon). Possibly the hub is re-rendering with wrong component or the empty state condition in ReservationsHub is not reached after modal close.",
+  "steps_to_reproduce": [
+    "1. Navigate to Reservations hub (empty — no lists)",
+    "2. Tap 'Add New Reservation'",
+    "3. Select Ontopo template",
+    "4. Reservation modal opens",
+    "5. Close the modal (tap X or Cancel)",
+    "6. Observe hub — shows 'No Vouchers Yet' with old voucher icon",
+    "7. Expected: 'No Reservations Yet' with Calendar icon"
+  ],
+  "affected_files": [
+    "src/components/ReservationsHub.tsx"
+  ],
+  "fix_applied": null,
+  "completion_summary": null
+}

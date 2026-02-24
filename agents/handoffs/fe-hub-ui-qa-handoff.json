@@ -1,0 +1,138 @@
+{
+  "id": "fe-hub-ui-qa-handoff",
+  "type": "task_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-23",
+  "branch": "agent/qa-bug-regression-008-011",
+  "commit": "27ea346",
+  "summary": "Three hub UI fixes: (1) VouchersHub empty state now uses the static Gift icon instead of a dynamic lookup. (2) Both VouchersHub and ReservationsHub edit mode cards now use the same inline pattern as ShoppingHub/TasksHub — checkbox left, content center, trash right — replacing floating absolute-positioned circles. (3) Bulk action bar in both hubs now uses the burgundy primary color for the delete button and always shows a Cancel button, matching Shopping/Tasks.",
+  "deliverables": [
+    "src/components/VouchersHub.tsx — Gift icon in empty state; inline edit mode cards; burgundy delete + Cancel in bulk bar",
+    "src/components/ReservationsHub.tsx — inline edit mode cards; burgundy delete + Cancel in bulk bar"
+  ],
+  "qa_test_cases": [
+    {
+      "id": "qa-hub-01",
+      "description": "VouchersHub empty state shows the Gift icon",
+      "steps": [
+        "Go to Vouchers hub with zero lists created (or delete all existing voucher lists)"
+      ],
+      "expected": "Empty state shows the Gift (gift box) icon at 64px in burgundy (#630606), text 'No Vouchers Yet', description, and 'Create Your First Voucher List' button. Icon should be the same Gift icon used in the bottom navigation."
+    },
+    {
+      "id": "qa-hub-02",
+      "description": "ReservationsHub empty state shows Calendar icon and correct text",
+      "steps": [
+        "Go to Reservations hub with zero lists created (or delete all existing reservation lists)"
+      ],
+      "expected": "Empty state shows the Calendar icon at 64px in burgundy, text 'No Reservations Yet', description 'Start organizing your restaurant bookings, tickets, and events', and 'Create Your First Reservation List' button. NO 'vouchers' text visible anywhere."
+    },
+    {
+      "id": "qa-hub-03",
+      "description": "VouchersHub edit mode — inline card layout (no floating circles)",
+      "steps": [
+        "Go to Vouchers hub with at least one list",
+        "Tap the Edit (pencil) button in the header"
+      ],
+      "expected": "Each card shows: square checkbox on the left edge, list content (icon + name + count) in the center, trash icon on the right edge — all inline within the card. No floating circular badges outside the card boundaries."
+    },
+    {
+      "id": "qa-hub-04",
+      "description": "ReservationsHub edit mode — same inline card layout",
+      "steps": [
+        "Go to Reservations hub with at least one list",
+        "Tap the Edit (pencil) button in the header"
+      ],
+      "expected": "Same inline layout as VouchersHub: checkbox left, content center, trash right. Consistent with ShoppingHub and TasksHub edit patterns."
+    },
+    {
+      "id": "qa-hub-05",
+      "description": "VouchersHub — selecting a card in edit mode",
+      "steps": [
+        "Enter edit mode in VouchersHub",
+        "Tap the checkbox or content area of a card"
+      ],
+      "expected": "Checkbox fills with burgundy and shows a ✓. Card border becomes 2px solid burgundy (#630606). Selection counter appears in the bulk bar."
+    },
+    {
+      "id": "qa-hub-06",
+      "description": "ReservationsHub — selecting a card in edit mode",
+      "steps": [
+        "Enter edit mode in ReservationsHub",
+        "Tap the checkbox or content area of a card"
+      ],
+      "expected": "Same selection behavior: burgundy checkbox, burgundy border, counter in bulk bar."
+    },
+    {
+      "id": "qa-hub-07",
+      "description": "VouchersHub bulk bar — delete button is burgundy, not red",
+      "steps": [
+        "Enter edit mode in VouchersHub",
+        "Select at least one list"
+      ],
+      "expected": "The 'Delete Selected' button has a burgundy (#630606) background — NOT red (#DC2626). Matches the delete button color in ShoppingHub and TasksHub."
+    },
+    {
+      "id": "qa-hub-08",
+      "description": "ReservationsHub bulk bar — delete button is burgundy, not red",
+      "steps": [
+        "Enter edit mode in ReservationsHub",
+        "Select at least one list"
+      ],
+      "expected": "Same as above — 'Delete Selected' button is burgundy."
+    },
+    {
+      "id": "qa-hub-09",
+      "description": "VouchersHub bulk bar — Cancel button always visible in edit mode",
+      "steps": [
+        "Enter edit mode in VouchersHub (with or without selecting items)"
+      ],
+      "expected": "A 'Cancel' button is always visible on the right side of the bulk bar, even when no items are selected. Tapping it exits edit mode and clears selections."
+    },
+    {
+      "id": "qa-hub-10",
+      "description": "ReservationsHub bulk bar — Cancel button always visible in edit mode",
+      "steps": [
+        "Enter edit mode in ReservationsHub"
+      ],
+      "expected": "Same — Cancel button always visible. Tapping it exits edit mode."
+    },
+    {
+      "id": "qa-hub-11",
+      "description": "Single-item delete via trash icon still works",
+      "steps": [
+        "Enter edit mode in VouchersHub",
+        "Tap the trash icon on a specific card (do NOT use the bulk bar)"
+      ],
+      "expected": "A confirmation modal appears asking to delete that specific list. Confirm → list is deleted. Other lists are unaffected."
+    },
+    {
+      "id": "qa-hub-12",
+      "description": "ReservationsHub — single-item delete via trash icon",
+      "steps": [
+        "Enter edit mode in ReservationsHub",
+        "Tap the trash icon on a specific card"
+      ],
+      "expected": "Confirmation modal appears for that specific reservation list. Confirm → list deleted."
+    },
+    {
+      "id": "qa-hub-13",
+      "description": "Edit mode header button visual — active state fills burgundy",
+      "steps": [
+        "In either VouchersHub or ReservationsHub with lists present",
+        "Observe the edit button before and after tapping"
+      ],
+      "expected": "Inactive: hollow circle with pencil icon. Active (edit mode): filled burgundy circle with ✓ checkmark. Consistent with ShoppingHub/TasksHub header buttons."
+    },
+    {
+      "id": "qa-hub-14",
+      "description": "No regression — normal (non-edit) card tap still navigates into the list",
+      "steps": [
+        "Ensure NOT in edit mode",
+        "Tap a list card in VouchersHub or ReservationsHub"
+      ],
+      "expected": "App navigates into the list, showing the voucher/reservation items. No unintended edit mode behaviour."
+    }
+  ]
+}

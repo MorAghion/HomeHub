@@ -1,6 +1,8 @@
 # 📋 HomeHub Agent Board
+
 **Last updated:** 2026-02-24 20:00 UTC
 **Current Phase:** 0.x Bug Wave — fe-bug-015 fixed (PR open), qa-009 CI pipeline added
+
 
 ---
 
@@ -11,12 +13,14 @@
 | Wave 1 | arch-001, qa-001, fe-007 | 🏗️🧪🎨 | ✅ Done | 2026-02-22 14:00 | 2026-02-22 16:45 | All parallel, 3 critical foundations |
 | Wave 2 | fe-001 → fe-002 → fe-003, arch-002, fe-005, fe-005-bug-001 | 🎨🏗️ | ✅ Done | 2026-02-22 17:00 | 2026-02-22 20:00 | FE sequential + Arch parallel + i18n + bug fix |
 | Wave 3b | fe-bug-001, fe-bug-002, qa-002 | 🎨🧪 | ✅ Done | 2026-02-22 21:30 | 2026-02-22 22:30 | Both bugs validated + 87 tests passing |
+
 | Wave 3c | qa-003, qa-004, qa-006 | 🧪 | ✅ Done | 2026-02-23 00:00 | 2026-02-23 01:00 | 112 new unit tests + SANITY_CHECKLIST.md |
 | Wave 3d | fe-006, fe-006-cont, qa-005 | 🎨🧪 | ✅ Done | 2026-02-23 10:00 | 2026-02-23 11:45 | Hebrew RTL, context mapping, 35 E2E tests |
 | Wave 4 | fe-bug-003/004/005/006 | 🎨 | ✅ Done | 2026-02-23 12:00 | 2026-02-23 13:00 | Count flash, carousel, hub split, add-list modal |
 | Wave 5 | fe-bug-008/009/010/011/012 + QA regression tests | 🎨🧪 | ✅ Done | 2026-02-23 13:00 | 2026-02-23 15:00 | Merged PR #11 |
 | Wave 6 | fe-bug-013/014/015 | 🎨 | ⏳ PR Open | 2026-02-23 15:00 | — | 013/014 PR open, 015 PR open |
 | Wave 7 | qa-007, qa-008, qa-009, be-002 | 🧪⚙️ | ⏳ Queued | — | — | After Wave 6 merges |
+
 
 ---
 
@@ -39,6 +43,7 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 |--------|-----------|---------|--------|
 | `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking | ✅ Done |
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
+
 | Review + merge `agent/qa-003-004-006-unit-tests` → master | 🧪 QA | 🟡 Pending | ✅ Merged |
 | Review + merge `agent/qa-005-e2e-suite` → master | 🧪 QA | 🟡 Pending | ✅ Merged (PR #6) |
 | Merge Wave 5 PR #11 → master | 🎨🧪 | 🔴 Blocking | ✅ Merged |
@@ -46,13 +51,16 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 | **Merge `agent/fe-bug-013-014-reservations-hub` → master** | 🎨 Wave 6 | 🔴 High | ⏳ PR open — change base to master before merging |
 | **Merge `agent/fe-bug-015-signin-debug` → master** | 🎨 Wave 6 | 🔴 Critical | ⏳ PR open — change base to master before merging |
 
+
 ---
 
 ## 🖥️ Active Agents
 
 | Terminal | Agent | Task | Notes |
 |----------|-------|------|-------|
+| — | — | Wave 6 ready after PR merge | qa-007 (RTL), qa-008 (test errors), be-002 (PWA), QA run Wave 5 regression tests |
 | — | — | Wave 7 ready after Wave 6 PRs merge | qa-007 (RTL), qa-008 (test errors), qa-009 (CI pipeline), be-002 (PWA) |
+
 
 ---
 
@@ -102,6 +110,9 @@ Phase 0.6 ██░░░░░░░░  25%  (1/4 tasks done)  qa-007 ⏳ | qa
 
 ## 🚦 Phase 0.6 — CI + Test Maintenance
 
+| Task | Agent | Status | Notes |
+|------|-------|--------|-------|
+| qa-008: Scan + fix test suite errors | 🧪 QA | ⏳ todo | Run after Wave 5 merge |
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
 | qa-007: RTL + Hebrew validation | 🧪 QA | ⏳ todo | fe-006-cont ✅ | — |
