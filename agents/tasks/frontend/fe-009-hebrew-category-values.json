@@ -1,0 +1,50 @@
+{
+  "id": "fe-009",
+  "title": "Hebrew translation: listCategory, category, and context engine display values",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "todo",
+  "depends_on": ["fe-006", "fe-006-cont"],
+  "blocks": ["qa-007"],
+  "created": "2026-02-24",
+  "updated": "2026-02-24",
+  "reported_by": "human",
+  "description": "The app has data-driven display values — listCategory values, category labels, sub-hub type labels, context engine keywords — that are rendered in the UI but bypass the i18n system entirely. These must be translated to Hebrew. This is a companion to fe-008 (general string audit) and focuses specifically on enum/constant values that originate from data models or utility files.",
+  "scope": [
+    "src/utils/contextMapping.ts — category keyword arrays used for context detection",
+    "src/utils/he/contextMapping.ts — Hebrew version, verify all categories covered",
+    "src/utils/suggestions.ts — suggestion labels and category names shown in UI",
+    "src/utils/he/suggestions.ts — Hebrew suggestions, audit for completeness",
+    "src/utils/contextResolver.ts — resolves context to display names, must use t() or Hebrew map",
+    "src/utils/iconMapping.ts and src/utils/he/iconMapping.ts — any display labels",
+    "src/types/sub-hub.ts — listCategory enum/type values that are rendered as UI text",
+    "src/types/base.ts — any category/type values displayed to users",
+    "All components that render .listCategory, .category, or .type fields directly in JSX without t()"
+  ],
+  "approach": [
+    "1. Search for all places listCategory and category values are rendered: grep -r 'listCategory\\|category' src/components src/pages --include='*.tsx'",
+    "2. Identify every unique display value (e.g. 'Grocery', 'Household', 'Personal', 'Supermarket', etc.)",
+    "3. For each value: add an i18n key under the appropriate namespace (e.g. common:categories.grocery)",
+    "4. Add Hebrew translations to src/i18n/he/ for every new key",
+    "5. Replace raw value renders with t('namespace:key') — use a mapping function if needed",
+    "6. Verify src/utils/he/ files are complete and consistent with src/utils/ English equivalents",
+    "7. Run npm run build to confirm no TypeScript errors"
+  ],
+  "conventions": [
+    "Category keys go under common:categories.{name} or the relevant hub namespace",
+    "Use lowercase snake_case for i18n keys",
+    "Do not translate: database IDs, brand names (BuyMe, Ontopo, Wolt), technical keys",
+    "RTL-safe rendering — do not add directional classes, use logical Tailwind only"
+  ],
+  "acceptance_criteria": [
+    "No listCategory or category values rendered as raw English strings when language is Hebrew",
+    "All src/utils/he/ files match the structure of their src/utils/ English counterparts",
+    "Every category/listCategory displayed in the UI has a Hebrew translation",
+    "npm run build passes clean",
+    "No regressions in English mode"
+  ],
+  "open_questions": [],
+  "completion_summary": "",
+  "notes": "Run alongside fe-008. Both tasks can be worked in parallel by the same agent on the same branch: agent/fe-008-009-hebrew-full."
+}

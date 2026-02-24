@@ -9,7 +9,7 @@
   "blocks": [],
   "created": "2026-02-22",
   "updated": "2026-02-22",
-  "description": "Test all components and pages in RTL Hebrew mode. Verify no visual regressions in LTR English mode.",
+  "description": "Test all components and pages in RTL Hebrew mode. Verify no visual regressions in LTR English mode. IMPORTANT: This task is partially TDD — fe-008 and fe-009 (full Hebrew translation audit) are running in parallel and may not be complete when qa-007 starts. For components that are still WIP (not yet fully translated), write the tests anyway as TDD — they will fail now and pass once FE finishes. Do NOT skip or defer tests because a component is untranslated. Write the spec, mark it clearly with a comment like '// TDD: awaiting fe-008/fe-009 completion', and let it fail. This gives FE a clear target.",
   "acceptance_criteria": [
     "All E2E tests pass with locale set to Hebrew/RTL",
     "Visual check: all card layouts correct in RTL",
@@ -25,5 +25,5 @@
   ],
   "open_questions": [],
   "completion_summary": "",
-  "notes": "Run full E2E suite twice: once in English, once in Hebrew. Compare screenshots if possible."
+  "notes": "Run full E2E suite twice: once in English, once in Hebrew. Compare screenshots if possible. fe-008 and fe-009 are running in parallel — expect some Hebrew keys to be missing during development. Write tests for the full expected Hebrew experience regardless."
 }
