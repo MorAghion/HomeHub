@@ -183,7 +183,7 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="your@email.com"
+                  placeholder={t('emailPlaceholder')}
                 />
               </div>
               <div className="mb-6">
@@ -197,7 +197,7 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder')}
                 />
               </div>
               <button
@@ -224,7 +224,7 @@ function AuthScreen() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="Mor"
+                  placeholder={t('displayNamePlaceholder')}
                 />
               </div>
               <div className="mb-4">
@@ -238,7 +238,7 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="your@email.com"
+                  placeholder={t('emailPlaceholder')}
                 />
               </div>
               <div className="mb-6">
@@ -253,7 +253,7 @@ function AuthScreen() {
                   minLength={6}
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder')}
                 />
                 <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
                   {t('passwordMinLength')}
@@ -285,7 +285,7 @@ function AuthScreen() {
                   maxLength={8}
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606] text-center text-2xl font-mono tracking-widest"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="ABCD1234"
+                  placeholder={t('inviteCodePlaceholder')}
                 />
                 <p className="text-xs mt-1 text-center" style={{ color: '#8E806A' }}>
                   {t('inviteCodeHelp')}
@@ -302,7 +302,7 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="Mor"
+                  placeholder={t('yourNamePlaceholder')}
                 />
               </div>
               <div className="mb-4">
@@ -316,7 +316,7 @@ function AuthScreen() {
                   required
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="your@email.com"
+                  placeholder={t('emailPlaceholder')}
                 />
               </div>
               <div className="mb-6">
@@ -331,7 +331,7 @@ function AuthScreen() {
                   minLength={6}
                   className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
                   style={{ borderColor: '#8E806A33' }}
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder')}
                 />
               </div>
               <button
