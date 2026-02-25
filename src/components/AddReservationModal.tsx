@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { VoucherItem, Reservation } from '../types/base';
 import { useVoucherForm } from '../hooks/useVoucherForm';
 
@@ -19,6 +20,7 @@ const SpinnerSVG = () => (
 );
 
 function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editingItem }: AddReservationModalProps) {
+  const { t } = useTranslation('vouchers');
   const {
     formData, setFormData,
     smartPaste,
@@ -97,7 +99,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-                {editingItem ? 'Edit Reservation' : 'Add Reservation'}
+                {editingItem ? t('editReservation') : t('addReservation')}
               </h2>
               <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
                 {listName}
@@ -114,23 +116,23 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">✨</span>
                 <label className="block text-sm font-medium" style={{ color: '#630606' }}>
-                  Smart Link / SMS Paste
+                  {t('smartLinkLabel')}
                 </label>
               </div>
               <textarea
                 value={smartPaste}
                 onChange={(e) => handleSmartPaste(e.target.value)}
-                placeholder="Paste reservation link or SMS (Ontopo auto-detected)"
+                placeholder={t('smartLinkPlaceholderReservation')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors resize-none"
                 style={{ borderColor: '#8E806A33' }}
                 rows={3}
               />
               <p className="text-xs mt-2" style={{ color: '#8E806A' }}>
-                💡 Paste SMS or URL to auto-fill fields
+                {t('smartLinkHint')}
               </p>
               {isScraping && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#630606' }}>
-                  <SpinnerSVG /> Fetching details from URL...
+                  <SpinnerSVG /> {t('fetchingDetails')}
                 </div>
               )}
             </div>
@@ -138,7 +140,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
             {/* Image Upload */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                Reservation Photo
+                {t('reservationPhoto')}
               </label>
               <input
                 type="file"
@@ -149,12 +151,12 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
               />
               {isScanning && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#630606' }}>
-                  <SpinnerSVG /> Scanning image...
+                  <SpinnerSVG /> {t('scanningImage')}
                 </div>
               )}
               {isUploading && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#8E806A' }}>
-                  <SpinnerSVG /> Saving to cloud...
+                  <SpinnerSVG /> {t('savingToCloud')}
                 </div>
               )}
             </div>
@@ -182,12 +184,12 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Name *</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('name')}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Dinner at Taizu"
+                placeholder={t('namePlaceholderReservation')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
                 required
@@ -196,7 +198,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
 
             {/* Event Date */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Event Date</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('eventDateLabel')}</label>
               <input
                 type="date"
                 value={formData.eventDate}
@@ -208,7 +210,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
 
             {/* Time */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Time</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('timeLabel')}</label>
               <input
                 type="time"
                 value={formData.time}
@@ -220,12 +222,12 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Address / Location</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('addressLabel')}</label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="e.g., 123 Main St, Tel Aviv"
+                placeholder={t('addressPlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
@@ -234,13 +236,13 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
             {/* Code / Confirmation URL */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                Code / Confirmation URL
+                {t('confirmationUrlLabel')}
               </label>
               <input
                 type="text"
                 value={formData.code}
                 onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
-                placeholder="e.g., https://ontopo.com/ticket/..."
+                placeholder={t('confirmationUrlPlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
@@ -254,7 +256,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
                 className="flex-1 px-4 py-3 rounded-lg font-medium transition-colors hover:bg-[#8E806A11]"
                 style={{ color: '#8E806A', border: '1px solid #8E806A33' }}
               >
-                Cancel
+                {t('cancel', { ns: 'common' })}
               </button>
               <button
                 type="submit"
@@ -262,7 +264,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
                 className="flex-1 px-4 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {isScanning ? 'Processing...' : editingItem ? 'Update' : 'Add'}
+                {isScanning ? t('processing') : editingItem ? t('update') : t('add')}
               </button>
             </div>
           </form>
@@ -280,23 +282,23 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
               {extractionResults.length > 0 ? (
                 <>
                   <div className="text-5xl mb-3">✅</div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>Almost Done!</h2>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>{t('almostDone')}</h2>
                   <p className="text-sm mb-4" style={{ color: '#8E806A' }}>
-                    We auto-filled: <strong>{extractionResults.join(', ')}</strong>
+                    {t('autoFilledPrefix')} <strong>{extractionResults.join(', ')}</strong>
                   </p>
                   <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: '#F59E0B11', border: '1px solid #F59E0B33' }}>
-                    <p className="text-sm" style={{ color: '#D97706' }}>Please complete the remaining fields below.</p>
+                    <p className="text-sm" style={{ color: '#D97706' }}>{t('completeRemaining')}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="text-5xl mb-3">📝</div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>Complete the Details</h2>
-                  <p className="text-sm mb-4" style={{ color: '#8E806A' }}>Please fill in the fields below.</p>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>{t('completeDetails')}</h2>
+                  <p className="text-sm mb-4" style={{ color: '#8E806A' }}>{t('fillBelow')}</p>
                 </>
               )}
               <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
-                <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>Fields to check:</p>
+                <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>{t('fieldsToCheck')}</p>
                 <ul className="text-xs space-y-1" style={{ color: '#8E806A' }}>
                   {!formData.name && <li>• Restaurant/Venue Name</li>}
                   {!formData.eventDate && <li>• Event Date</li>}
@@ -310,7 +312,7 @@ function AddReservationModal({ isOpen, onClose, onSave, listName, listId, editin
               className="w-full px-4 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#630606' }}
             >
-              Got it, I'll fill the rest
+              {t('gotIt')}
             </button>
           </div>
         </div>
