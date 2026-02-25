@@ -4,7 +4,7 @@
   "agent": "qa",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "in_progress",
   "created": "2026-02-25",
   "updated": "2026-02-25",
   "paired_with": "fe-bug-019",
