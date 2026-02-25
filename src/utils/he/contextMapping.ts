@@ -12,7 +12,7 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
   'stock': {
     keywords: [
       'מלאי', 'ציוד בית', 'אחסון', 'עתודות', 'אספקה', 'מחסן',
-      'סחורה', 'מוצרי בית', 'הצטיידות', 'רזרבה'
+      'סחורה', 'מוצרי בית', 'הצטיידות', 'רזרבה', 'ניקיון', 'ניקוי'
     ],
     displayLabel: 'מלאי ביתי',
     items: [
@@ -43,7 +43,7 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
     keywords: [
       'סופרמרקט', 'מכולת', 'קניות', 'אוכל', 'שוק', 'מזון',
       'קניון', 'רמי לוי', 'שופרסל', 'מגה', 'ויקטורי',
-      'קאנטרי', 'יינות ביתן', 'קניות שבועיות', 'מזון טרי'
+      'קאנטרי', 'יינות ביתן', 'קניות שבועיות', 'מזון טרי', 'מצרכים'
     ],
     displayLabel: 'רשימת קניות',
     items: [
