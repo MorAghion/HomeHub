@@ -1,0 +1,51 @@
+{
+  "id": "fe-bug-020",
+  "title": "Forgot password / reset password flow not implemented",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — test [21] forgot password link visible on sign in screen",
+  "wave": 10,
+  "failing_tests": ["[21]", "[22]", "[23]", "[30]"],
+  "root_cause": "AuthScreen has no 'Forgot password?' link and no reset password flow. Supabase provides supabase.auth.resetPasswordForEmail() and a magic link redirect — the UI just needs to be built.",
+  "user_impact": "Users who forget their password have no self-service recovery path. They are permanently locked out unless an admin resets manually.",
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/pages/ResetPassword.tsx (to create)",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. Add 'Forgot password?' link below the password field in the sign-in tab of AuthScreen",
+    "2. On click: show an email input + 'Send reset link' button (inline, replace the sign-in form or show a new sub-view)",
+    "3. Call supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password' })",
+    "4. Show 'Check your email for a reset link' confirmation",
+    "5. Create src/pages/ResetPassword.tsx — this page is loaded when user clicks the email link",
+    "6. ResetPassword page: reads the token from URL hash (#access_token=...), shows new password + confirm fields, calls supabase.auth.updateUser({ password })",
+    "7. On success: redirect to sign-in with success toast",
+    "8. On error (expired/used link): show 'This link has expired. Request a new one.' with link back",
+    "9. Register /reset-password route in the router (App.tsx)",
+    "10. Add i18n keys: forgotPassword, sendResetLink, resetEmailSent, newPassword, confirmPassword, passwordReset, linkExpired",
+    "11. Run npm test — tests [21][22][23] should now pass"
+  ],
+  "acceptance_criteria": [
+    "Sign-in tab has a visible 'Forgot password?' link",
+    "Clicking it shows an email input and 'Send reset link' button",
+    "Submitting calls supabase.auth.resetPasswordForEmail with correct redirectTo",
+    "After submit: 'Check your email' confirmation is shown",
+    "Clicking the email link opens /reset-password with the token",
+    "Valid token: new password form is shown and updateUser is called on submit",
+    "Expired/used token: clear error with option to request a new link",
+    "All new strings are i18n keys (English + Hebrew)",
+    "Tests [21][22][23] pass; test [30] unblocked pending be-004"
+  ],
+  "dependencies": ["be-004 — for branded reset email template (nice-to-have, not blocking)"],
+  "notes": [
+    "Supabase sends the reset token as a URL fragment (#access_token=...) by default",
+    "Use supabase.auth.onAuthStateChange('PASSWORD_RECOVERY') to detect the reset session on the callback page",
+    "The redirectTo domain must be whitelisted in Supabase Auth → URL Configuration → Redirect URLs"
+  ]
+}

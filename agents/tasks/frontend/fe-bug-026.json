@@ -1,0 +1,46 @@
+{
+  "id": "fe-bug-026",
+  "title": "Session expiry & offline resilience — no graceful UI for expired/stale sessions",
+  "agent": "frontend",
+  "phase": "backlog",
+  "priority": "medium",
+  "status": "backlog",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — tests [9] [11] [12]",
+  "wave": "backlog",
+  "failing_tests": ["[9]", "[11]", "[12]"],
+  "scenarios": {
+    "9": "Session expires while app is open — Supabase fires SIGNED_OUT via onAuthStateChange. App silently shows the auth form with no 'Your session has expired' notification.",
+    "11": "Token refresh fails on weak connection — supabase.auth internally retries, but if it ultimately fails there is no user-visible error. App may silently hang.",
+    "12": "App opened offline with a stale/expired session — getSession() fails or returns null. App shows auth form but does not explain why or acknowledge the offline state."
+  },
+  "root_cause": "AuthContext.tsx handles SIGNED_IN and INITIAL_SESSION events but does not surface session-expiry or connectivity errors as user-visible notifications. The app just falls back to the auth screen with no explanation.",
+  "affected_files": [
+    "src/contexts/AuthContext.tsx",
+    "src/components/AuthScreen.tsx",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. In AuthContext onAuthStateChange: detect SIGNED_OUT events that are not user-initiated (no manual signOut call) and set a sessionExpired flag in state",
+    "2. Pass sessionExpired to AuthScreen (or use a toast/banner system in App.tsx)",
+    "3. AuthScreen: if sessionExpired, show a banner 'Your session has expired. Please sign in again.' matching /session.*expired|sign.*in.*again/i",
+    "4. In AuthContext getSession(): wrap in try/catch — on error with navigator.onLine === false, set an offlineExpired flag",
+    "5. AuthScreen: if offlineExpired, show 'You are offline. Please reconnect and sign in again.' matching /you are offline|offline.*session/i",
+    "6. For token refresh failure (test 11): listen for the TOKEN_REFRESHED event with an error, show 'Connection issue. Please try again.' matching /connection issue|unable to refresh/i",
+    "7. All new strings go through i18n",
+    "8. Run npm test — tests [9][11][12] should now pass"
+  ],
+  "acceptance_criteria": [
+    "Non-user-initiated SIGNED_OUT shows session-expired message",
+    "Token refresh failure shows a connection-issue message",
+    "Offline + expired session shows offline-aware message",
+    "Tests [9][11][12] pass"
+  ],
+  "notes": [
+    "Distinguishing user-initiated vs automatic SIGNED_OUT: track a 'userSigningOut' ref that is set to true before calling supabase.auth.signOut(), check it in onAuthStateChange",
+    "navigator.onLine is unreliable — prefer attempting a supabase.auth.getSession() and catching network errors",
+    "These scenarios are hard to unit-test in jsdom; may need Playwright E2E for full coverage"
+  ]
+}

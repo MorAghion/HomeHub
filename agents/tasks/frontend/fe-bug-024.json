@@ -1,0 +1,32 @@
+{
+  "id": "fe-bug-024",
+  "title": "\"Email not confirmed\" error shows raw API message instead of user-friendly guidance",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "medium",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — tests [4] [7]",
+  "wave": 10,
+  "failing_tests": ["[4]", "[7]"],
+  "root_cause": "When Supabase returns { message: 'Email not confirmed' }, AuthScreen.tsx displays this raw string directly. Users see a confusing technical message with no actionable guidance.",
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. In handleSignIn() in AuthScreen.tsx, after receiving an error, check: if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) { setError(t('emailNotConfirmed')); return; }",
+    "2. Add i18n key 'emailNotConfirmed': 'Please check your email and click the confirmation link before signing in.'",
+    "3. Add matching Hebrew translation",
+    "4. Optionally: add a 'Resend confirmation email' button that calls supabase.auth.resend({ type: 'signup', email })",
+    "5. Run npm test — tests [4][7] should now pass"
+  ],
+  "acceptance_criteria": [
+    "When sign-in returns 'Email not confirmed', a user-friendly message matching /please check your email|check your inbox|verification/i is shown",
+    "The raw API error string 'Email not confirmed' is NOT shown directly",
+    "Tests [4][7] pass"
+  ],
+  "fix_complexity": "trivial — 3 lines of code + 2 i18n keys"
+}
