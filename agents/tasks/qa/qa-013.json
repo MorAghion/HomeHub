@@ -1,0 +1,79 @@
+{
+  "id": "qa-013",
+  "title": "Tests for be-002 — PWA manifest, service worker, installability",
+  "agent": "qa",
+  "phase": "0.5",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "paired_with": "be-002",
+  "mode": "TDD — write tests first, validate after BE merges",
+
+  "workflow": [
+    "PHASE 1 (start immediately, TDD): Read be-002.json. Write tests asserting PWA assets exist and are correctly configured. Tests WILL FAIL initially — expected.",
+    "PHASE 2 (after BE handoff): Watch agents/handoffs/ for handoff from be-002 to qa-013. Pull master and run tests.",
+    "PHASE 3 (validate): All tests should pass. Note any failures in handoff back to BE.",
+    "PHASE 4 (PR): Push branch and open PR --base master."
+  ],
+
+  "branch": "agent/qa-013-pwa-tests",
+
+  "test_files_to_create": [
+    "tests/pwa/manifest.test.ts",
+    "tests/pwa/offline.test.tsx"
+  ],
+
+  "test_cases_required": {
+    "manifest_json": [
+      "public/manifest.json exists",
+      "manifest.name === 'HomeHub'",
+      "manifest.theme_color === '#630606'",
+      "manifest.background_color === '#F5F2E7'",
+      "manifest.display === 'standalone'",
+      "manifest.icons includes 192px entry",
+      "manifest.icons includes 512px entry",
+      "192px icon file exists at the path specified in manifest",
+      "512px icon file exists at the path specified in manifest"
+    ],
+    "index_html_meta_tags": [
+      "index.html contains <link rel='manifest'>",
+      "index.html contains apple-mobile-web-app-capable meta tag",
+      "index.html contains apple-mobile-web-app-status-bar-style meta tag",
+      "index.html contains apple-mobile-web-app-title meta tag"
+    ],
+    "offline_page": [
+      "src/pages/Offline.tsx exists",
+      "Offline component renders without crashing",
+      "Offline component displays a user-friendly offline message"
+    ],
+    "vite_config": [
+      "vite.config.ts imports or references vite-plugin-pwa",
+      "VitePWA plugin is included in the plugins array"
+    ]
+  },
+
+  "test_setup_notes": [
+    "manifest.test.ts: use Node fs to read public/manifest.json and assert fields — no React needed",
+    "index.html meta tags: read index.html as a string and assert substrings or use a DOM parser",
+    "offline.test.tsx: use React Testing Library to render <Offline /> and assert it shows an offline message",
+    "vite.config.ts check: read file as string and assert 'VitePWA' appears",
+    "Icon file existence: use fs.existsSync against paths declared in manifest.icons",
+    "All file-system tests should use path.resolve(process.cwd(), ...) for correct resolution"
+  ],
+
+  "handoff_to_watch_for": {
+    "file_pattern": "agents/handoffs/be-002-to-qa-013-*.json",
+    "check_interval": "poll: ls agents/handoffs/ | grep qa-013"
+  },
+
+  "completion_criteria": [
+    "manifest.json exists with correct name, colors, display, and icon entries",
+    "Icon files exist at declared paths (192px + 512px minimum)",
+    "index.html has manifest link and all iOS meta tags",
+    "Offline.tsx renders a user-friendly offline message",
+    "vite.config.ts references VitePWA plugin",
+    "npm test exits with 0 failures",
+    "PR opened with --base master"
+  ]
+}

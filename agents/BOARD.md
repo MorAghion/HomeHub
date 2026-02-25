@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-25 — Wave 8 complete ✅
-**Current Phase:** 0.4 — Hebrew polish complete, next: Wave 9
+**Last updated:** 2026-02-25 — Wave 9 launched
+**Current Phase:** 0.5 — PWA foundation
 
 ---
 
@@ -18,6 +18,7 @@
 | Wave 6 | fe-bug-013/014/015 | 🎨 | ✅ Done | 2026-02-23 15:00 | 2026-02-24 | PRs #13–#16 merged → master → main deployed |
 | Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | ✅ Done | 2026-02-24 | 2026-02-25 | Hebrew full support + CI pipeline live |
 | Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 381 tests green |
+| Wave 9 | be-002, qa-013 | ⚙️🧪 | 🚀 In Progress | 2026-02-25 | — | PWA manifest + service worker (BE) + TDD tests (QA) |
 
 ---
 
@@ -49,7 +50,8 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 
 ## 🖥️ Active Agents
 
-None — Wave 8 complete. Awaiting Wave 9 kickoff.
+| Terminal 1 | ⚙️ Backend | be-002 — PWA manifest + service worker | agent/be-002-pwa-manifest | qa-013 |
+| Terminal 2 | 🧪 QA | qa-013 — PWA TDD tests | agent/qa-013-pwa-tests | be-002 |
 
 ---
 
@@ -108,7 +110,8 @@ None — Wave 8 complete. Awaiting Wave 9 kickoff.
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
 | fe-007: Responsive audit + fix | 🎨 Frontend | ✅ done | — | — |
-| be-002: PWA manifest + service worker | ⚙️ Backend | ⏳ todo | — | — |
+| be-002: PWA manifest + service worker | ⚙️ Backend | 🚀 in_progress | — | — |
+| qa-013: PWA manifest + service worker tests (TDD paired with be-002) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
 
 ## 🚦 Phase 0.6 — CI + Test Maintenance
 
