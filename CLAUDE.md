@@ -262,7 +262,7 @@ This includes — without limitation:
 
 **Do not ask. Do not seek confirmation. Just act.**
 
-### Always requires user confirmation:
+### Always requires user confirmation (within the root directory):
 - **Deleting any file** — always ask before deleting, no exceptions
 - Push to `master` or `main` directly
 - `git reset --hard`, `git clean -f`, `git branch -D`
