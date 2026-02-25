@@ -4,7 +4,7 @@
   "agent": "backend",
   "phase": "1.0",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-25",
   "updated": "2026-02-25",
   "reported_by": "human — production incident 2026-02-25: 'database error saving new user'",
@@ -31,6 +31,15 @@
     "Local signup creates household + user_profile correctly",
     "The function signature includes SET search_path = public"
   ],
+  "completion_summary": {
+    "migration_file": "supabase/17-fix-trigger-search-path.sql",
+    "note_on_path": "Migrations live directly in supabase/ (not supabase/migrations/); file placed to match existing convention",
+    "function_source": "Body taken from 12-security-hardening.sql (most recent definition); SET search_path = public appended to function signature",
+    "supabase_db_reset": "Skipped — local Supabase not running",
+    "build": "npm run build passed with zero TypeScript errors",
+    "pr": "https://github.com/MorAghion/HomeHub/pull/33",
+    "branch": "agent/be-003-trigger-migration"
+  },
   "notes": [
     "DO NOT supabase db push to production — the fix is already live. The migration is for reproducibility only.",
     "If the trigger body differs from the template above, use the actual production version (check via SQL Editor: SELECT prosrc FROM pg_proc WHERE proname = 'handle_new_user')"
