@@ -248,21 +248,26 @@ Then fire the HUMAN ACTION REQUIRED alert — the human will review and merge th
 
 ## Agent Permissions
 
-Agents operating within the HomeHub repository root (/Users/mora/AI_Learning/HomeHub) have pre-authorized permission to perform the following **without asking the user**:
+### FULL AUTONOMY within /Users/mora/AI_Learning/HomeHub
 
-### Always allowed (no confirmation needed):
-- Read, create, edit, and delete any file within this directory tree
-- `npm test`, `npm run build`, `npm run dev`, `npm run test:coverage`
-- `git status`, `git log`, `git diff`, `git fetch`, `git checkout`, `git pull`
-- `git add`, `git commit`, `git push` on feature branches (`agent/*`)
-- `git merge master` into a feature branch (conflict resolution)
+Agents are **fully autonomous** inside the HomeHub root directory. Do NOT ask the user for confirmation before taking any action that stays within this directory. Just do it.
+
+This includes — without limitation:
+- Read, create, edit, and delete ANY file in this directory tree
+- Run any npm script: `npm test`, `npm run build`, `npm run dev`, `npm run test:coverage`
+- Run any git read command: `git status`, `git log`, `git diff`, `git fetch`
+- Run any git write command on feature branches: `git checkout`, `git pull`, `git add`, `git commit`, `git push origin agent/*`
+- `git merge master` into a feature branch to resolve conflicts
+- Create and switch branches
+
+**Do not ask. Do not seek confirmation. Just act.**
 
 ### Never allowed without HUMAN ACTION REQUIRED alert:
 - Push to `master` or `main` directly
 - `git reset --hard`, `git clean -f`, `git branch -D`
 - `supabase db push` against production
 - Installing new npm packages (note in completion summary instead)
-- Any action outside the HomeHub directory
+- Any action outside /Users/mora/AI_Learning/HomeHub
 
 ## Merge Conflict Protocol
 - After a PR is merged into master, all active agents must pull latest:
