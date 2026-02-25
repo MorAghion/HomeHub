@@ -1,0 +1,289 @@
+{
+  "id": "fe-bug-017",
+  "title": "Remaining hardcoded English strings — full i18n completion audit",
+  "agent": "frontend",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-24",
+  "updated": "2026-02-24",
+  "reported_by": "coordinator — manual audit",
+  "context": "After fe-006, fe-006-cont, fe-008/009, fe-bug-016, many components are now fully translated. However a second-pass audit found 6 components still containing hardcoded English strings. These must all use useTranslation and pull strings from i18n JSON files.",
+
+  "affected_files": [
+    "src/components/VoucherCard.tsx",
+    "src/components/AddVoucherModal.tsx",
+    "src/components/AddReservationModal.tsx",
+    "src/components/AuthScreen.tsx",
+    "src/components/ConfirmationModal.tsx",
+    "src/components/InputModal.tsx",
+    "src/i18n/en/vouchers.json",
+    "src/i18n/he/vouchers.json",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json",
+    "src/i18n/en/common.json",
+    "src/i18n/he/common.json"
+  ],
+
+  "hardcoded_strings_by_file": {
+    "VoucherCard.tsx": {
+      "note": "No useTranslation import. All strings hardcoded.",
+      "strings": [
+        { "line": 35, "type": "badge", "value": "'Expired'" },
+        { "line": 37, "type": "badge", "value": "'Expires Today'" },
+        { "line": 39, "type": "badge", "value": "`${diffDays} days left`" },
+        { "line": 41, "type": "badge", "value": "`${diffDays} days left`" },
+        { "line": 44, "type": "badge", "value": "`Expires ${formatted}`" },
+        { "line": 72, "type": "date-prefix", "value": "'Today'" },
+        { "line": 74, "type": "date-prefix", "value": "'Tomorrow'" },
+        { "line": 77, "type": "date-interpolation", "value": "` at ${time}`" },
+        { "line": 97, "type": "badge-text", "value": "'📅 Reservation'" },
+        { "line": 113, "type": "title-attr", "value": "'Refresh details from URL'" },
+        { "line": 124, "type": "title-attr", "value": "'Edit'" },
+        { "line": 134, "type": "title-attr", "value": "'Delete'" },
+        { "line": 201, "type": "button", "value": "'Open Original'" },
+        { "line": 220, "type": "button", "value": "'Copied!'" },
+        { "line": 227, "type": "button", "value": "'Copy Codes' / 'Copy Code'" },
+        { "line": 246, "type": "button", "value": "'View Card'" }
+      ],
+      "suggested_keys": {
+        "namespace": "vouchers",
+        "keys": {
+          "expired": "Expired",
+          "expiresToday": "Expires Today",
+          "daysLeft": "{{count}} days left",
+          "expiresOn": "Expires {{date}}",
+          "today": "Today",
+          "tomorrow": "Tomorrow",
+          "atTime": "at {{time}}",
+          "reservationBadge": "📅 Reservation",
+          "refreshDetails": "Refresh details from URL",
+          "openOriginal": "Open Original",
+          "copied": "Copied!",
+          "copyCode": "Copy Code",
+          "copyCodes": "Copy Codes",
+          "viewCard": "View Card"
+        }
+      }
+    },
+
+    "AddVoucherModal.tsx": {
+      "note": "No useTranslation import. 29 hardcoded strings.",
+      "strings": [
+        { "line": 100, "type": "modal-title", "value": "'Edit Voucher' / 'Add Voucher'" },
+        { "line": 117, "type": "label", "value": "'Smart Link / SMS Paste'" },
+        { "line": 123, "type": "placeholder", "value": "'Paste voucher link or SMS (BuyMe auto-detected)'" },
+        { "line": 129, "type": "hint", "value": "'💡 Paste SMS or URL to auto-fill fields'" },
+        { "line": 133, "type": "loading", "value": "'Fetching details from URL...'" },
+        { "line": 144, "type": "label", "value": "'Upload Card Photo'" },
+        { "line": 150, "type": "label", "value": "'Card Photo'" },
+        { "line": 162, "type": "loading", "value": "'Scanning image...'" },
+        { "line": 167, "type": "loading", "value": "'Saving to cloud...'" },
+        { "line": 172, "type": "hint", "value": "'💡 We'll automatically detect codes and values from your photo'" },
+        { "line": 200, "type": "label", "value": "'Name *'" },
+        { "line": 205, "type": "placeholder", "value": "'e.g., Azrieli Gift Card'" },
+        { "line": 214, "type": "label", "value": "'Value'" },
+        { "line": 219, "type": "placeholder", "value": "'e.g., ₪200 or 2 Movie Tickets'" },
+        { "line": 227, "type": "label", "value": "'Issuer'" },
+        { "line": 232, "type": "placeholder", "value": "'e.g., BuyMe, Azrieli'" },
+        { "line": 240, "type": "label", "value": "'Expiry Date'" },
+        { "line": 253, "type": "label", "value": "'Code / Barcode / URL'" },
+        { "line": 259, "type": "placeholder", "value": "'e.g., ABC123456 or https://buyme.co.il/...'" },
+        { "line": 268, "type": "status", "value": "'Multiple codes detected and saved'" },
+        { "line": 281, "type": "button", "value": "'Cancel'" },
+        { "line": 289, "type": "button", "value": "'Processing...' / 'Update' / 'Add'" },
+        { "line": 307, "type": "modal-title", "value": "'Almost Done!'" },
+        { "line": 309, "type": "message", "value": "'We auto-filled: {fields}'" },
+        { "line": 312, "type": "instructions", "value": "'Please complete the remaining fields below.'" },
+        { "line": 318, "type": "modal-title", "value": "'Complete the Details'" },
+        { "line": 319, "type": "instructions", "value": "'Please fill in the fields below.'" },
+        { "line": 323, "type": "section-header", "value": "'Fields to check:'" },
+        { "line": 336, "type": "button", "value": "'Got it, I\\'ll fill the rest'" }
+      ],
+      "suggested_keys": {
+        "namespace": "vouchers",
+        "keys": {
+          "addVoucher": "Add Voucher",
+          "editVoucher": "Edit Voucher",
+          "smartLinkLabel": "Smart Link / SMS Paste",
+          "smartLinkPlaceholder": "Paste voucher link or SMS (BuyMe auto-detected)",
+          "smartLinkHint": "💡 Paste SMS or URL to auto-fill fields",
+          "fetchingDetails": "Fetching details from URL...",
+          "uploadPhoto": "Upload Card Photo",
+          "cardPhoto": "Card Photo",
+          "scanningImage": "Scanning image...",
+          "savingToCloud": "Saving to cloud...",
+          "photoHint": "💡 We'll automatically detect codes and values from your photo",
+          "nameLabel": "Name *",
+          "namePlaceholder": "e.g., Azrieli Gift Card",
+          "valueLabel": "Value",
+          "valuePlaceholder": "e.g., ₪200 or 2 Movie Tickets",
+          "issuerLabel": "Issuer",
+          "issuerPlaceholder": "e.g., BuyMe, Azrieli",
+          "expiryLabel": "Expiry Date",
+          "codeLabel": "Code / Barcode / URL",
+          "codePlaceholder": "e.g., ABC123456 or https://buyme.co.il/...",
+          "multipleCodesDetected": "Multiple codes detected and saved",
+          "processing": "Processing...",
+          "update": "Update",
+          "add": "Add",
+          "almostDone": "Almost Done!",
+          "autoFilled": "We auto-filled: <strong>{{fields}}</strong>",
+          "completeRemaining": "Please complete the remaining fields below.",
+          "completeDetails": "Complete the Details",
+          "fillBelow": "Please fill in the fields below.",
+          "fieldsToCheck": "Fields to check:",
+          "gotIt": "Got it, I'll fill the rest"
+        }
+      }
+    },
+
+    "AddReservationModal.tsx": {
+      "note": "No useTranslation import. 27 hardcoded strings. Very similar structure to AddVoucherModal.",
+      "strings": [
+        { "line": 100, "type": "modal-title", "value": "'Edit Reservation' / 'Add Reservation'" },
+        { "line": 117, "type": "label", "value": "'Smart Link / SMS Paste'" },
+        { "line": 123, "type": "placeholder", "value": "'Paste reservation link or SMS (Ontopo auto-detected)'" },
+        { "line": 129, "type": "hint", "value": "'💡 Paste SMS or URL to auto-fill fields'" },
+        { "line": 133, "type": "loading", "value": "'Fetching details from URL...'" },
+        { "line": 141, "type": "label", "value": "'Reservation Photo'" },
+        { "line": 152, "type": "loading", "value": "'Scanning image...'" },
+        { "line": 157, "type": "loading", "value": "'Saving to cloud...'" },
+        { "line": 165, "type": "alt", "value": "'Preview'" },
+        { "line": 185, "type": "label", "value": "'Name *'" },
+        { "line": 190, "type": "placeholder", "value": "'e.g., Dinner at Taizu'" },
+        { "line": 199, "type": "label", "value": "'Event Date'" },
+        { "line": 211, "type": "label", "value": "'Time'" },
+        { "line": 223, "type": "label", "value": "'Address / Location'" },
+        { "line": 228, "type": "placeholder", "value": "'e.g., 123 Main St, Tel Aviv'" },
+        { "line": 237, "type": "label", "value": "'Code / Confirmation URL'" },
+        { "line": 243, "type": "placeholder", "value": "'e.g., https://ontopo.com/ticket/...'" },
+        { "line": 257, "type": "button", "value": "'Cancel'" },
+        { "line": 265, "type": "button", "value": "'Processing...' / 'Update' / 'Add'" },
+        { "line": 283, "type": "modal-title", "value": "'Almost Done!'" },
+        { "line": 285, "type": "message", "value": "'We auto-filled: {fields}'" },
+        { "line": 288, "type": "instructions", "value": "'Please complete the remaining fields below.'" },
+        { "line": 294, "type": "modal-title", "value": "'Complete the Details'" },
+        { "line": 295, "type": "instructions", "value": "'Please fill in the fields below.'" },
+        { "line": 299, "type": "section-header", "value": "'Fields to check:'" },
+        { "line": 313, "type": "button", "value": "'Got it, I\\'ll fill the rest'" }
+      ],
+      "suggested_keys": {
+        "namespace": "vouchers",
+        "note": "Reuse shared keys from AddVoucherModal where possible. Reservation-specific keys:",
+        "keys": {
+          "addReservation": "Add Reservation",
+          "editReservation": "Edit Reservation",
+          "reservationSmartLinkPlaceholder": "Paste reservation link or SMS (Ontopo auto-detected)",
+          "reservationPhoto": "Reservation Photo",
+          "photoAlt": "Preview",
+          "reservationNamePlaceholder": "e.g., Dinner at Taizu",
+          "eventDateLabel": "Event Date",
+          "timeLabel": "Time",
+          "addressLabel": "Address / Location",
+          "addressPlaceholder": "e.g., 123 Main St, Tel Aviv",
+          "confirmationUrlLabel": "Code / Confirmation URL",
+          "confirmationUrlPlaceholder": "e.g., https://ontopo.com/ticket/..."
+        }
+      }
+    },
+
+    "AuthScreen.tsx": {
+      "note": "No useTranslation import. 24 hardcoded strings. auth.json namespace likely already exists from fe-008 but strings were not wired.",
+      "strings": [
+        { "line": 53, "type": "success-message", "value": "'Account created! You can now sign in.'" },
+        { "line": 94, "type": "tagline", "value": "'Organize your home, together.'" },
+        { "line": 118, "type": "tab", "value": "'Sign In'" },
+        { "line": 136, "type": "tab", "value": "'Sign Up'" },
+        { "line": 154, "type": "tab", "value": "'Join'" },
+        { "line": 175, "type": "label", "value": "'Email'" },
+        { "line": 184, "type": "placeholder", "value": "'your@email.com'" },
+        { "line": 189, "type": "label", "value": "'Password'" },
+        { "line": 198, "type": "placeholder", "value": "'••••••••'" },
+        { "line": 207, "type": "button", "value": "'Signing in...' / 'Sign In'" },
+        { "line": 217, "type": "label", "value": "'Display Name'" },
+        { "line": 225, "type": "placeholder", "value": "'Mor'" },
+        { "line": 257, "type": "help-text", "value": "'Minimum 6 characters'" },
+        { "line": 266, "type": "button", "value": "'Creating account...' / 'Create Account'" },
+        { "line": 276, "type": "label", "value": "'Invite Code'" },
+        { "line": 286, "type": "placeholder", "value": "'ABCD1234'" },
+        { "line": 289, "type": "help-text", "value": "'Enter the 8-character code from your partner'" },
+        { "line": 294, "type": "label", "value": "'Your Name'" },
+        { "line": 303, "type": "placeholder", "value": "'Your name'" },
+        { "line": 322, "type": "placeholder", "value": "'••••••••'" },
+        { "line": 341, "type": "button", "value": "'Joining...' / 'Join Household'" },
+        { "line": 349, "type": "footer", "value": "'Your data is encrypted and secure'" }
+      ],
+      "suggested_keys": {
+        "namespace": "auth",
+        "note": "Check src/i18n/en/auth.json first — some keys may already exist from fe-008.",
+        "keys": {
+          "accountCreated": "Account created! You can now sign in.",
+          "tagline": "Organize your home, together.",
+          "tabSignIn": "Sign In",
+          "tabSignUp": "Sign Up",
+          "tabJoin": "Join",
+          "emailLabel": "Email",
+          "emailPlaceholder": "your@email.com",
+          "passwordLabel": "Password",
+          "passwordPlaceholder": "••••••••",
+          "signingIn": "Signing in...",
+          "signIn": "Sign In",
+          "displayNameLabel": "Display Name",
+          "displayNamePlaceholder": "Mor",
+          "passwordMinLength": "Minimum 6 characters",
+          "creatingAccount": "Creating account...",
+          "createAccount": "Create Account",
+          "inviteCodeLabel": "Invite Code",
+          "inviteCodePlaceholder": "ABCD1234",
+          "inviteCodeHint": "Enter the 8-character code from your partner",
+          "yourNameLabel": "Your Name",
+          "yourNamePlaceholder": "Your name",
+          "joining": "Joining...",
+          "joinHousehold": "Join Household",
+          "encryptedFooter": "Your data is encrypted and secure"
+        }
+      }
+    },
+
+    "ConfirmationModal.tsx": {
+      "note": "Uses prop-based defaults — `confirmText = 'Confirm'` and `cancelText = 'Cancel'`. Most callers already pass translated strings. Need to verify all call sites pass translated props.",
+      "strings": [
+        { "line": 23, "type": "default-prop", "value": "'Confirm'" },
+        { "line": 24, "type": "default-prop", "value": "'Cancel'" }
+      ],
+      "action": "Audit all callers of ConfirmationModal in the codebase. If any caller does not pass confirmText/cancelText, they must be updated to pass t('common:confirm') and t('common:cancel'). Alternatively, move defaults out of the component and require callers to always pass them."
+    },
+
+    "InputModal.tsx": {
+      "note": "Uses prop-based defaults — `submitText = 'Save'` and `cancelText = 'Cancel'`. Audit all callers.",
+      "strings": [
+        { "line": 25, "type": "default-prop", "value": "'Save'" },
+        { "line": 26, "type": "default-prop", "value": "'Cancel'" }
+      ],
+      "action": "Audit all callers of InputModal. ShoppingHub.tsx was fixed in fe-bug-016. Check TasksHub.tsx, VouchersHub.tsx, ReservationsHub.tsx for any InputModal usage without cancelText prop."
+    }
+  },
+
+  "implementation_plan": [
+    "1. Read src/i18n/en/auth.json — check what already exists from fe-008",
+    "2. Add missing keys to en/auth.json and he/auth.json (AuthScreen strings)",
+    "3. Add voucher/reservation modal keys to en/vouchers.json and he/vouchers.json",
+    "4. Add VoucherCard expiry/date keys to en/vouchers.json and he/vouchers.json",
+    "5. Wire useTranslation('auth') into AuthScreen.tsx — replace all hardcoded strings",
+    "6. Wire useTranslation(['vouchers', 'common']) into VoucherCard.tsx — replace all hardcoded strings",
+    "7. Wire useTranslation('vouchers') into AddVoucherModal.tsx — replace all hardcoded strings",
+    "8. Wire useTranslation('vouchers') into AddReservationModal.tsx — replace all hardcoded strings",
+    "9. Audit all ConfirmationModal callers — add cancelText={t('common:cancel')} where missing",
+    "10. Audit all InputModal callers — add cancelText={t('common:cancel')} where missing",
+    "11. Run npm run build — zero TypeScript errors",
+    "12. Switch app to Hebrew, manually verify all 6 components show Hebrew"
+  ],
+
+  "notes": [
+    "The 'days left' and 'Expires on' strings in VoucherCard require interpolation: t('daysLeft', {count: diffDays})",
+    "AddVoucherModal and AddReservationModal share many keys (almostDone, autoFilled, processing, etc.) — these can be shared in vouchers.json",
+    "For AuthScreen: check src/i18n/en/auth.json first — fe-008 may have added keys that just were not wired into the component",
+    "Hebrew translations for auth must match existing tone: informal/friendly"
+  ]
+}

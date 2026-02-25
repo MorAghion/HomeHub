@@ -12,7 +12,9 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
   'stock': {
     keywords: [
       'מלאי', 'ציוד בית', 'אחסון', 'עתודות', 'אספקה', 'מחסן',
-      'סחורה', 'מוצרי בית', 'הצטיידות', 'רזרבה'
+      'סחורה', 'מוצרי בית', 'הצטיידות', 'רזרבה',
+      'ניקיון', 'נקיון', 'ניקוי', 'ניקוי הבית',
+      'סחורה', 'מוצרי בית', 'הצטיידות', 'רזרבה', 'ניקיון', 'ניקוי'
     ],
     displayLabel: 'מלאי ביתי',
     items: [
@@ -43,7 +45,9 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
     keywords: [
       'סופרמרקט', 'מכולת', 'קניות', 'אוכל', 'שוק', 'מזון',
       'קניון', 'רמי לוי', 'שופרסל', 'מגה', 'ויקטורי',
-      'קאנטרי', 'יינות ביתן', 'קניות שבועיות', 'מזון טרי'
+      'קאנטרי', 'יינות ביתן', 'קניות שבועיות', 'מזון טרי',
+      'מצרכים', 'חנות', 'חנות המכולת', 'ירקות', 'פירות',
+      'קאנטרי', 'יינות ביתן', 'קניות שבועיות', 'מזון טרי', 'מצרכים'
     ],
     displayLabel: 'רשימת קניות',
     items: [
@@ -73,7 +77,8 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
   'pharmacy': {
     keywords: [
       'תרופות', 'בית מרקחת', 'פארמ', 'בריאות', 'ויטמינים',
-      'תרופה', 'תרופות מרשם', 'רפואה', 'עזרה ראשונה', 'בריאות ורפואה'
+      'תרופה', 'תרופות מרשם', 'רפואה', 'עזרה ראשונה', 'בריאות ורפואה',
+      'היגיינה', 'וויטמינים'
     ],
     displayLabel: 'בית מרקחת',
     items: [
@@ -104,7 +109,8 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
     keywords: [
       'קמפינג', 'טיול', 'טבע', 'מחנה', 'גן לאומי',
       'טיול רגלי', 'טרק', 'הרים', 'שמורת טבע', 'לילה בטבע',
-      'ישיבת שטח', 'קמפ', 'ביצות', 'נחל', 'מדבר'
+      'ישיבת שטח', 'קמפ', 'ביצות', 'נחל', 'מדבר',
+      'אוהל', 'שטח', 'נאות'
     ],
     displayLabel: 'טיול קמפינג',
     items: [
@@ -164,9 +170,10 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
 
   'baby': {
     keywords: [
-      'תינוק', 'תינוקת', 'עגלה', 'ילדים', 'פעוט',
+      'תינוק', 'תינוקת', 'תינוקות', 'עגלה', 'ילד', 'ילדים', 'פעוט',
       'לידה', 'הריון', 'משתלת תינוקות', 'אמא ותינוק',
-      'טיפוח תינוק', 'ציוד לתינוק', 'ברית', 'מקלחת לתינוק'
+      'טיפוח תינוק', 'ציוד לתינוק', 'ברית', 'מקלחת לתינוק',
+      'גן ילדים', 'בייבי'
     ],
     displayLabel: 'ציוד לתינוק',
     items: [
@@ -195,7 +202,7 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
 
   'home-renovation': {
     keywords: [
-      'שיפוץ', 'בנייה', 'צביעה', 'תיקון', 'שיפורים',
+      'שיפוץ', 'בנייה', 'צביעה', 'צבע', 'תיקון', 'שיפורים',
       'DIY', 'כלי עבודה', 'חומרי בניין', 'אינסטלציה',
       'חשמל', 'ריצוף', 'גבס', 'עיצוב מחדש', 'שדרוג הבית'
     ],
@@ -288,9 +295,10 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
 
   'pets': {
     keywords: [
-      'כלב', 'חתול', 'חיות מחמד', 'וטרינר',
+      'כלב', 'חתול', 'חיות מחמד', 'חיות', 'וטרינר',
       'גור', 'חתלתול', 'אקווריום', 'ציפור', 'ארנב',
-      'חמסטר', 'דג', 'כלוב', 'רפואה וטרינרית', 'בית חיות'
+      'חמסטר', 'דג', 'כלוב', 'רפואה וטרינרית', 'בית חיות',
+      'ציוד לחיות'
     ],
     displayLabel: 'ציוד לחיות מחמד',
     items: [
@@ -319,9 +327,9 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
 
   'gardening': {
     keywords: [
-      'גינה', 'גינון', 'צמחים', 'פרחים',
+      'גינה', 'גינון', 'צמחים', 'פרחים', 'גן',
       'ירקות', 'עצים', 'דשא', 'גיזום',
-      'השקיה', 'עציצים', 'זרעים', 'גינת ירק', 'מרפסת ירוקה'
+      'השקיה', 'עציצים', 'זרעים', 'שתילים', 'גינת ירק', 'מרפסת ירוקה'
     ],
     displayLabel: 'גינון',
     items: [
@@ -384,7 +392,7 @@ export const CONTEXT_RECOGNITION_MAPPING_HE: Record<string, ContextDefinition> =
  * Detects the context of a Hebrew Sub-Hub name by matching keywords
  */
 export function detectContextHe(subHubName: string): string | null {
-  const name = subHubName.trim();
+  const name = subHubName.trim().toLowerCase(); // Hebrew has no case, but defensive for mixed input
 
   const priorityOrder = ['stock', 'pharmacy', 'camping', 'abroad', 'baby', 'home-renovation', 'baking', 'party', 'pets', 'gardening', 'home-decor', 'grocery'];
 
@@ -410,7 +418,7 @@ export function getSuggestedContextsHe(subHubName: string): Array<{
   displayLabel: string;
   itemCount: number;
 }> {
-  const name = subHubName.trim();
+  const name = subHubName.trim().toLowerCase(); // Hebrew has no case, but defensive for mixed input
   const suggestedContexts: Set<string> = new Set();
 
   for (const [contextKey, definition] of Object.entries(CONTEXT_RECOGNITION_MAPPING_HE)) {

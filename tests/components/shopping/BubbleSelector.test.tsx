@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
+import { renderWithI18n } from '../../helpers/renderWithI18n'
 import MasterListDrawer from '@/components/MasterListDrawer'
 import type { MasterListItem } from '@/types/base'
 
-// Mock contextResolver to avoid i18n / Hebrew file dependencies
 vi.mock('@/utils/contextResolver', () => ({
   getSuggestedContexts: vi.fn(),
   getContextItems: vi.fn(),
@@ -62,22 +62,22 @@ describe('BubbleSelector — empty master list (Quick Setup state)', () => {
   })
 
   it('renders Quick Setup header when master list is empty', () => {
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     expect(screen.getByText('Quick Setup')).toBeInTheDocument()
   })
 
   it('renders suggestion bubble with context displayLabel', () => {
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     expect(screen.getByText('Camping Supplies')).toBeInTheDocument()
   })
 
   it('renders Keep Empty button', () => {
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     expect(screen.getByText('Keep Empty')).toBeInTheDocument()
   })
 
   it('clicking a context bubble calls onUpdateMasterList with context items', () => {
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     fireEvent.click(screen.getByText('Camping Supplies'))
     expect(defaultProps.onUpdateMasterList).toHaveBeenCalledOnce()
     const updatedList: MasterListItem[] = defaultProps.onUpdateMasterList.mock.calls[0][0]
@@ -87,7 +87,7 @@ describe('BubbleSelector — empty master list (Quick Setup state)', () => {
   })
 
   it('clicking Keep Empty switches to edit mode (shows add input)', () => {
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     fireEvent.click(screen.getByText('Keep Empty'))
     expect(screen.getByPlaceholderText('Add to master list...')).toBeInTheDocument()
   })
@@ -97,14 +97,14 @@ describe('BubbleSelector — empty master list (Quick Setup state)', () => {
       CAMPING_CONTEXT,
       { contextKey: 'stock', displayLabel: 'Stock Supplies', itemCount: 15 },
     ])
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     expect(screen.getByText('Camping Supplies')).toBeInTheDocument()
     expect(screen.getByText('Stock Supplies')).toBeInTheDocument()
   })
 
   it('shows no bubbles when no contexts match', () => {
     mockGetSuggestedContexts.mockReturnValue([])
-    render(<MasterListDrawer {...defaultProps} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} />)
     // Quick Setup header still renders, but no bubble buttons
     expect(screen.queryByTitle(/Add \d+ items/)).not.toBeInTheDocument()
   })
@@ -121,12 +121,12 @@ describe('BubbleSelector — with items (Quick Add Templates section)', () => {
   })
 
   it('shows Quick Add from Templates section when items exist', () => {
-    render(<MasterListDrawer {...defaultProps} masterListItems={existingItems} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} masterListItems={existingItems} />)
     expect(screen.getByText('Quick Add from Templates')).toBeInTheDocument()
   })
 
   it('renders context bubble in the templates section', () => {
-    render(<MasterListDrawer {...defaultProps} masterListItems={existingItems} />)
+    renderWithI18n(<MasterListDrawer {...defaultProps} masterListItems={existingItems} />)
     // The label appears in the templates section
     expect(screen.getAllByText('Camping Supplies').length).toBeGreaterThanOrEqual(1)
   })

@@ -103,7 +103,7 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
     // Address field is reservation-specific
-    expect(screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('addressPlaceholder')).toBeInTheDocument()
     // Time input (type=time)
     const inputs = screen.getAllByDisplayValue('')
     const timeInput = inputs.find((el) => (el as HTMLInputElement).type === 'time')
@@ -125,15 +125,15 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderReservation'), {
       target: { value: 'Restaurant Taizu' },
     })
-    fireEvent.change(screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv'), {
+    fireEvent.change(screen.getByPlaceholderText('addressPlaceholder'), {
       target: { value: '23 Menachem Begin St' },
     })
 
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderReservation').closest('form')!
     )
 
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledOnce()
@@ -148,7 +148,7 @@ describe('CreateReservationForm — reservation type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderReservation'), {
       target: { value: 'Dinner' },
     })
 
@@ -162,7 +162,7 @@ describe('CreateReservationForm — reservation type', () => {
     fireEvent.change(timeInput, { target: { value: '20:00' } })
 
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderReservation').closest('form')!
     )
 
     const [vouchers] = defaultProps.onUpdateVouchers.mock.calls[0]
@@ -173,16 +173,16 @@ describe('CreateReservationForm — reservation type', () => {
   it('requires name — input has required attribute', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
-    const nameInput = screen.getByPlaceholderText('e.g., Dinner at Taizu')
+    const nameInput = screen.getByPlaceholderText('namePlaceholderReservation')
     expect((nameInput as HTMLInputElement).required).toBe(true)
   })
 
   it('closes the modal without submitting when Cancel is clicked', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
-    fireEvent.click(screen.getByText('Cancel'))
+    fireEvent.click(screen.getByText('cancel'))
     expect(defaultProps.onUpdateVouchers).not.toHaveBeenCalled()
-    expect(screen.queryByPlaceholderText('e.g., Dinner at Taizu')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('namePlaceholderReservation')).not.toBeInTheDocument()
   })
 
   // ── Edit existing reservation ─────────────────────────────────────────────
@@ -194,13 +194,13 @@ describe('CreateReservationForm — reservation type', () => {
       time: '19:00',
     })
     render(<VoucherList {...defaultProps} vouchers={[res]} />)
-    fireEvent.click(screen.getByTitle('Edit'))
+    fireEvent.click(screen.getByTitle('edit'))
 
     expect(
-      (screen.getByPlaceholderText('e.g., Dinner at Taizu') as HTMLInputElement).value
+      (screen.getByPlaceholderText('namePlaceholderReservation') as HTMLInputElement).value
     ).toBe('Existing Reservation')
     expect(
-      (screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv') as HTMLInputElement).value
+      (screen.getByPlaceholderText('addressPlaceholder') as HTMLInputElement).value
     ).toBe('5 Rothschild Blvd')
     // Time should be pre-filled
     const inputs = document.querySelectorAll('input[type="time"]')
@@ -211,12 +211,12 @@ describe('CreateReservationForm — reservation type', () => {
     const res = createMockReservation({ name: 'Old Reservation' })
     render(<VoucherList {...defaultProps} vouchers={[res]} />)
 
-    fireEvent.click(screen.getByTitle('Edit'))
-    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
+    fireEvent.click(screen.getByTitle('edit'))
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderReservation'), {
       target: { value: 'New Reservation Name' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderReservation').closest('form')!
     )
 
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledOnce()
@@ -231,14 +231,14 @@ describe('CreateReservationForm — reservation type', () => {
   it('shows confirmation modal when delete button is clicked', () => {
     const res = createMockReservation()
     render(<VoucherList {...defaultProps} vouchers={[res]} />)
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     expect(screen.getByTestId('confirm-modal')).toBeInTheDocument()
   })
 
   it('removes the reservation when deletion is confirmed', () => {
     const res = createMockReservation()
     render(<VoucherList {...defaultProps} vouchers={[res]} />)
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     fireEvent.click(screen.getByText('Confirm Delete'))
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledWith([])
   })

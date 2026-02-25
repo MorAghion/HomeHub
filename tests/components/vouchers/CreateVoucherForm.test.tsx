@@ -118,14 +118,14 @@ describe('CreateVoucherForm — voucher type', () => {
     // Modal heading includes the i18n key "addVoucher"
     expect(screen.getAllByText('addVoucher').length).toBeGreaterThan(1)
     // Name input is visible
-    expect(screen.getByPlaceholderText('e.g., Azrieli Gift Card')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('namePlaceholderVoucher')).toBeInTheDocument()
   })
 
   it('shows voucher-specific fields (value, issuer, expiry) for voucher lists', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
-    expect(screen.getByPlaceholderText('e.g., ₪200 or 2 Movie Tickets')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('e.g., BuyMe, Azrieli')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('voucherValuePlaceholder')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('voucherIssuerPlaceholder')).toBeInTheDocument()
     // Expiry date input
     const dateInputs = screen.getAllByDisplayValue('')
     const dateInput = dateInputs.find((el) => (el as HTMLInputElement).type === 'date')
@@ -142,11 +142,11 @@ describe('CreateVoucherForm — voucher type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Test Voucher' },
     })
 
-    fireEvent.submit(screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!)
+    fireEvent.submit(screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!)
 
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledOnce()
     const [updatedVouchers] = defaultProps.onUpdateVouchers.mock.calls[0]
@@ -160,7 +160,7 @@ describe('CreateVoucherForm — voucher type', () => {
     openAddModal()
     // Name input left blank — form has `required` on the name input so
     // HTML5 validation prevents submit, but we can also test via handleAddVoucher guard
-    const nameInput = screen.getByPlaceholderText('e.g., Azrieli Gift Card')
+    const nameInput = screen.getByPlaceholderText('namePlaceholderVoucher')
     expect((nameInput as HTMLInputElement).required).toBe(true)
   })
 
@@ -168,17 +168,17 @@ describe('CreateVoucherForm — voucher type', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
 
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Cinema Tickets' },
     })
-    fireEvent.change(screen.getByPlaceholderText('e.g., ₪200 or 2 Movie Tickets'), {
+    fireEvent.change(screen.getByPlaceholderText('voucherValuePlaceholder'), {
       target: { value: '2 tickets' },
     })
-    fireEvent.change(screen.getByPlaceholderText('e.g., BuyMe, Azrieli'), {
+    fireEvent.change(screen.getByPlaceholderText('voucherIssuerPlaceholder'), {
       target: { value: 'BuyMe' },
     })
 
-    fireEvent.submit(screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!)
+    fireEvent.submit(screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!)
 
     const [vouchers] = defaultProps.onUpdateVouchers.mock.calls[0]
     expect(vouchers[0].value).toBe('2 tickets')
@@ -188,16 +188,16 @@ describe('CreateVoucherForm — voucher type', () => {
   it('closes the modal and does not submit when Cancel is clicked', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
-    fireEvent.click(screen.getByText('Cancel'))
+    fireEvent.click(screen.getByText('cancel'))
     expect(defaultProps.onUpdateVouchers).not.toHaveBeenCalled()
-    expect(screen.queryByPlaceholderText('e.g., Azrieli Gift Card')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('namePlaceholderVoucher')).not.toBeInTheDocument()
   })
 
   it('closes the modal when the × button is clicked', () => {
     render(<VoucherList {...defaultProps} />)
     openAddModal()
     fireEvent.click(screen.getByText('×'))
-    expect(screen.queryByPlaceholderText('e.g., Azrieli Gift Card')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText('namePlaceholderVoucher')).not.toBeInTheDocument()
   })
 
   // ── Edit existing voucher ─────────────────────────────────────────────────
@@ -207,21 +207,21 @@ describe('CreateVoucherForm — voucher type', () => {
     render(<VoucherList {...defaultProps} vouchers={[voucher]} />)
 
     // Click the edit button on the VoucherCard
-    fireEvent.click(screen.getByTitle('Edit'))
+    fireEvent.click(screen.getByTitle('edit'))
 
     // Modal opens with pre-filled data
-    expect((screen.getByPlaceholderText('e.g., Azrieli Gift Card') as HTMLInputElement).value).toBe('Existing Voucher')
-    expect((screen.getByPlaceholderText('e.g., ₪200 or 2 Movie Tickets') as HTMLInputElement).value).toBe('₪100')
-    expect((screen.getByPlaceholderText('e.g., BuyMe, Azrieli') as HTMLInputElement).value).toBe('Zara')
+    expect((screen.getByPlaceholderText('namePlaceholderVoucher') as HTMLInputElement).value).toBe('Existing Voucher')
+    expect((screen.getByPlaceholderText('voucherValuePlaceholder') as HTMLInputElement).value).toBe('₪100')
+    expect((screen.getByPlaceholderText('voucherIssuerPlaceholder') as HTMLInputElement).value).toBe('Zara')
   })
 
   it('calls onUpdateVouchers with updated data when editing', () => {
     const voucher = createMockVoucher({ name: 'Old Name', value: '₪100' })
     render(<VoucherList {...defaultProps} vouchers={[voucher]} />)
 
-    fireEvent.click(screen.getByTitle('Edit'))
+    fireEvent.click(screen.getByTitle('edit'))
 
-    const nameInput = screen.getByPlaceholderText('e.g., Azrieli Gift Card')
+    const nameInput = screen.getByPlaceholderText('namePlaceholderVoucher')
     fireEvent.change(nameInput, { target: { value: 'Updated Name' } })
 
     fireEvent.submit(nameInput.closest('form')!)
@@ -237,14 +237,14 @@ describe('CreateVoucherForm — voucher type', () => {
   it('shows confirmation modal when delete button is clicked', () => {
     const voucher = createMockVoucher()
     render(<VoucherList {...defaultProps} vouchers={[voucher]} />)
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     expect(screen.getByTestId('confirm-modal')).toBeInTheDocument()
   })
 
   it('removes the voucher when deletion is confirmed', () => {
     const voucher = createMockVoucher({ name: 'To Delete' })
     render(<VoucherList {...defaultProps} vouchers={[voucher]} />)
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     fireEvent.click(screen.getByText('Confirm Delete'))
     expect(defaultProps.onUpdateVouchers).toHaveBeenCalledWith([])
   })
@@ -252,7 +252,7 @@ describe('CreateVoucherForm — voucher type', () => {
   it('does not remove the voucher when deletion is cancelled', () => {
     const voucher = createMockVoucher()
     render(<VoucherList {...defaultProps} vouchers={[voucher]} />)
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     fireEvent.click(screen.getByText('Cancel Delete'))
     expect(defaultProps.onUpdateVouchers).not.toHaveBeenCalled()
   })

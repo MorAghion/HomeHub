@@ -1,0 +1,124 @@
+{
+  "id": "qa-012",
+  "title": "Tests for fe-bug-019 — autoCategorize Hebrew input + expanded English keywords",
+  "agent": "qa",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "in_progress",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "paired_with": "fe-bug-019",
+  "mode": "TDD — write tests first, validate after FE merges",
+
+  "workflow": [
+    "PHASE 1 (start immediately, TDD): Read fe-bug-019.json. Write tests asserting autoCategorize() returns the correct category for Hebrew and expanded English inputs. Tests will FAIL initially — expected.",
+    "PHASE 2 (after FE handoff): Watch agents/handoffs/ for handoff from fe-bug-019 to qa-012. Merge FE branch and run tests.",
+    "PHASE 3 (validate): All tests should pass. Note any failures in handoff back to FE.",
+    "PHASE 4 (PR): Push branch and open PR --base master."
+  ],
+
+  "branch": "agent/qa-012-autocategorize-tests",
+
+  "test_files_to_create_or_update": [
+    "tests/utils/autoCategorize.test.ts"
+  ],
+
+  "note_on_test_file": "autoCategorize is currently defined inline in App.tsx and not exported. FE agent may extract it to src/utils/autoCategorize.ts as part of fe-bug-019. If so, import from there. If it remains in App.tsx, test it indirectly by rendering a component that calls it, or ask FE agent to export it.",
+
+  "test_cases_required": {
+    "Hebrew_input_Dairy": [
+      "autoCategorize('חלב') returns 'Dairy'",
+      "autoCategorize('גבינה') returns 'Dairy'",
+      "autoCategorize('יוגורט') returns 'Dairy'",
+      "autoCategorize('ביצים') returns 'Dairy'",
+      "autoCategorize('חמאה') returns 'Dairy'"
+    ],
+    "Hebrew_input_Meat": [
+      "autoCategorize('עוף') returns 'Meat'",
+      "autoCategorize('בשר') returns 'Meat'",
+      "autoCategorize('שניצל') returns 'Meat'",
+      "autoCategorize('כבש') returns 'Meat'"
+    ],
+    "Hebrew_input_Fish": [
+      "autoCategorize('סלמון') returns 'Fish'",
+      "autoCategorize('טונה') returns 'Fish'",
+      "autoCategorize('דג') returns 'Fish'"
+    ],
+    "Hebrew_input_Vegetables": [
+      "autoCategorize('עגבניות') returns 'Vegetables'",
+      "autoCategorize('גזר') returns 'Vegetables'",
+      "autoCategorize('בצל') returns 'Vegetables'",
+      "autoCategorize('פלפל') returns 'Vegetables'"
+    ],
+    "Hebrew_input_Fruit": [
+      "autoCategorize('תפוח') returns 'Fruit'",
+      "autoCategorize('בננה') returns 'Fruit'",
+      "autoCategorize('תפוז') returns 'Fruit'",
+      "autoCategorize('אבוקדו') returns 'Fruit'"
+    ],
+    "Hebrew_input_Pantry": [
+      "autoCategorize('לחם') returns 'Pantry'",
+      "autoCategorize('אורז') returns 'Pantry'",
+      "autoCategorize('פסטה') returns 'Pantry'",
+      "autoCategorize('קמח') returns 'Pantry'"
+    ],
+    "Hebrew_input_Cleaning": [
+      "autoCategorize('אבקת כביסה') returns 'Cleaning'",
+      "autoCategorize('נייר טואלט') returns 'Cleaning'",
+      "autoCategorize('סבון כלים') returns 'Cleaning'"
+    ],
+    "Hebrew_input_Pharma": [
+      "autoCategorize('תרופה') returns 'Pharma & Hygiene'",
+      "autoCategorize('שמפו') returns 'Pharma & Hygiene'",
+      "autoCategorize('ויטמין') returns 'Pharma & Hygiene'"
+    ],
+    "English_previously_missing": [
+      "autoCategorize('almonds') returns 'Pantry'",
+      "autoCategorize('tahini') returns 'Pantry'",
+      "autoCategorize('oat milk') returns 'Dairy'",
+      "autoCategorize('almond milk') returns 'Dairy'",
+      "autoCategorize('granola') returns 'Pantry'",
+      "autoCategorize('shawarma') returns 'Meat'",
+      "autoCategorize('sweet potato') returns 'Vegetables'"
+    ],
+    "English_existing_still_work": [
+      "autoCategorize('milk') returns 'Dairy'",
+      "autoCategorize('chicken') returns 'Meat'",
+      "autoCategorize('salmon') returns 'Fish'",
+      "autoCategorize('tomato') returns 'Vegetables'",
+      "autoCategorize('apple') returns 'Fruit'",
+      "autoCategorize('bread') returns 'Pantry'",
+      "autoCategorize('detergent') returns 'Cleaning'",
+      "autoCategorize('shampoo') returns 'Pharma & Hygiene'"
+    ],
+    "Default_fallback": [
+      "autoCategorize('xyzabc123') returns 'Other'",
+      "autoCategorize('') returns 'Other'"
+    ],
+    "Case_insensitivity": [
+      "autoCategorize('Milk') returns 'Dairy'",
+      "autoCategorize('CHICKEN') returns 'Meat'"
+    ]
+  },
+
+  "test_setup_notes": [
+    "If autoCategorize is extracted to src/utils/autoCategorize.ts by FE agent, import directly: import { autoCategorize } from '../../src/utils/autoCategorize'",
+    "If it remains in App.tsx unexported: coordinate with FE agent to export it, OR test indirectly via MasterListDrawer integration test that checks the category assigned to a newly added item",
+    "These are pure unit tests — fast to run, no React rendering needed if function is extracted",
+    "Check tests/utils/ for existing autoCategorize tests from qa-003 — extend rather than duplicate"
+  ],
+
+  "handoff_to_watch_for": {
+    "file_pattern": "agents/handoffs/fe-bug-019-to-qa-012-*.json",
+    "check_interval": "poll: ls agents/handoffs/ | grep qa-012"
+  },
+
+  "completion_criteria": [
+    "All Hebrew input cases return correct category (not 'Other')",
+    "All previously-missing English keywords return correct category",
+    "All existing English keywords still work (no regressions)",
+    "Default fallback to 'Other' still works",
+    "npm test exits with 0 failures",
+    "PR opened with --base master"
+  ]
+}

@@ -467,6 +467,7 @@ function VouchersHub({
             : t('deleteVoucherListMessage')
         }
         confirmText={t('deleteConfirm')}
+        cancelText={t('cancel', { ns: 'common' })}
         isDestructive
       />
     </div>
