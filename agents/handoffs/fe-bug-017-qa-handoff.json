@@ -1,0 +1,31 @@
+{
+  "id": "fe-bug-017-qa-handoff",
+  "type": "bug_fix_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-25",
+  "task_id": "fe-bug-017",
+  "pr": "https://github.com/MorAghion/HomeHub/pull/27",
+  "branch": "agent/fe-bug-017-i18n-audit",
+  "summary": "Full i18n audit complete. All 6 components now use useTranslation.",
+  "what_changed": [
+    "VoucherCard.tsx: added useTranslation('vouchers'), replaced 16 hardcoded strings",
+    "AddVoucherModal.tsx: added useTranslation('vouchers'), replaced 29 hardcoded strings",
+    "AddReservationModal.tsx: added useTranslation('vouchers'), replaced 27 hardcoded strings",
+    "AuthScreen.tsx: replaced 5 remaining hardcoded placeholders",
+    "ConfirmationModal callers: added cancelText to all 6 callers (VouchersHub, ReservationsHub, VoucherList, ShoppingHub, TasksHub, TaskList)",
+    "TaskList.tsx: added useTranslation('tasks'), replaced hardcoded ConfirmationModal strings",
+    "InputModal callers: added cancelText to TasksHub (2 instances)",
+    "en/vouchers.json + he/vouchers.json: 40+ new keys",
+    "en/auth.json + he/auth.json: 5 new placeholder keys"
+  ],
+  "qa_validation_needed": [
+    "Switch to Hebrew — verify VoucherCard expiry/date badges show Hebrew",
+    "Switch to Hebrew — open AddVoucherModal, verify all labels/placeholders in Hebrew",
+    "Switch to Hebrew — open AddReservationModal, verify all labels/placeholders in Hebrew",
+    "Switch to Hebrew — open AuthScreen, verify placeholders in Hebrew",
+    "Trigger ConfirmationModal in any hub — Cancel button shows translated text",
+    "Trigger TaskList delete — title, message, and buttons all translated",
+    "Run npm run build — zero TypeScript errors"
+  ]
+}

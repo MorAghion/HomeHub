@@ -353,6 +353,7 @@ function ReservationsHub({
             : t('deleteReservationListMessage')
         }
         confirmText={t('deleteConfirm')}
+        cancelText={t('cancel', { ns: 'common' })}
         isDestructive
       />
     </div>

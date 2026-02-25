@@ -149,6 +149,7 @@ function VoucherList({ listName, listId, listType, vouchers, onUpdateVouchers, o
         title={t('deleteVoucher')}
         message={t('deleteVoucherMessage')}
         confirmText={t('deleteConfirm')}
+        cancelText={t('cancel', { ns: 'common' })}
         isDestructive
       />
     </div>

@@ -323,6 +323,7 @@ function ShoppingHub({
             : ''
         }
         confirmText={t('deleteConfirm')}
+        cancelText={t('common:cancel')}
         isDestructive
       />
     </div>

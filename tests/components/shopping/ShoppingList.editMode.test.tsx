@@ -9,7 +9,8 @@
  *   - "Select All" / "Deselect All" button height matches the other controls
  */
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
+import { renderWithI18n } from '../../helpers/renderWithI18n'
 import ShoppingList from '@/components/ShoppingList'
 import type { ShoppingItem, MasterListItem } from '@/types/base'
 
@@ -53,12 +54,12 @@ function enterBulkDeleteMode() {
 
 describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   it('renders the bulk delete toggle button', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     expect(screen.getByTitle('Bulk Delete Mode')).toBeInTheDocument()
   })
 
   it('shows the bulk-delete action bar after entering edit mode', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
 
     // Action bar appears with Select All
@@ -66,7 +67,7 @@ describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   })
 
   it('[BUG-011] bulk delete action bar container has a gap class (buttons are spaced)', () => {
-    const { container } = render(<ShoppingList {...defaultProps} />)
+    const { container } = renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
 
     // The row of action buttons must sit inside a flex container that includes gap
@@ -79,7 +80,7 @@ describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   })
 
   it('[BUG-011] Delete Selected and Cancel buttons have matching py classes', () => {
-    const { container } = render(<ShoppingList {...defaultProps} />)
+    const { container } = renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
 
     // Select an item so "Delete Selected" appears
@@ -102,7 +103,7 @@ describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   })
 
   it('[BUG-011] Select All and Delete Selected buttons share the same container row', () => {
-    const { container } = render(<ShoppingList {...defaultProps} />)
+    const { container } = renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
 
     // The bulk delete action bar should place its buttons in a flex row.
@@ -116,7 +117,7 @@ describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   })
 
   it('[BUG-011] action buttons in edit mode have at least one shared rounded class', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
     fireEvent.click(screen.getByText('Select All'))
 
@@ -132,7 +133,7 @@ describe('fe-bug-011 — ShoppingList edit mode button layout', () => {
   })
 
   it('[BUG-011] Cancel exits bulk delete mode', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     enterBulkDeleteMode()
 
     fireEvent.click(screen.getByText('Cancel'))

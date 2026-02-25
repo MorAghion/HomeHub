@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { VoucherItem, Voucher, Reservation } from '../types/base';
 
 interface VoucherCardProps {
@@ -9,6 +10,7 @@ interface VoucherCardProps {
 }
 
 function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCardProps) {
+  const { t } = useTranslation('vouchers');
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -32,16 +34,16 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { text: 'Expired', color: '#DC2626', urgent: true };
+      return { text: t('expired'), color: '#DC2626', urgent: true };
     } else if (diffDays === 0) {
-      return { text: 'Expires Today', color: '#F59E0B', urgent: true };
+      return { text: t('expiresToday'), color: '#F59E0B', urgent: true };
     } else if (diffDays <= 7) {
-      return { text: `${diffDays} days left`, color: '#F59E0B', urgent: true };
+      return { text: t('daysLeft', { count: diffDays }), color: '#F59E0B', urgent: true };
     } else if (diffDays <= 30) {
-      return { text: `${diffDays} days left`, color: '#8E806A', urgent: false };
+      return { text: t('daysLeft', { count: diffDays }), color: '#8E806A', urgent: false };
     } else {
       const formatted = expiryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      return { text: `Expires ${formatted}`, color: '#8E806A', urgent: false };
+      return { text: t('expiresOn', { date: formatted }), color: '#8E806A', urgent: false };
     }
   };
 
@@ -69,12 +71,12 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
 
     let prefix = '';
     if (eventDate.toDateString() === today.toDateString()) {
-      prefix = 'Today';
+      prefix = t('today');
     } else if (eventDate.toDateString() === tomorrow.toDateString()) {
-      prefix = 'Tomorrow';
+      prefix = t('tomorrow');
     }
 
-    const timeStr = time ? ` at ${time}` : '';
+    const timeStr = time ? ` ${t('atTime', { time })}` : '';
     return prefix ? `${prefix}${timeStr}` : `${formatted}${timeStr}`;
   };
 
@@ -94,7 +96,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
             )}
             {voucher.itemType === 'reservation' && (
               <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#8E806A' }}>
-                📅 Reservation
+                {t('reservationBadge')}
               </p>
             )}
             <h3 className="text-lg font-semibold" style={{ color: '#630606' }}>
@@ -110,7 +112,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
                 onClick={() => onRefreshDetails?.(voucher)}
                 className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors"
                 style={{ color: '#3B82F6' }}
-                title="Refresh details from URL"
+                title={t('refreshDetails')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -121,7 +123,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
               onClick={() => onEdit?.(voucher)}
               className="p-1.5 hover:bg-[#8E806A11] rounded-lg transition-colors"
               style={{ color: '#8E806A' }}
-              title="Edit"
+              title={t('edit', { ns: 'common' })}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -131,7 +133,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
               onClick={() => onDelete?.(voucher.id)}
               className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
               style={{ color: '#DC2626' }}
-              title="Delete"
+              title={t('delete', { ns: 'common' })}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -198,7 +200,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              Open Original
+              {t('openOriginal')}
             </button>
           )}
 
@@ -217,14 +219,14 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Copied!
+                  {t('copiedSuccess')}
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  {hasMultipleCodes ? 'Copy Codes' : 'Copy Code'}
+                  {hasMultipleCodes ? t('copyCodes') : t('copyCode')}
                 </>
               )}
             </button>
@@ -243,7 +245,7 @@ function VoucherCard({ voucher, onEdit, onDelete, onRefreshDetails }: VoucherCar
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              View Card
+              {t('viewCard')}
             </button>
           )}
         </div>
