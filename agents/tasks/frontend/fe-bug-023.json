@@ -1,0 +1,39 @@
+{
+  "id": "fe-bug-023",
+  "title": "Owner receives no in-app notification when partner joins household",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "low",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — test [31]",
+  "wave": 10,
+  "failing_tests": ["[31]"],
+  "root_cause": "When a partner joins via invite code, the owner has no real-time notification. The owner only discovers the new member by opening Settings.",
+  "affected_files": [
+    "src/contexts/AuthContext.tsx",
+    "src/components/NotificationBadge.tsx (to create)",
+    "src/App.tsx"
+  ],
+  "implementation_plan": [
+    "1. In AuthContext, subscribe to Supabase realtime on the user_profiles table (filtered by household_id) to detect new member inserts",
+    "2. On new member event: store a notification in React state (e.g. { type: 'member_joined', displayName, householdId })",
+    "3. Create NotificationBadge component (data-testid='notification-badge') that renders a small badge/toast with the notification",
+    "4. Show notification in App.tsx header area — auto-dismiss after 8 seconds, tappable to open Settings",
+    "5. Add i18n keys: partnerJoined, viewSettings",
+    "6. Run npm test — test [31] should now pass"
+  ],
+  "acceptance_criteria": [
+    "When a new member joins, owner sees a notification toast/badge",
+    "Notification contains the new member's display name",
+    "Notification is dismissable",
+    "data-testid='notification-badge' element is present when notification is active",
+    "Test [31] passes"
+  ],
+  "notes": [
+    "Supabase Realtime requires the household_id filter to avoid cross-household leakage",
+    "RLS must allow SELECT on user_profiles for the owner's household",
+    "If realtime is too complex, a simpler approach: poll household members on app focus every 60s and show toast if count increased"
+  ]
+}

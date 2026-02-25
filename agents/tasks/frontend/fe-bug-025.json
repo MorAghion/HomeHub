@@ -1,0 +1,36 @@
+{
+  "id": "fe-bug-025",
+  "title": "Existing email in join form shows generic error instead of \"sign in instead\" guidance",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "medium",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — test [18]",
+  "wave": 10,
+  "failing_tests": ["[18]"],
+  "root_cause": "When a user fills the join form with an email that already has a HomeHub account, signUp() returns 'User already registered'. AuthScreen shows this raw error with no actionable path forward.",
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. In the join form error handler in AuthScreen.tsx, after signUp() returns an error: if (error.message.includes('User already registered') || error.message.includes('already registered')) { setError(t('alreadyHaveAccount')); return; }",
+    "2. Add i18n key 'alreadyHaveAccount': 'You already have an account. Sign in instead, then join via Settings.'",
+    "3. Optionally: make the message include a clickable link that switches to the sign-in tab: onClick={() => setMode('signin')}",
+    "4. Add matching Hebrew translation",
+    "5. Run npm test — test [18] should now pass"
+  ],
+  "acceptance_criteria": [
+    "When join form signUp returns 'User already registered', a message matching /already have an account|sign in instead/i is shown",
+    "The raw error is not shown",
+    "Optionally the message includes a way to switch to the sign-in tab",
+    "Test [18] passes"
+  ],
+  "fix_complexity": "trivial — 3 lines of code + 2 i18n keys",
+  "notes": [
+    "The full join-with-existing-account flow (sign in + join via Settings) is a backlog item tracked separately"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "fe-bug-022",
+  "title": "No welcome screen shown after partner successfully joins household",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "medium",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — tests [13] [32]",
+  "wave": 10,
+  "failing_tests": ["[13]", "[32]"],
+  "root_cause": "After a successful join (signUp succeeds + onAuthStateChange processes the invite), the app navigates directly into the main hub view with no acknowledgement. The partner has no visual confirmation that they joined the correct household.",
+  "affected_files": [
+    "src/contexts/AuthContext.tsx",
+    "src/components/AuthScreen.tsx",
+    "src/components/WelcomeScreen.tsx (to create)",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. After join_household_via_invite RPC succeeds in AuthContext.tsx, set a flag (e.g. localStorage 'homehub-just-joined': householdName) before clearing the invite",
+    "2. In App.tsx or the main view, check for this flag on mount — if present, show a WelcomeScreen overlay and then clear the flag",
+    "3. Create src/components/WelcomeScreen.tsx — shows: household name, a welcome message, and a 'Get started' button",
+    "4. Add i18n keys: welcomeToHousehold, youveJoined, getStarted",
+    "5. The welcome screen should be dismissable and auto-dismiss after 5 seconds",
+    "6. Run npm test — tests [13][32] should now pass"
+  ],
+  "acceptance_criteria": [
+    "After successful join, a welcome screen is shown before the main app",
+    "Welcome screen contains the household name",
+    "Welcome screen is dismissable",
+    "Tests [13][32] pass"
+  ]
+}
