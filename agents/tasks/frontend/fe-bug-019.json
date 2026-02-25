@@ -4,16 +4,13 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-24",
-  "updated": "2026-02-24",
+  "updated": "2026-02-25",
   "reported_by": "human — manual testing",
-
   "user_reported": "After adding an item that is not in MasterList into the MasterList, it's not categorizing it (sending it directly to the default 'Other' category).",
-
   "root_cause_analysis": {
     "summary": "The `autoCategorize()` function in App.tsx (line 635) contains only English keywords (~25 per category). When a user types a Hebrew item name (e.g., 'חלב' for milk), no English keyword matches and the function returns 'Other'. Even for English input, the keyword list is incomplete — many common grocery items are missing.",
-
     "affected_function": {
       "file": "src/App.tsx",
       "lines": "635-653",
@@ -23,7 +20,6 @@
       "problem_2": "Incomplete English list: items like 'almonds', 'tahini', 'granola', 'almond milk', 'oat milk' are missing",
       "problem_3": "The rich item→category mapping already exists in contextMapping.ts (English) and he/contextMapping.ts (Hebrew) inside each context's items array — but autoCategorize() ignores this existing database entirely"
     },
-
     "call_sites": [
       {
         "file": "src/components/MasterListDrawer.tsx",
@@ -41,21 +37,18 @@
         "description": "addItem() — categorizes items added directly to the active shopping list"
       }
     ],
-
     "existing_resource_to_leverage": {
       "file": "src/utils/contextMapping.ts + src/utils/he/contextMapping.ts",
       "description": "Each context definition has an `items` array with { name, listCategory } pairs. This is essentially a pre-built item→category lookup table in both English and Hebrew. autoCategorize() should query this before falling back to the keyword map.",
       "example": "contextMapping.ts: { name: 'Milk', listCategory: 'Dairy' } — if user types 'milk', look it up here first"
     }
   },
-
   "affected_files": [
     "src/App.tsx",
     "src/utils/contextMapping.ts",
     "src/utils/he/contextMapping.ts",
     "src/utils/contextResolver.ts"
   ],
-
   "implementation_plan": [
     "1. Read src/App.tsx lines 635-653 — understand current autoCategorize()",
     "2. Read src/utils/contextMapping.ts — understand the items[] structure (name, listCategory)",
@@ -67,7 +60,6 @@
     "8. Test: add English items not currently covered like 'almonds', 'tahini', 'oat milk' — verify correct category",
     "9. Run npm run build — zero errors"
   ],
-
   "recommended_solution": {
     "strategy": "Two-pass lookup: first check against the contextMapping items database (exact match, then partial match), then fall back to the keyword map",
     "pass_1_context_items_lookup": {
@@ -85,41 +77,247 @@
     "pass_2_keyword_map": {
       "description": "Keep the existing keyword map but expand it with Hebrew keywords and more English items",
       "hebrew_keywords_to_add": {
-        "Dairy": ["חלב", "גבינה", "יוגורט", "חמאה", "שמנת", "לבן", "קוטג", "ביצים", "ביצה"],
-        "Meat": ["עוף", "בשר", "כבש", "הודו", "נקניק", "שניצל", "סטייק", "קציצות", "כבד"],
-        "Fish": ["סלמון", "טונה", "דג", "דגים", "שרימפס", "קרפיון", "מוסר"],
-        "Vegetables": ["עגבניה", "עגבניות", "גזר", "בצל", "תפוח אדמה", "ברוקולי", "מלפפון", "פלפל", "תרד", "שום", "כרוב", "קישוא", "חצילים", "פטריות", "כרובית", "תירס", "אפונה", "שעועית"],
-        "Fruit": ["תפוח", "בננה", "תפוז", "ענבים", "תות", "מנגו", "אבטיח", "אגס", "אפרסק", "לימון", "דובדבן", "קיווי", "אבוקדו", "שזיף", "אשכולית", "מלון"],
-        "Pantry": ["לחם", "פסטה", "אורז", "קמח", "סוכר", "מלח", "שמן", "חומץ", "דבש", "ריבה", "ביסקוויטים", "שיבולת שועל", "אטריות", "רוטב", "תבלינים", "תה", "קפה", "חיטה", "שעורה"],
-        "Cleaning": ["סבון", "אבקת כביסה", "ספוג", "נייר טואלט", "מגבות נייר", "שקיות אשפה", "מים", "חומר ניקוי", "מסנן"],
-        "Pharma & Hygiene": ["אספירין", "ויטמין", "שמפו", "מרכך", "דאודורנט", "קרם", "תחבושת", "תרופה", "תרופות", "סבון ידיים"],
-        "Baby": ["חיתולים", "מוצץ", "בקבוק", "מזון לתינוק", "קרם לתינוק", "מגבונים", "חלב תינוק"],
-        "Pets": ["מזון לכלב", "מזון לחתול", "ציוד לחיות", "חול לחתול", "עצם", "פינוק לכלב"]
+        "Dairy": [
+          "חלב",
+          "גבינה",
+          "יוגורט",
+          "חמאה",
+          "שמנת",
+          "לבן",
+          "קוטג",
+          "ביצים",
+          "ביצה"
+        ],
+        "Meat": [
+          "עוף",
+          "בשר",
+          "כבש",
+          "הודו",
+          "נקניק",
+          "שניצל",
+          "סטייק",
+          "קציצות",
+          "כבד"
+        ],
+        "Fish": [
+          "סלמון",
+          "טונה",
+          "דג",
+          "דגים",
+          "שרימפס",
+          "קרפיון",
+          "מוסר"
+        ],
+        "Vegetables": [
+          "עגבניה",
+          "עגבניות",
+          "גזר",
+          "בצל",
+          "תפוח אדמה",
+          "ברוקולי",
+          "מלפפון",
+          "פלפל",
+          "תרד",
+          "שום",
+          "כרוב",
+          "קישוא",
+          "חצילים",
+          "פטריות",
+          "כרובית",
+          "תירס",
+          "אפונה",
+          "שעועית"
+        ],
+        "Fruit": [
+          "תפוח",
+          "בננה",
+          "תפוז",
+          "ענבים",
+          "תות",
+          "מנגו",
+          "אבטיח",
+          "אגס",
+          "אפרסק",
+          "לימון",
+          "דובדבן",
+          "קיווי",
+          "אבוקדו",
+          "שזיף",
+          "אשכולית",
+          "מלון"
+        ],
+        "Pantry": [
+          "לחם",
+          "פסטה",
+          "אורז",
+          "קמח",
+          "סוכר",
+          "מלח",
+          "שמן",
+          "חומץ",
+          "דבש",
+          "ריבה",
+          "ביסקוויטים",
+          "שיבולת שועל",
+          "אטריות",
+          "רוטב",
+          "תבלינים",
+          "תה",
+          "קפה",
+          "חיטה",
+          "שעורה"
+        ],
+        "Cleaning": [
+          "סבון",
+          "אבקת כביסה",
+          "ספוג",
+          "נייר טואלט",
+          "מגבות נייר",
+          "שקיות אשפה",
+          "מים",
+          "חומר ניקוי",
+          "מסנן"
+        ],
+        "Pharma & Hygiene": [
+          "אספירין",
+          "ויטמין",
+          "שמפו",
+          "מרכך",
+          "דאודורנט",
+          "קרם",
+          "תחבושת",
+          "תרופה",
+          "תרופות",
+          "סבון ידיים"
+        ],
+        "Baby": [
+          "חיתולים",
+          "מוצץ",
+          "בקבוק",
+          "מזון לתינוק",
+          "קרם לתינוק",
+          "מגבונים",
+          "חלב תינוק"
+        ],
+        "Pets": [
+          "מזון לכלב",
+          "מזון לחתול",
+          "ציוד לחיות",
+          "חול לחתול",
+          "עצם",
+          "פינוק לכלב"
+        ]
       },
       "english_keywords_to_add": {
-        "Dairy": ["eggs", "egg", "almond milk", "oat milk", "plant milk", "whipped cream", "cream cheese"],
-        "Pantry": ["granola", "tahini", "hummus", "pita", "matzo", "dried fruit", "trail mix", "popcorn", "protein bar", "energy bar", "instant noodles", "ramen", "tortilla", "wrap"],
-        "Meat": ["shawarma", "schnitzel", "kebab", "mince", "minced", "fillet", "ground chicken"],
-        "Vegetables": ["fennel", "kohlrabi", "artichoke", "sweet potato", "butternut", "chard", "endive", "radicchio"],
-        "Fruit": ["fig", "date", "lychee", "guava", "passion fruit", "nectarine", "apricot", "rambutan"],
-        "Cleaning": ["disinfectant", "sanitizer", "floor cleaner", "window cleaner", "scrubber", "brush", "toilet brush", "shower gel"],
-        "Pharma & Hygiene": ["painkiller", "ibuprofen", "antibiotic", "eye drops", "nasal spray", "bandage", "gauze", "thermometer", "pregnancy test", "nail clipper"]
+        "Dairy": [
+          "eggs",
+          "egg",
+          "almond milk",
+          "oat milk",
+          "plant milk",
+          "whipped cream",
+          "cream cheese"
+        ],
+        "Pantry": [
+          "granola",
+          "tahini",
+          "hummus",
+          "pita",
+          "matzo",
+          "dried fruit",
+          "trail mix",
+          "popcorn",
+          "protein bar",
+          "energy bar",
+          "instant noodles",
+          "ramen",
+          "tortilla",
+          "wrap"
+        ],
+        "Meat": [
+          "shawarma",
+          "schnitzel",
+          "kebab",
+          "mince",
+          "minced",
+          "fillet",
+          "ground chicken"
+        ],
+        "Vegetables": [
+          "fennel",
+          "kohlrabi",
+          "artichoke",
+          "sweet potato",
+          "butternut",
+          "chard",
+          "endive",
+          "radicchio"
+        ],
+        "Fruit": [
+          "fig",
+          "date",
+          "lychee",
+          "guava",
+          "passion fruit",
+          "nectarine",
+          "apricot",
+          "rambutan"
+        ],
+        "Cleaning": [
+          "disinfectant",
+          "sanitizer",
+          "floor cleaner",
+          "window cleaner",
+          "scrubber",
+          "brush",
+          "toilet brush",
+          "shower gel"
+        ],
+        "Pharma & Hygiene": [
+          "painkiller",
+          "ibuprofen",
+          "antibiotic",
+          "eye drops",
+          "nasal spray",
+          "bandage",
+          "gauze",
+          "thermometer",
+          "pregnancy test",
+          "nail clipper"
+        ]
       }
     },
     "pass_3_default": "'Other' — unchanged"
   },
-
   "alternative_simpler_approach": {
     "description": "If building the full item lookup is complex, at minimum add Hebrew keywords to the existing categoryMap in autoCategorize(). This is a smaller change with high impact.",
-    "files_to_edit": ["src/App.tsx lines 638-646"],
+    "files_to_edit": [
+      "src/App.tsx lines 638-646"
+    ],
     "risk": "Low — just adds more entries to the keyword arrays"
   },
-
   "notes": [
     "autoCategorize() is called with capitalizedText (e.g., 'Milk' not 'milk') — the function already does toLowerCase() internally so this is fine",
     "The function is defined in App.tsx and passed as a prop to ShoppingList and MasterListDrawer — it can be refactored to a utility file to improve testability",
     "Do not change the contextMapping.ts items[] structure — items are used by the context suggestion system, not just autoCategorize",
     "After fixing, manually test in both English and Hebrew mode: type 'חלב', 'עגבניות', 'שניצל', 'milk', 'tahini', 'almonds' into both MasterList and active shopping list inputs",
     "A regression test would be valuable — check tests/components/ for any existing autoCategorize tests"
-  ]
+  ],
+  "completion_summary": {
+    "approach": "Two-pass lookup: (1) exact/partial match against contextMapping + he/contextMapping items, (2) expanded keyword map with full Hebrew + more English, (3) Other fallback",
+    "files_changed": [
+      "src/utils/autoCategorize.ts (new)",
+      "src/App.tsx (import + delegate)"
+    ],
+    "pr": "https://github.com/MorAghion/HomeHub/pull/24",
+    "build": "zero TypeScript/Vite errors",
+    "test_cases": [
+      "חלב → Dairy",
+      "עגבניות → Vegetables",
+      "שניצל → Meat",
+      "ביצים → Dairy",
+      "tahini → Pantry",
+      "oat milk → Dairy"
+    ]
+  }
 }
