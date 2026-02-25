@@ -112,7 +112,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'vinegar', 'cereal', 'oats', 'honey', 'jam', 'peanut butter',
     'crackers', 'chips', 'cookies', 'nuts', 'lentils', 'quinoa',
     'couscous', 'noodles', 'sauce', 'spices', 'herbs', 'tea', 'coffee',
-    'granola', 'tahini', 'hummus', 'pita', 'matzo', 'dried fruit',
+    'granola', 'tahini', 'hummus', 'pita', 'matzo', 'dried fruit', 'almonds',
     'trail mix', 'popcorn', 'protein bar', 'energy bar',
     'instant noodles', 'ramen', 'tortilla', 'wrap',
     // Hebrew
@@ -134,14 +134,16 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 
 export function autoCategorize(itemName: string): string {
   const name = itemName.trim();
+  if (!name) return 'Other';
   const nameLower = name.toLowerCase();
 
   // Pass 1: exact lookup in contextMapping items (English + Hebrew)
   if (ITEM_LOOKUP[nameLower]) return ITEM_LOOKUP[nameLower];
 
-  // Pass 1b: partial match — check if item name contains a known item name
+  // Pass 1b: partial match — input contains a known item name (not reverse,
+  // to avoid false positives like 'דג' matching 'דגני בוקר')
   for (const [knownItem, category] of Object.entries(ITEM_LOOKUP)) {
-    if (nameLower.includes(knownItem) || knownItem.includes(nameLower)) {
+    if (nameLower.includes(knownItem)) {
       return category;
     }
   }
