@@ -1,5 +1,8 @@
 {
   "loading": "טוען...",
+  "offline_title": "אין חיבור לאינטרנט",
+  "offline_message": "בדוק את חיבור האינטרנט ונסה שוב.",
+  "offline_retry": "נסה שוב",
   "refresh": "רענן",
   "settings": "הגדרות",
   "search": "חפש פריטים...",
