@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pencil, Calendar } from 'lucide-react';
 import type { Task } from '../types/base';
 import ConfirmationModal from './ConfirmationModal';
@@ -32,6 +33,7 @@ function TaskList({
   highlightedTaskId,
   onClearHighlight,
 }: TaskListProps) {
+  const { t } = useTranslation('tasks');
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
   const [newTaskUrgency, setNewTaskUrgency] = useState<'Low' | 'Medium' | 'High'>('Medium');
@@ -625,19 +627,20 @@ function TaskList({
         }}
         title={
           deleteConfirmation?.type === 'bulk'
-            ? 'Delete Selected Tasks?'
+            ? t('deleteSelectedTasks')
             : deleteConfirmation?.type === 'completed'
-            ? 'Clear Completed Tasks?'
-            : 'Delete Task?'
+            ? t('clearCompleted')
+            : t('deleteTask')
         }
         message={
           deleteConfirmation?.type === 'bulk'
-            ? `Are you sure you want to delete ${selectedTasksForDeletion.size} task${selectedTasksForDeletion.size !== 1 ? 's' : ''}?`
+            ? t(selectedTasksForDeletion.size === 1 ? 'deleteSelectedTasksMessage_one' : 'deleteSelectedTasksMessage_other', { count: selectedTasksForDeletion.size })
             : deleteConfirmation?.type === 'completed'
-            ? `Are you sure you want to delete ${tasks.filter(t => t.status === 'Completed').length} completed task${tasks.filter(t => t.status === 'Completed').length !== 1 ? 's' : ''}?`
-            : 'Are you sure you want to delete this task?'
+            ? t(tasks.filter(task => task.status === 'Completed').length === 1 ? 'clearCompletedMessage_one' : 'clearCompletedMessage_other', { count: tasks.filter(task => task.status === 'Completed').length })
+            : t('deleteTaskMessage')
         }
-        confirmText="Delete"
+        confirmText={t('deleteConfirm')}
+        cancelText={t('cancel', { ns: 'common' })}
         isDestructive
       />
     </div>
