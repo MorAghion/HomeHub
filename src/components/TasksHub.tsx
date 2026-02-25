@@ -319,6 +319,7 @@ function TasksHub({
         title={t('createNewList')}
         placeholder={t('enterListName')}
         submitText={t('create')}
+        cancelText={t('common:cancel')}
       />
 
       {/* Edit List Modal */}
@@ -330,6 +331,7 @@ function TasksHub({
         placeholder={t('enterNewName')}
         initialValue={editingListId ? taskLists[editingListId]?.name || '' : ''}
         submitText={t('common:save')}
+        cancelText={t('common:cancel')}
       />
 
       {/* Delete Confirmation Modal */}
@@ -352,6 +354,7 @@ function TasksHub({
             : ''
         }
         confirmText={t('deleteConfirm')}
+        cancelText={t('common:cancel')}
         isDestructive
       />
     </div>
