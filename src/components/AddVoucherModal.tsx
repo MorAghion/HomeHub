@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { VoucherItem, Voucher } from '../types/base';
 import { useVoucherForm } from '../hooks/useVoucherForm';
 
@@ -19,6 +20,7 @@ const SpinnerSVG = () => (
 );
 
 function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingItem }: AddVoucherModalProps) {
+  const { t } = useTranslation('vouchers');
   const {
     formData, setFormData,
     smartPaste,
@@ -97,7 +99,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold" style={{ color: '#630606' }}>
-                {editingItem ? 'Edit Voucher' : 'Add Voucher'}
+                {editingItem ? t('editVoucher') : t('addVoucher')}
               </h2>
               <p className="text-xs mt-1" style={{ color: '#8E806A' }}>
                 {listName}
@@ -114,23 +116,23 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">✨</span>
                 <label className="block text-sm font-medium" style={{ color: '#630606' }}>
-                  Smart Link / SMS Paste
+                  {t('smartLinkLabel')}
                 </label>
               </div>
               <textarea
                 value={smartPaste}
                 onChange={(e) => handleSmartPaste(e.target.value)}
-                placeholder="Paste voucher link or SMS (BuyMe auto-detected)"
+                placeholder={t('smartLinkPlaceholderVoucher')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors resize-none"
                 style={{ borderColor: '#8E806A33' }}
                 rows={3}
               />
               <p className="text-xs mt-2" style={{ color: '#8E806A' }}>
-                💡 Paste SMS or URL to auto-fill fields
+                {t('smartLinkHint')}
               </p>
               {isScraping && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#630606' }}>
-                  <SpinnerSVG /> Fetching details from URL...
+                  <SpinnerSVG /> {t('fetchingDetails')}
                 </div>
               )}
             </div>
@@ -141,13 +143,13 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">📸</span>
                   <label className="block text-sm font-medium" style={{ color: '#630606' }}>
-                    Upload Card Photo
+                    {t('uploadCardPhoto')}
                   </label>
                 </div>
               )}
               {!isPhysical && (
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                  Card Photo
+                  {t('cardPhoto')}
                 </label>
               )}
               <input
@@ -159,17 +161,17 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
               />
               {isScanning && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#630606' }}>
-                  <SpinnerSVG /> Scanning image...
+                  <SpinnerSVG /> {t('scanningImage')}
                 </div>
               )}
               {isUploading && (
                 <div className="mt-2 flex items-center gap-2 text-sm" style={{ color: '#8E806A' }}>
-                  <SpinnerSVG /> Saving to cloud...
+                  <SpinnerSVG /> {t('savingToCloud')}
                 </div>
               )}
               {isPhysical && (
                 <p className="text-xs mt-2" style={{ color: '#8E806A' }}>
-                  💡 We'll automatically detect codes and values from your photo
+                  {t('photoHint')}
                 </p>
               )}
             </div>
@@ -197,12 +199,12 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Name *</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('name')}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Azrieli Gift Card"
+                placeholder={t('namePlaceholderVoucher')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
                 required
@@ -211,12 +213,12 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
 
             {/* Value */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Value</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('value')}</label>
               <input
                 type="text"
                 value={formData.value}
                 onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
-                placeholder="e.g., ₪200 or 2 Movie Tickets"
+                placeholder={t('voucherValuePlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
@@ -224,12 +226,12 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
 
             {/* Issuer */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Issuer</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('issuer')}</label>
               <input
                 type="text"
                 value={formData.issuer}
                 onChange={(e) => setFormData(prev => ({ ...prev, issuer: e.target.value }))}
-                placeholder="e.g., BuyMe, Azrieli"
+                placeholder={t('voucherIssuerPlaceholder')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
@@ -237,7 +239,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
 
             {/* Expiry Date */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>Expiry Date</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>{t('expiryDate')}</label>
               <input
                 type="date"
                 value={formData.expiryDate}
@@ -250,13 +252,13 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
             {/* Code */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
-                Code / Barcode / URL
+                {t('codeLabel')}
               </label>
               <input
                 type="text"
                 value={formData.code}
                 onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
-                placeholder="e.g., ABC123456 or https://buyme.co.il/..."
+                placeholder={t('codePlaceholderVoucher')}
                 className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-[#630606] transition-colors"
                 style={{ borderColor: '#8E806A33' }}
               />
@@ -265,7 +267,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Multiple codes detected and saved
+                  {t('multipleCodesDetected')}
                 </p>
               )}
             </div>
@@ -278,7 +280,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
                 className="flex-1 px-4 py-3 rounded-lg font-medium transition-colors hover:bg-[#8E806A11]"
                 style={{ color: '#8E806A', border: '1px solid #8E806A33' }}
               >
-                Cancel
+                {t('cancel', { ns: 'common' })}
               </button>
               <button
                 type="submit"
@@ -286,7 +288,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
                 className="flex-1 px-4 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#630606' }}
               >
-                {isScanning ? 'Processing...' : editingItem ? 'Update' : 'Add'}
+                {isScanning ? t('processing') : editingItem ? t('update') : t('add')}
               </button>
             </div>
           </form>
@@ -304,23 +306,23 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
               {extractionResults.length > 0 ? (
                 <>
                   <div className="text-5xl mb-3">✅</div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>Almost Done!</h2>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>{t('almostDone')}</h2>
                   <p className="text-sm mb-4" style={{ color: '#8E806A' }}>
-                    We auto-filled: <strong>{extractionResults.join(', ')}</strong>
+                    {t('autoFilledPrefix')} <strong>{extractionResults.join(', ')}</strong>
                   </p>
                   <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: '#F59E0B11', border: '1px solid #F59E0B33' }}>
-                    <p className="text-sm" style={{ color: '#D97706' }}>Please complete the remaining fields below.</p>
+                    <p className="text-sm" style={{ color: '#D97706' }}>{t('completeRemaining')}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="text-5xl mb-3">📝</div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>Complete the Details</h2>
-                  <p className="text-sm mb-4" style={{ color: '#8E806A' }}>Please fill in the fields below.</p>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#630606' }}>{t('completeDetails')}</h2>
+                  <p className="text-sm mb-4" style={{ color: '#8E806A' }}>{t('fillBelow')}</p>
                 </>
               )}
               <div className="text-start mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5F2E7' }}>
-                <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>Fields to check:</p>
+                <p className="text-xs font-medium mb-2" style={{ color: '#630606' }}>{t('fieldsToCheck')}</p>
                 <ul className="text-xs space-y-1" style={{ color: '#8E806A' }}>
                   {!formData.name && <li>• Voucher Name</li>}
                   {!formData.value && <li>• Value</li>}
@@ -333,7 +335,7 @@ function AddVoucherModal({ isOpen, onClose, onSave, listName, listId, editingIte
               className="w-full px-4 py-3 rounded-lg font-medium text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#630606' }}
             >
-              Got it, I'll fill the rest
+              {t('gotIt')}
             </button>
           </div>
         </div>
