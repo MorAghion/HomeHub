@@ -3,6 +3,20 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import MasterListDrawer from '@/components/MasterListDrawer'
 import type { MasterListItem } from '@/types/base'
 
+vi.mock('react-i18next', async () => {
+  const { default: i18n } = await import('@/i18n/config')
+  return {
+    useTranslation: (ns?: string | string[]) => ({
+      t: (key: string, opts?: Record<string, unknown>) => {
+        const defaultNs = Array.isArray(ns) ? ns[0] : (ns ?? 'common')
+        return i18n.t(key, { ns: defaultNs, ...(opts ?? {}) } as never) as string
+      },
+      i18n,
+    }),
+    initReactI18next: { type: '3rdParty', init: () => {} },
+  }
+})
+
 // Mock contextResolver to avoid i18n / Hebrew file dependencies
 vi.mock('@/utils/contextResolver', () => ({
   getSuggestedContexts: vi.fn(),

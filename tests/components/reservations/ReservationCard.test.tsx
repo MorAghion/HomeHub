@@ -7,6 +7,20 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import VoucherCard from '@/components/VoucherCard'
 import { createMockReservation } from '../../fixtures/vouchers'
 
+vi.mock('react-i18next', async () => {
+  const { default: i18n } = await import('@/i18n/config')
+  return {
+    useTranslation: (ns?: string | string[]) => ({
+      t: (key: string, opts?: Record<string, unknown>) => {
+        const defaultNs = Array.isArray(ns) ? ns[0] : (ns ?? 'common')
+        return i18n.t(key, { ns: defaultNs, ...(opts ?? {}) } as never) as string
+      },
+      i18n,
+    }),
+    initReactI18next: { type: '3rdParty', init: () => {} },
+  }
+})
+
 const FIXED_DATE = new Date('2026-02-22T12:00:00.000Z')
 
 beforeEach(() => {
