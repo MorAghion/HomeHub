@@ -1,0 +1,93 @@
+{
+  "id": "qa-011",
+  "title": "Tests for fe-bug-018 — Hebrew context suggestion keyword matching",
+  "agent": "qa",
+  "phase": "0.4",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "paired_with": "fe-bug-018",
+  "mode": "TDD — write tests first, validate after FE merges",
+
+  "workflow": [
+    "PHASE 1 (start immediately, TDD): Read fe-bug-018.json. Write tests asserting that Hebrew list names trigger the correct context suggestions. Tests will FAIL initially — expected.",
+    "PHASE 2 (after FE handoff): Watch agents/handoffs/ for handoff from fe-bug-018 to qa-011. Merge FE branch and run tests.",
+    "PHASE 3 (validate): All tests should pass. Note any failures in handoff back to FE.",
+    "PHASE 4 (PR): Push branch and open PR --base master."
+  ],
+
+  "branch": "agent/qa-011-context-tests",
+
+  "test_files_to_create_or_update": [
+    "tests/utils/contextResolver.he.test.ts"
+  ],
+
+  "test_cases_required": {
+    "getSuggestedContextsHe — grocery context": [
+      "getSuggestedContexts('קניות') returns result with contextKey 'grocery'",
+      "getSuggestedContexts('סופרמרקט') returns result with contextKey 'grocery'",
+      "getSuggestedContexts('מצרכים') returns result with contextKey 'grocery'",
+      "getSuggestedContexts('קניות שבת') returns result with contextKey 'grocery'",
+      "getSuggestedContexts('קניות שבועיות') returns result with contextKey 'grocery'"
+    ],
+    "getSuggestedContextsHe — pharmacy context": [
+      "getSuggestedContexts('תרופות') returns result with contextKey 'pharmacy' or equivalent",
+      "getSuggestedContexts('בית מרקחת') returns result with contextKey matching pharmacy"
+    ],
+    "getSuggestedContextsHe — baby context": [
+      "getSuggestedContexts('תינוק') returns result with contextKey 'baby' or equivalent",
+      "getSuggestedContexts('ציוד לתינוק') returns result with contextKey matching baby"
+    ],
+    "getSuggestedContextsHe — camping context": [
+      "getSuggestedContexts('קמפינג') returns result with contextKey 'camping' or equivalent",
+      "getSuggestedContexts('טיול') returns result with contextKey matching camping"
+    ],
+    "getSuggestedContextsHe — cleaning context": [
+      "getSuggestedContexts('ניקיון') returns result with contextKey 'stock' or equivalent",
+      "getSuggestedContexts('ניקוי הבית') returns result with contextKey matching cleaning/stock"
+    ],
+    "getSuggestedContextsHe — pets context": [
+      "getSuggestedContexts('חיות מחמד') returns result with contextKey matching pets",
+      "getSuggestedContexts('כלב') returns result with contextKey matching pets"
+    ],
+    "getSuggestedContextsHe — party context": [
+      "getSuggestedContexts('מסיבה') returns result with contextKey matching party",
+      "getSuggestedContexts('יום הולדת') returns result with contextKey matching party"
+    ],
+    "getSuggestedContextsHe — gardening context": [
+      "getSuggestedContexts('גינה') returns result with contextKey matching gardening",
+      "getSuggestedContexts('גינון') returns result with contextKey matching gardening"
+    ],
+    "getSuggestedContextsHe — no match": [
+      "getSuggestedContexts('רשימה אקראית') returns empty array or falls back to English"
+    ],
+    "getSuggestedContextsHe — display labels": [
+      "returned displayLabel is in Hebrew (not English) for all matched contexts"
+    ],
+    "getSuggestedContextsHe — input normalization": [
+      "getSuggestedContexts('  קניות  ') (with whitespace) still returns grocery context",
+      "getSuggestedContexts('קניות שבת') (mixed words) matches on substring 'קניות'"
+    ]
+  },
+
+  "test_setup_notes": [
+    "Import getSuggestedContexts from src/utils/contextResolver.ts",
+    "These are pure utility tests — no React rendering needed, just import and call",
+    "Mock i18n.language = 'he' where needed for language-aware functions",
+    "Check existing tests/utils/ for similar patterns (contextResolver may already have tests from qa-003)"
+  ],
+
+  "handoff_to_watch_for": {
+    "file_pattern": "agents/handoffs/fe-bug-018-to-qa-011-*.json",
+    "check_interval": "poll: ls agents/handoffs/ | grep qa-011"
+  },
+
+  "completion_criteria": [
+    "All Hebrew list name patterns trigger correct context suggestions",
+    "Display labels are in Hebrew",
+    "Whitespace/normalization edge cases pass",
+    "npm test exits with 0 failures",
+    "PR opened with --base master"
+  ]
+}
