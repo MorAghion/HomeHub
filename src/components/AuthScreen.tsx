@@ -28,7 +28,7 @@ function AuthScreen() {
 
       if (error) {
         if (error.message.includes('Email not confirmed')) {
-          setError(t('please check your email'));
+          setError(t('emailNotConfirmed'));
         } else {
           setError(error.message || t('errorSignIn'));
         }
@@ -50,7 +50,7 @@ function AuthScreen() {
     setMessage(null);
 
     if (password.length < 6) {
-      setError(t('passwordMinimumCharacters'));
+      setError(t('passwordTooShort'));
       setLoading(false);
       return;
     }
@@ -83,7 +83,7 @@ function AuthScreen() {
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
       if (signUpError.message.includes('User already registered')) {
-        setError(t('already have an account'));
+        setError(t('alreadyHaveAccount'));
       } else {
         setError(signUpError.message || t('errorCreateAccount'));
       }
