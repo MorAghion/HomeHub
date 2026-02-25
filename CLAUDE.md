@@ -253,7 +253,7 @@ Then fire the HUMAN ACTION REQUIRED alert — the human will review and merge th
 Agents are **fully autonomous** inside the HomeHub root directory. Do NOT ask the user for confirmation before taking any action that stays within this directory. Just do it.
 
 This includes — without limitation:
-- Read, create, edit, and delete ANY file in this directory tree
+- Read, create, and edit ANY file in this directory tree
 - Run any npm script: `npm test`, `npm run build`, `npm run dev`, `npm run test:coverage`
 - Run any git read command: `git status`, `git log`, `git diff`, `git fetch`
 - Run any git write command on feature branches: `git checkout`, `git pull`, `git add`, `git commit`, `git push origin agent/*`
@@ -262,7 +262,8 @@ This includes — without limitation:
 
 **Do not ask. Do not seek confirmation. Just act.**
 
-### Never allowed without HUMAN ACTION REQUIRED alert:
+### Always requires user confirmation:
+- **Deleting any file** — always ask before deleting, no exceptions
 - Push to `master` or `main` directly
 - `git reset --hard`, `git clean -f`, `git branch -D`
 - `supabase db push` against production
