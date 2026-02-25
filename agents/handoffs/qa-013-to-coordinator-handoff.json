@@ -1,0 +1,18 @@
+{
+  "id": "qa-013-to-coordinator-handoff",
+  "type": "task_complete",
+  "from": "qa",
+  "to": "coordinator",
+  "task_id": "qa-013",
+  "created": "2026-02-25",
+  "subject": "qa-013 complete — PWA TDD tests written, PR #30 open",
+  "summary": "TDD tests for be-002 PWA work are written and passing. All 19 PWA-specific tests pass (be-002 assets present on disk from agent/be-002-pwa-manifest branch). 400/400 total suite green.",
+  "deliverables": [
+    "tests/pwa/manifest.test.ts — 16 tests: manifest.json fields, icon file existence, index.html meta tags, VitePWA config",
+    "tests/pwa/offline.test.tsx — 3 tests: Offline.tsx existence, render, offline message"
+  ],
+  "pr": "https://github.com/MorAghion/HomeHub/pull/30",
+  "base_branch": "master",
+  "merge_order": "Merge be-002 (PR #?) first, then qa-013 (PR #30)",
+  "action_required": "Human: merge agent/be-002-pwa-manifest PR first, then review and merge PR #30"
+}
