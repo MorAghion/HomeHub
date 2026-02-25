@@ -99,14 +99,14 @@ describe('Vouchers integration — full CRUD flow', () => {
     expect(screen.getByText('noVouchersYet')).toBeInTheDocument()
 
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'BuyMe Gift Card' },
     })
-    fireEvent.change(screen.getByPlaceholderText('e.g., ₪200 or 2 Movie Tickets'), {
+    fireEvent.change(screen.getByPlaceholderText('voucherValuePlaceholder'), {
       target: { value: '₪150' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!
     )
 
     expect(screen.getByText('BuyMe Gift Card')).toBeInTheDocument()
@@ -118,17 +118,17 @@ describe('Vouchers integration — full CRUD flow', () => {
     render(<VoucherListWrapper />)
 
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Original Name' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!
     )
 
     expect(screen.getByText('Original Name')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByTitle('Edit'))
-    const nameInput = screen.getByPlaceholderText('e.g., Azrieli Gift Card')
+    fireEvent.click(screen.getByTitle('edit'))
+    const nameInput = screen.getByPlaceholderText('namePlaceholderVoucher')
     fireEvent.change(nameInput, { target: { value: 'Edited Name' } })
     fireEvent.submit(nameInput.closest('form')!)
 
@@ -140,16 +140,16 @@ describe('Vouchers integration — full CRUD flow', () => {
     render(<VoucherListWrapper />)
 
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Voucher To Delete' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!
     )
 
     expect(screen.getByText('Voucher To Delete')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByTitle('Delete'))
+    fireEvent.click(screen.getByTitle('delete'))
     fireEvent.click(screen.getByText('Confirm Delete'))
 
     expect(screen.queryByText('Voucher To Delete')).not.toBeInTheDocument()
@@ -161,27 +161,27 @@ describe('Vouchers integration — full CRUD flow', () => {
 
     // Create first
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Keep Me' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!
     )
 
     // Create second
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Azrieli Gift Card'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderVoucher'), {
       target: { value: 'Delete Me' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Azrieli Gift Card').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderVoucher').closest('form')!
     )
 
     expect(screen.getByText('Keep Me')).toBeInTheDocument()
     expect(screen.getByText('Delete Me')).toBeInTheDocument()
 
     // Delete only the second card
-    const deleteButtons = screen.getAllByTitle('Delete')
+    const deleteButtons = screen.getAllByTitle('delete')
     fireEvent.click(deleteButtons[1])
     fireEvent.click(screen.getByText('Confirm Delete'))
 
@@ -193,18 +193,18 @@ describe('Vouchers integration — full CRUD flow', () => {
     render(<VoucherListWrapper listId="vouchers_ontopo" listName="Ontopo" listType="reservation" />)
 
     fireEvent.click(screen.getAllByText('addVoucher')[0])
-    fireEvent.change(screen.getByPlaceholderText('e.g., Dinner at Taizu'), {
+    fireEvent.change(screen.getByPlaceholderText('namePlaceholderReservation'), {
       target: { value: 'Restaurant Test' },
     })
-    fireEvent.change(screen.getByPlaceholderText('e.g., 123 Main St, Tel Aviv'), {
+    fireEvent.change(screen.getByPlaceholderText('addressPlaceholder'), {
       target: { value: '5 HaYarkon St' },
     })
     fireEvent.submit(
-      screen.getByPlaceholderText('e.g., Dinner at Taizu').closest('form')!
+      screen.getByPlaceholderText('namePlaceholderReservation').closest('form')!
     )
 
     expect(screen.getByText('Restaurant Test')).toBeInTheDocument()
     expect(screen.getByText('5 HaYarkon St')).toBeInTheDocument()
-    expect(screen.getByText('📅 Reservation')).toBeInTheDocument()
+    expect(screen.getByText('reservationBadge')).toBeInTheDocument()
   })
 })

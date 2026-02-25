@@ -119,10 +119,10 @@ describe('VoucherCard — reservation type', () => {
 
   // ── Code / image ────────────────────────────────────────────────────────────
 
-  it('shows "Copy Code" button for a non-URL confirmation code', () => {
+  it('shows "Copy code" button for a non-URL confirmation code', () => {
     const res = createMockReservation({ code: 'RES-9876' })
     render(<VoucherCard voucher={res} />)
-    expect(screen.getByText('Copy Code')).toBeInTheDocument()
+    expect(screen.getByText('Copy code')).toBeInTheDocument()
   })
 
   it('shows "Open Original" for a URL reservation code', () => {

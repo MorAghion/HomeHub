@@ -120,27 +120,27 @@ describe('VoucherCard — voucher type', () => {
 
   // ── Copy code ───────────────────────────────────────────────────────────────
 
-  it('shows "Copy Code" button for non-URL codes', () => {
+  it('shows "Copy code" button for non-URL codes', () => {
     const voucher = createMockVoucher({ code: 'GIFT-1234' })
     render(<VoucherCard voucher={voucher} />)
-    expect(screen.getByText('Copy Code')).toBeInTheDocument()
+    expect(screen.getByText('Copy code')).toBeInTheDocument()
   })
 
-  it('copies code to clipboard when "Copy Code" is clicked', async () => {
+  it('copies code to clipboard when "Copy code" is clicked', async () => {
     const voucher = createMockVoucher({ code: 'GIFT-1234' })
     render(<VoucherCard voucher={voucher} />)
-    fireEvent.click(screen.getByText('Copy Code'))
+    fireEvent.click(screen.getByText('Copy code'))
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('GIFT-1234')
   })
 
   it('shows "Copied!" feedback after copying', async () => {
     const voucher = createMockVoucher({ code: 'GIFT-1234' })
     render(<VoucherCard voucher={voucher} />)
-    fireEvent.click(screen.getByText('Copy Code'))
+    fireEvent.click(screen.getByText('Copy code'))
     expect(screen.getByText('Copied!')).toBeInTheDocument()
     // After 2s the label reverts
     act(() => { vi.advanceTimersByTime(2100) })
-    expect(screen.getByText('Copy Code')).toBeInTheDocument()
+    expect(screen.getByText('Copy code')).toBeInTheDocument()
   })
 
   it('shows "Copy Codes" label when code contains multiple codes', () => {
@@ -149,17 +149,17 @@ describe('VoucherCard — voucher type', () => {
     expect(screen.getByText('Copy Codes')).toBeInTheDocument()
   })
 
-  it('shows "Open Original" for URL codes instead of Copy Code', () => {
+  it('shows "Open Original" for URL codes instead of Copy code', () => {
     const voucher = createMockVoucher({ code: 'https://buyme.co.il/gift/12345' })
     render(<VoucherCard voucher={voucher} />)
     expect(screen.getByText('Open Original')).toBeInTheDocument()
-    expect(screen.queryByText('Copy Code')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy code')).not.toBeInTheDocument()
   })
 
   it('does not show any code button when code is undefined', () => {
     const voucher = createMockVoucher({ code: undefined })
     render(<VoucherCard voucher={voucher} />)
-    expect(screen.queryByText('Copy Code')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy code')).not.toBeInTheDocument()
     expect(screen.queryByText('Open Original')).not.toBeInTheDocument()
   })
 
