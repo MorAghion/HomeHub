@@ -4,9 +4,9 @@
   "agent": "frontend",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-24",
-  "updated": "2026-02-24",
+  "updated": "2026-02-25",
   "reported_by": "human — manual testing in Hebrew mode",
 
   "user_reported": "The MasterList context-based suggestions work partially in Hebrew — need to extend the context.",
