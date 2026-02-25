@@ -1,0 +1,35 @@
+{
+  "id": "fe-bug-018-qa-handoff",
+  "type": "bug_fix_complete",
+  "from": "frontend",
+  "to": "qa",
+  "created": "2026-02-25",
+  "task_ref": "fe-bug-018",
+  "pr": "https://github.com/MorAghion/HomeHub/pull/22",
+  "branch": "agent/fe-bug-018-hebrew-context",
+  "summary": "Fixed Hebrew context suggestions in src/utils/he/contextMapping.ts",
+  "changes": [
+    "getSuggestedContextsHe() and detectContextHe() now use .toLowerCase() on input (defensive)",
+    "grocery: added מצרכים, חנות, חנות המכולת, ירקות, פירות",
+    "pharmacy: added היגיינה, וויטמינים",
+    "baby: added תינוקות, ילד, גן ילדים, בייבי",
+    "camping: added אוהל, שטח, נאות",
+    "stock: added ניקיון, נקיון, ניקוי, ניקוי הבית",
+    "pets: added חיות, ציוד לחיות",
+    "gardening: added גן, שתילים",
+    "home-renovation: added צבע"
+  ],
+  "qa_validation_needed": [
+    "Create list named מצרכים → grocery suggestion bubble appears",
+    "Create list named ניקיון → stock suggestion appears",
+    "Create list named בייבי → baby suggestion appears",
+    "Create list named גן ילדים → baby suggestion appears",
+    "Create list named שטח → camping suggestion appears",
+    "Create list named חיות → pets suggestion appears",
+    "Create list named גן → gardening suggestion appears",
+    "Create list named היגיינה → pharmacy suggestion appears",
+    "English suggestions still work (regression check)",
+    "npm run build passes with zero errors"
+  ],
+  "related_qa_task": "qa-011"
+}
