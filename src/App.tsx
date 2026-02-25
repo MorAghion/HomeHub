@@ -21,6 +21,7 @@ import { TaskService } from './utils/supabaseTaskService'
 import { VoucherService } from './utils/supabaseVoucherService'
 import { supabase } from './supabaseClient'
 import { getUrgentTasks } from './utils/supabaseTaskService'
+import { autoCategorize as autoCategorizeUtil } from './utils/autoCategorize'
 import type {
   MasterListItem,
   ListInstance,
@@ -632,25 +633,7 @@ function App() {
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
-  const autoCategorize = (itemName: string): string => {
-    const name = itemName.toLowerCase().trim();
-    // Order matters! Check more specific categories first to prevent substring conflicts
-    const categoryMap: Record<string, string[]> = {
-      'Pharma & Hygiene': ['toothpaste', 'toothbrush', 'shampoo', 'conditioner', 'deodorant', 'vitamin', 'aspirin', 'band-aid', 'sunscreen', 'razor', 'floss', 'lotion', 'pads', 'tampons', 'soap', 'makeup', 'perfume', 'hair gel', 'body wash', 'hand sanitizer', 'cotton swabs', 'tissues', 'baby shampoo', 'baby wipes', 'baby lotion', 'diaper cream'],
-      'Dairy': ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'sour cream', 'cottage cheese', 'mozzarella', 'cheddar', 'ice cream', 'labneh', 'tofu', 'ricotta', 'parmesan', 'feta', 'brie', 'gouda'],
-      'Meat': ['chicken', 'beef', 'pork', 'lamb', 'turkey', 'sausage', 'bacon', 'ham', 'steak', 'ground beef', 'meatball', 'pastrami', 'salami', 'pepperoni', 'duck', 'veal'],
-      'Fish': ['salmon', 'tuna', 'cod', 'shrimp', 'fish', 'tilapia', 'crab', 'lobster', 'sardine', 'anchovy', 'trout', 'halibut', 'mussels', 'clams', 'scallops', 'oyster'],
-      'Vegetables': ['tomato', 'lettuce', 'carrot', 'onion', 'potato', 'broccoli', 'cucumber', 'pepper', 'spinach', 'celery', 'garlic', 'cabbage', 'zucchini', 'eggplant', 'mushroom', 'kale', 'arugula', 'beet', 'radish', 'asparagus', 'cauliflower', 'corn', 'peas', 'beans', 'leek', 'squash'],
-      'Fruit': ['apple', 'banana', 'orange', 'grape', 'strawberry', 'blueberry', 'mango', 'pineapple', 'watermelon', 'pear', 'peach', 'lemon', 'lime', 'cherry', 'kiwi', 'avocado', 'plum', 'grapefruit', 'melon', 'cantaloupe', 'raspberry', 'blackberry', 'pomegranate', 'papaya', 'dragon fruit'],
-      'Pantry': ['bread', 'pasta', 'rice', 'flour', 'sugar', 'salt', 'pepper', 'oil', 'vinegar', 'cereal', 'oats', 'honey', 'jam', 'peanut butter', 'crackers', 'chips', 'cookies', 'nuts', 'beans', 'lentils', 'quinoa', 'couscous', 'noodles', 'sauce', 'spices', 'herbs', 'tea', 'coffee'],
-      'Cleaning': ['soap', 'detergent', 'bleach', 'sponge', 'cleaner', 'paper towel', 'tissue', 'toilet paper', 'dish soap', 'laundry', 'wipes', 'mop', 'broom', 'vacuum', 'duster', 'garbage bags', 'aluminum foil', 'plastic wrap', 'napkins']
-    };
-
-    for (const [category, keywords] of Object.entries(categoryMap)) {
-      if (keywords.some(keyword => name.includes(keyword))) return category;
-    }
-    return 'Other';
-  };
+  const autoCategorize = (itemName: string): string => autoCategorizeUtil(itemName);
 
   // Render Bottom Navigation
   const renderBottomNav = () => (
