@@ -4,7 +4,7 @@
   "agent": "qa",
   "phase": "0.4",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-25",
   "updated": "2026-02-25",
   "paired_with": "fe-bug-018",
@@ -89,5 +89,17 @@
     "Whitespace/normalization edge cases pass",
     "npm test exits with 0 failures",
     "PR opened with --base master"
-  ]
+  ],
+
+  "completion_summary": {
+    "date": "2026-02-25",
+    "result": "PASS — all 29 tests pass",
+    "notes": [
+      "fe-bug-018 fix was already present on branch (keywords added, toLowerCase defensive fix applied)",
+      "TDD phase: all required test cases written and passing against the fixed implementation",
+      "Confirmed: מצרכים → grocery, ניקיון → stock, ניקוי הבית → stock now all match",
+      "Regression: pre-existing failures in autoCategorize, shopping components are unrelated to qa-011",
+      "Test file: tests/utils/contextResolver.he.test.ts (29 tests across 10 describe blocks)"
+    ]
+  }
 }
