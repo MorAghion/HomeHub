@@ -4,11 +4,11 @@
   "agent": "backend",
   "phase": "0.5",
   "priority": "high",
-  "status": "todo",
+  "status": "done",
   "depends_on": [],
   "blocks": [],
   "created": "2026-02-22",
-  "updated": "2026-02-22",
+  "updated": "2026-02-25",
   "description": "Set up PWA foundation: manifest.json, app icons, service worker via vite-plugin-pwa, and offline fallback.",
   "acceptance_criteria": [
     "manifest.json with: name 'HomeHub', icons (192px, 512px), theme_color '#630606', background_color '#F5F2E7', display 'standalone'",
@@ -27,6 +27,6 @@
     "src/pages/Offline.tsx (create offline fallback page)"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "PWA fully implemented: manifest.json, 9 PNG icons (72–512px + maskable), vite-plugin-pwa with workbox generateSW, network-first Supabase caching, offline.html static fallback, React Offline.tsx component, iOS meta tags in index.html, i18n keys added. Build verified: 32 entries precached, sw.js generated.",
   "notes": "Generate icons from the app logo in multiple sizes: 72, 96, 128, 144, 152, 192, 384, 512. Use maskable icon variant for Android."
 }
