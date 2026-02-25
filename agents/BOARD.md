@@ -42,7 +42,7 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 | `supabase db push` — apply vouchers/reservations schema migration | 🏗️ arch-001 | 🔴 Blocking | ✅ Done |
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
 | Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
-| **Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor** | 🎨 fe-bug-010 | 🔴 Blocking | ⏳ Still pending |
+| Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor | 🎨 fe-bug-010 | 🔴 Blocking | ✅ Done |
 | **Merge master → main to deploy Wave 7+8 to production** | 🎯 Coordinator | 🟡 Ready | ⏳ Awaiting human |
 
 ---
