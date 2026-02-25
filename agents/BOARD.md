@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-25 — Wave 8 launched
-**Current Phase:** 0.4 — Hebrew polish (fe-bug-017/018/019)
+**Last updated:** 2026-02-25 — Wave 8 complete ✅
+**Current Phase:** 0.4 — Hebrew polish complete, next: Wave 9
 
 ---
 
@@ -16,8 +16,8 @@
 | Wave 4 | fe-bug-003/004/005/006 | 🎨 | ✅ Done | 2026-02-23 12:00 | 2026-02-23 13:00 | Count flash, carousel, hub split, add-list modal |
 | Wave 5 | fe-bug-008/009/010/011/012 + QA regression tests | 🎨🧪 | ✅ Done | 2026-02-23 13:00 | 2026-02-23 15:00 | Merged PR #11 |
 | Wave 6 | fe-bug-013/014/015 | 🎨 | ✅ Done | 2026-02-23 15:00 | 2026-02-24 | PRs #13–#16 merged → master → main deployed |
-| Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | 🚀 In Progress | 2026-02-24 | — | Hebrew full support + QA suite running in parallel |
-| Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 | 🎨 | 🚀 In Progress | 2026-02-25 | — | Hebrew polish: i18n audit, context suggestions, auto-categorize |
+| Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | ✅ Done | 2026-02-24 | 2026-02-25 | Hebrew full support + CI pipeline live |
+| Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 381 tests green |
 
 ---
 
@@ -27,9 +27,10 @@
 Phase 0.1 ██████████100%  (5/5 tasks done)   arch-001 ✅ | fe-001 ✅ | fe-002 ✅ | fe-003 ✅ | qa-001 ✅
 Phase 0.2 ██████████100%  (6/6 tasks done)   qa-002 ✅ | qa-003 ✅ | qa-004 ✅ | qa-005 ✅ | qa-006 ✅
 Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
-Phase 0.4 ████░░░░░░  40%  (2/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 🚀 | fe-009 🚀
+Phase 0.4 ██████████100%  (5/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 ✅ | fe-009 ✅
+Phase 0.4b ████████████100% (7/7 tasks done) fe-bug-016 ✅ | fe-bug-017 ✅ | fe-bug-018 ✅ | fe-bug-019 ✅ | qa-010 ✅ | qa-011 ✅ | qa-012 ✅
 Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be-002 ⏳
-Phase 0.6 ░░░░░░░░░░   0%  (0/3 tasks done)  qa-007 🚀 | qa-008 🚀 | qa-009 🚀
+Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-008 ✅ | qa-009 ✅
 ```
 
 ---
@@ -42,21 +43,13 @@ Phase 0.6 ░░░░░░░░░░   0%  (0/3 tasks done)  qa-007 🚀 | q
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
 | Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
 | **Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor** | 🎨 fe-bug-010 | 🔴 Blocking | ⏳ Still pending |
-| **Review + merge Wave 7 PRs when agents complete** | 🎨🧪 Wave 7 | 🟡 Upcoming | ⏳ Pending agent completion |
-| **Review + merge fe-bug-016 PR #21** | 🎨 fe-bug-016 | 🟡 Ready | ⏳ Awaiting review |
+| **Merge master → main to deploy Wave 7+8 to production** | 🎯 Coordinator | 🟡 Ready | ⏳ Awaiting human |
 
 ---
 
 ## 🖥️ Active Agents
 
-| Terminal | Agent | Task | Branch | Paired With |
-|----------|-------|------|--------|-------------|
-| Terminal 1 | 🎨 Frontend | fe-bug-017 — Full i18n audit (6 components) | agent/fe-bug-017-i18n-audit | qa-010 |
-| Terminal 2 | 🎨 Frontend | fe-bug-018 — Hebrew context suggestion keywords | agent/fe-bug-018-hebrew-context | qa-011 |
-| Terminal 3 | 🎨 Frontend | fe-bug-019 — Auto-categorize Hebrew + expanded keywords | agent/fe-bug-019-autocategorize | qa-012 |
-| Terminal 4 | 🧪 QA | qa-010 — i18n translation completeness tests (TDD) | agent/qa-010-i18n-tests | fe-bug-017 |
-| Terminal 5 | 🧪 QA | qa-011 — Hebrew context suggestion tests (TDD) | agent/qa-011-context-tests | fe-bug-018 |
-| Terminal 6 | 🧪 QA | qa-012 — autoCategorize Hebrew + keyword tests (TDD) | agent/qa-012-autocategorize-tests | fe-bug-019 |
+None — Wave 8 complete. Awaiting Wave 9 kickoff.
 
 ---
 
@@ -95,20 +88,20 @@ Phase 0.6 ░░░░░░░░░░   0%  (0/3 tasks done)  qa-007 🚀 | q
 | fe-005: i18n framework setup | 🎨 Frontend | ✅ done | — | fe-006 |
 | fe-006: RTL layout + translations | 🎨 Frontend | ✅ done | fe-005 | qa-007 |
 | fe-006-cont: Hebrew context mapping + settings i18n | 🎨 Frontend | ✅ done | fe-006 | qa-007 |
-| fe-008: Full Hebrew translation audit — all windows | 🎨 Frontend | 🚀 in_progress | fe-006-cont ✅ | qa-007 |
-| fe-009: Hebrew category/listCategory/context engine values | 🎨 Frontend | 🚀 in_progress | fe-006-cont ✅ | qa-007 |
+| fe-008: Full Hebrew translation audit — all windows | 🎨 Frontend | ✅ done | fe-006-cont | qa-007 |
+| fe-009: Hebrew category/listCategory/context engine values | 🎨 Frontend | ✅ done | fe-006-cont | qa-007 |
 
 ## 🚦 Phase 0.4b — Hebrew Polish (Wave 8)
 
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
-| fe-bug-016: ShoppingList Hub Hebrew translations | 🎨 Frontend | 🔁 review | — | qa-007 |
-| fe-bug-017: Remaining hardcoded English strings (6 components) | 🎨 Frontend | 🚀 in_progress | fe-bug-016 ✅ | — |
-| qa-010: i18n translation completeness tests (TDD paired with fe-bug-017) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
-| fe-bug-018: Hebrew context suggestions — extend keyword coverage | 🎨 Frontend | 🚀 in_progress | — | — |
-| qa-011: Hebrew context suggestion keyword tests (TDD paired with fe-bug-018) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
-| fe-bug-019: Auto-categorize fails for Hebrew input + incomplete English keywords | 🎨 Frontend | 🚀 in_progress | — | — |
-| qa-012: autoCategorize Hebrew + keyword unit tests (TDD paired with fe-bug-019) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
+| fe-bug-016: ShoppingList Hub Hebrew translations | 🎨 Frontend | ✅ done | — | — |
+| fe-bug-017: Remaining hardcoded English strings (6 components) | 🎨 Frontend | ✅ done | fe-bug-016 | — |
+| qa-010: i18n translation completeness tests | 🧪 QA | ✅ done | fe-bug-017 | — |
+| fe-bug-018: Hebrew context suggestions — extend keyword coverage | 🎨 Frontend | ✅ done | — | — |
+| qa-011: Hebrew context suggestion keyword tests | 🧪 QA | ✅ done | fe-bug-018 | — |
+| fe-bug-019: Auto-categorize Hebrew + expanded English keywords | 🎨 Frontend | ✅ done | — | — |
+| qa-012: autoCategorize Hebrew + keyword unit tests | 🧪 QA | ✅ done | fe-bug-019 | — |
 
 ## 🚦 Phase 0.5 — Responsive + PWA Foundation
 
@@ -121,32 +114,19 @@ Phase 0.6 ░░░░░░░░░░   0%  (0/3 tasks done)  qa-007 🚀 | q
 
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
-| qa-007: RTL + Hebrew validation (partially TDD) | 🧪 QA | 🚀 in_progress | fe-006-cont ✅ | — |
-| qa-008: Scan + fix test suite errors | 🧪 QA | 🚀 in_progress | — | — |
-| qa-009: GitHub Actions CI pipeline | 🧪 QA | 🚀 in_progress | — | — |
+| qa-007: RTL + Hebrew validation | 🧪 QA | ✅ done | fe-006-cont | — |
+| qa-008: Scan + fix test suite errors | 🧪 QA | ✅ done | — | — |
+| qa-009: GitHub Actions CI pipeline | 🧪 QA | ✅ done | — | — |
 
 ---
 
 ## 📬 Open Handoffs
 
-| From | To | Message | Urgency |
-|------|----|---------|---------|
-| 🎨 fe-006-cont | 🧪 qa-007 | Hebrew context mapping + RTL layout complete. fe-008/009 running in parallel (TDD mode for qa-007). | 🟡 Ready |
-| 🎨 FE (Wave 5) | 🧪 QA | fe-bug-008–012 fixed. Modal split, hub edit mode aligned. Regression tests written. | ✅ Done |
+None.
 
 ## 🐛 Active Bugs
 
-| Bug | Title | Priority | Status |
-|-----|-------|----------|--------|
-| fe-bug-013 | ReservationsHub wrong empty state after modal close | 🔴 High | review — fix in prod |
-| fe-bug-014 | ReservationsHub doesn't update after list creation | 🔴 Critical | review — fix in prod |
-| fe-bug-015 | Sign-in stuck (3rd recurrence) | 🔴 Critical | review — fix in prod |
-| fe-bug-016 | ShoppingList Hub untranslated strings | 🟡 High | review — PR #21 awaiting merge |
-| fe-bug-017 | Remaining hardcoded English strings — full i18n audit (6 components) | 🟡 High | ⏳ todo — Wave 8 |
-| fe-bug-018 | Context suggestions don't trigger on Hebrew list names | 🟡 High | ⏳ todo — Wave 8 |
-| fe-bug-019 | Auto-categorize sends Master List items to 'Other' (English-only + no Hebrew) | 🟡 High | ⏳ todo — Wave 8 |
-| fe-bug-003–006 | Count flash, carousel, hub split, add-list | mixed | review — fix in prod |
-| fe-bug-008–012 | Carousel, master delete, edit toolbar, modals | mixed | review — fix in prod |
+None open. All Wave 8 bugs resolved.
 
 ## ❓ Open Questions
 None.
@@ -155,7 +135,7 @@ None.
 
 | Task | Blocked By | Notes |
 |------|-----------|-------|
-| be-001 | Human: Gmail OAuth setup | arch-002 done, be-001 can now proceed when human is ready |
+| be-001 | Human: Gmail OAuth setup | arch-002 done, be-001 can proceed when human is ready |
 | fe-004 | be-001 | — |
 
 ---
@@ -189,6 +169,18 @@ None.
 | fe-bug-007 | 👤 Human | 2026-02-23 13:30 | — | Sign-in stuck regression — fixed directly by human |
 | fe-bug-008–012 | 🎨 Frontend | 2026-02-23 15:00 | Wave 5 | Carousel, master list delete, add-list flow, edit toolbar, modal centering |
 | fe-bug-013–015 | 🎨 Frontend | 2026-02-24 | Wave 6 | Race condition, reservations update, sign-in regression — all in prod |
+| fe-008 | 🎨 Frontend | 2026-02-25 | Wave 7 | Full Hebrew translation audit — all windows complete |
+| fe-009 | 🎨 Frontend | 2026-02-25 | Wave 7 | Hebrew category/listCategory/context engine values |
+| qa-007 | 🧪 QA | 2026-02-25 | Wave 7 | RTL + Hebrew validation complete |
+| qa-008 | 🧪 QA | 2026-02-25 | Wave 7 | Test suite errors fixed — circular dependency deadlock resolved |
+| qa-009 | 🧪 QA | 2026-02-25 | Wave 7 | GitHub Actions CI pipeline live |
+| fe-bug-016 | 🎨 Frontend | 2026-02-25 | Wave 8 | ShoppingList Hub Hebrew translations |
+| fe-bug-017 | 🎨 Frontend | 2026-02-25 | Wave 8 | i18n audit — 6 components fully translated |
+| fe-bug-018 | 🎨 Frontend | 2026-02-25 | Wave 8 | Hebrew context suggestion keywords extended |
+| fe-bug-019 | 🎨 Frontend | 2026-02-25 | Wave 8 | autoCategorize: Hebrew input + false-positive fixes + 'almonds' keyword |
+| qa-010 | 🧪 QA | 2026-02-25 | Wave 8 | i18n completeness tests — 29 tests, all green |
+| qa-011 | 🧪 QA | 2026-02-25 | Wave 8 | Hebrew context suggestion tests — 29 tests, all green |
+| qa-012 | 🧪 QA | 2026-02-25 | Wave 8 | autoCategorize tests — 49 tests, all green |
 
 ---
 
