@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-25 — Wave 9 launched
-**Current Phase:** 0.5 — PWA foundation
+**Last updated:** 2026-02-25 — Wave 9 complete ✅
+**Current Phase:** 0.5 — PWA complete, app installable on mobile
 
 ---
 
@@ -18,7 +18,7 @@
 | Wave 6 | fe-bug-013/014/015 | 🎨 | ✅ Done | 2026-02-23 15:00 | 2026-02-24 | PRs #13–#16 merged → master → main deployed |
 | Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | ✅ Done | 2026-02-24 | 2026-02-25 | Hebrew full support + CI pipeline live |
 | Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 381 tests green |
-| Wave 9 | be-002, qa-013 | ⚙️🧪 | 🚀 In Progress | 2026-02-25 | — | PWA manifest + service worker (BE) + TDD tests (QA) |
+| Wave 9 | be-002, qa-013 | ⚙️🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | PWA live — app shell loads offline, 400 tests green |
 
 ---
 
@@ -30,7 +30,7 @@ Phase 0.2 ██████████100%  (6/6 tasks done)   qa-002 ✅ | qa
 Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
 Phase 0.4 ██████████100%  (5/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 ✅ | fe-009 ✅
 Phase 0.4b ████████████100% (7/7 tasks done) fe-bug-016 ✅ | fe-bug-017 ✅ | fe-bug-018 ✅ | fe-bug-019 ✅ | qa-010 ✅ | qa-011 ✅ | qa-012 ✅
-Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be-002 ⏳
+Phase 0.5 ██████████100%  (3/3 tasks done)  fe-007 ✅ | be-002 ✅ | qa-013 ✅
 Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-008 ✅ | qa-009 ✅
 ```
 
@@ -44,14 +44,13 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
 | Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
 | Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor | 🎨 fe-bug-010 | 🔴 Blocking | ✅ Done |
-| **Merge master → main to deploy Wave 7+8 to production** | 🎯 Coordinator | 🟡 Ready | ⏳ Awaiting human |
+| Merge master → main to deploy Wave 7+8+9 to production | 🎯 Coordinator | 🟡 Ready | ✅ Done (PR #31) |
 
 ---
 
 ## 🖥️ Active Agents
 
-| Terminal 1 | ⚙️ Backend | be-002 — PWA manifest + service worker | agent/be-002-pwa-manifest | qa-013 |
-| Terminal 2 | 🧪 QA | qa-013 — PWA TDD tests | agent/qa-013-pwa-tests | be-002 |
+None — Wave 9 complete. Awaiting Wave 10 kickoff.
 
 ---
 
@@ -110,8 +109,8 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
 | fe-007: Responsive audit + fix | 🎨 Frontend | ✅ done | — | — |
-| be-002: PWA manifest + service worker | ⚙️ Backend | 🚀 in_progress | — | — |
-| qa-013: PWA manifest + service worker tests (TDD paired with be-002) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
+| be-002: PWA manifest + service worker | ⚙️ Backend | ✅ done | — | — |
+| qa-013: PWA manifest + service worker tests (TDD paired with be-002) | 🧪 QA | ✅ done | — | — |
 
 ## 🚦 Phase 0.6 — CI + Test Maintenance
 
@@ -184,6 +183,8 @@ None.
 | qa-010 | 🧪 QA | 2026-02-25 | Wave 8 | i18n completeness tests — 29 tests, all green |
 | qa-011 | 🧪 QA | 2026-02-25 | Wave 8 | Hebrew context suggestion tests — 29 tests, all green |
 | qa-012 | 🧪 QA | 2026-02-25 | Wave 8 | autoCategorize tests — 49 tests, all green |
+| be-002 | ⚙️ Backend | 2026-02-25 | Wave 9 | PWA manifest, service worker, icons, offline page — live in production |
+| qa-013 | 🧪 QA | 2026-02-25 | Wave 9 | PWA tests — 400 tests green, app shell verified offline |
 
 ---
 
