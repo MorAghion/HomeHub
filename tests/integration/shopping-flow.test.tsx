@@ -1,24 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
+import { renderWithI18n } from '../helpers/renderWithI18n'
 import { useState } from 'react'
 import ShoppingList from '@/components/ShoppingList'
 import type { ShoppingItem, MasterListItem } from '@/types/base'
 
-vi.mock('react-i18next', async () => {
-  const { default: i18n } = await import('@/i18n/config')
-  return {
-    useTranslation: (ns?: string | string[]) => ({
-      t: (key: string, opts?: Record<string, unknown>) => {
-        const defaultNs = Array.isArray(ns) ? ns[0] : (ns ?? 'common')
-        return i18n.t(key, { ns: defaultNs, ...(opts ?? {}) } as never) as string
-      },
-      i18n,
-    }),
-    initReactI18next: { type: '3rdParty', init: () => {} },
-  }
-})
-
-// Mock contextResolver (used by MasterListDrawer child)
 vi.mock('@/utils/contextResolver', () => ({
   getSuggestedContexts: vi.fn(() => []),
   getContextItems: vi.fn(() => []),
@@ -74,13 +60,13 @@ function addItem(inputPlaceholder: RegExp, value: string) {
 
 describe('Shopping Hub — integration flows', () => {
   it('create item → appears in list', () => {
-    render(<ShoppingListWrapper />)
+    renderWithI18n(<ShoppingListWrapper />)
     addItem(/add/i, 'milk')
     expect(screen.getByText('Milk')).toBeInTheDocument()
   })
 
   it('create two items → both appear', () => {
-    render(<ShoppingListWrapper />)
+    renderWithI18n(<ShoppingListWrapper />)
     addItem(/add/i, 'milk')
     addItem(/add/i, 'bread')
     expect(screen.getByText('Milk')).toBeInTheDocument()
@@ -88,7 +74,7 @@ describe('Shopping Hub — integration flows', () => {
   })
 
   it('create item → click to toggle complete → shows strikethrough style', () => {
-    render(<ShoppingListWrapper />)
+    renderWithI18n(<ShoppingListWrapper />)
     addItem(/add/i, 'eggs')
     // Click the item text to toggle it
     fireEvent.click(screen.getByText('Eggs'))
@@ -97,7 +83,7 @@ describe('Shopping Hub — integration flows', () => {
   })
 
   it('duplicate item → shows confirmation modal → confirm adds it', () => {
-    render(<ShoppingListWrapper initialItems={[{ id: '1', text: 'Milk', completed: false }]} />)
+    renderWithI18n(<ShoppingListWrapper initialItems={[{ id: '1', text: 'Milk', completed: false }]} />)
     addItem(/add/i, 'milk')
     expect(screen.getByText('Item Already Exists')).toBeInTheDocument()
     // Confirm adds the duplicate
@@ -106,7 +92,7 @@ describe('Shopping Hub — integration flows', () => {
   })
 
   it('duplicate item → shows confirmation modal → cancel does not add it', () => {
-    render(<ShoppingListWrapper initialItems={[{ id: '1', text: 'Milk', completed: false }]} />)
+    renderWithI18n(<ShoppingListWrapper initialItems={[{ id: '1', text: 'Milk', completed: false }]} />)
     addItem(/add/i, 'milk')
     fireEvent.click(screen.getByText('No'))
     expect(screen.getAllByText('Milk')).toHaveLength(1)

@@ -1,21 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
+import { renderWithI18n } from '../../helpers/renderWithI18n'
 import ShoppingList from '@/components/ShoppingList'
 import type { ShoppingItem } from '@/types/base'
-
-vi.mock('react-i18next', async () => {
-  const { default: i18n } = await import('@/i18n/config')
-  return {
-    useTranslation: (ns?: string | string[]) => ({
-      t: (key: string, opts?: Record<string, unknown>) => {
-        const defaultNs = Array.isArray(ns) ? ns[0] : (ns ?? 'common')
-        return i18n.t(key, { ns: defaultNs, ...(opts ?? {}) } as never) as string
-      },
-      i18n,
-    }),
-    initReactI18next: { type: '3rdParty', init: () => {} },
-  }
-})
 
 // ShoppingList renders MasterListDrawer which imports contextResolver
 vi.mock('@/utils/contextResolver', () => ({
@@ -51,7 +38,7 @@ beforeEach(() => {
 
 describe('ActiveList — item display', () => {
   it('renders list name as heading', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     expect(screen.getByText('Weekly Shop')).toBeInTheDocument()
   })
 
@@ -60,20 +47,20 @@ describe('ActiveList — item display', () => {
       { id: '1', text: 'Milk', completed: false, category: 'Dairy' },
       { id: '2', text: 'Bread', completed: false, category: 'Pantry' },
     ]
-    render(<ShoppingList {...defaultProps} items={items} />)
+    renderWithI18n(<ShoppingList {...defaultProps} items={items} />)
     expect(screen.getByText('Milk')).toBeInTheDocument()
     expect(screen.getByText('Bread')).toBeInTheDocument()
   })
 
   it('shows empty state message when no items', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     expect(screen.getByText(/Your shopping list is empty/i)).toBeInTheDocument()
   })
 })
 
 describe('ActiveList — add item', () => {
   it('adds an item by typing and submitting', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     const input = screen.getByPlaceholderText(/add/i)
     fireEvent.change(input, { target: { value: 'eggs' } })
     fireEvent.submit(input.closest('form')!)
@@ -84,7 +71,7 @@ describe('ActiveList — add item', () => {
   })
 
   it('does not add empty items', () => {
-    render(<ShoppingList {...defaultProps} />)
+    renderWithI18n(<ShoppingList {...defaultProps} />)
     const input = screen.getByPlaceholderText(/add/i)
     fireEvent.change(input, { target: { value: '   ' } })
     fireEvent.submit(input.closest('form')!)
@@ -93,7 +80,7 @@ describe('ActiveList — add item', () => {
 
   it('shows duplicate confirmation when item already exists', () => {
     const items: ShoppingItem[] = [{ id: '1', text: 'Milk', completed: false }]
-    render(<ShoppingList {...defaultProps} items={items} />)
+    renderWithI18n(<ShoppingList {...defaultProps} items={items} />)
     const input = screen.getByPlaceholderText(/add/i)
     fireEvent.change(input, { target: { value: 'milk' } })
     fireEvent.submit(input.closest('form')!)
@@ -108,7 +95,7 @@ describe('ActiveList — toggle completion', () => {
     const items: ShoppingItem[] = [
       { id: '1', text: 'Milk', completed: false, category: 'Dairy' },
     ]
-    render(<ShoppingList {...defaultProps} items={items} />)
+    renderWithI18n(<ShoppingList {...defaultProps} items={items} />)
     // Clicking the item text span triggers toggleItem
     fireEvent.click(screen.getByText('Milk'))
     const [updated] = defaultProps.onUpdateItems.mock.calls[0]
@@ -122,7 +109,7 @@ describe('ActiveList — sort order (active on top, completed at bottom)', () =>
       { id: '1', text: 'Milk', completed: true, category: 'Dairy' },
       { id: '2', text: 'Yogurt', completed: false, category: 'Dairy' },
     ]
-    render(<ShoppingList {...defaultProps} items={items} />)
+    renderWithI18n(<ShoppingList {...defaultProps} items={items} />)
     const itemEls = screen.getAllByText(/Milk|Yogurt/)
     // Yogurt (active) should come before Milk (completed) in the DOM
     const yogurtIdx = itemEls.findIndex(el => el.textContent === 'Yogurt')
