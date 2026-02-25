@@ -1,0 +1,58 @@
+{
+  "id": "be-002-to-qa-013-handoff",
+  "type": "task_complete",
+  "from_agent": "backend",
+  "from_task": "be-002",
+  "to_agent": "qa",
+  "to_task": "qa-013",
+  "created": "2026-02-25",
+  "status": "pending",
+  "summary": "PWA foundation is complete. All files in place, build verified with service worker generated.",
+  "deliverables": [
+    {
+      "file": "public/manifest.json",
+      "description": "PWA manifest with name HomeHub, theme_color #630606, background_color #F5F2E7, display standalone, all icon sizes"
+    },
+    {
+      "file": "public/icons/",
+      "description": "PNG icons: 72, 96, 128, 144, 152, 192, 384, 512px + 192px maskable variant"
+    },
+    {
+      "file": "public/offline.html",
+      "description": "Static offline fallback HTML (no JS required) with retry button"
+    },
+    {
+      "file": "index.html",
+      "description": "Updated with manifest link, theme-color, apple-mobile-web-app-capable, apple-touch-icon, title HomeHub"
+    },
+    {
+      "file": "vite.config.ts",
+      "description": "vite-plugin-pwa configured: autoUpdate, workbox precache, network-first for Supabase API, navigateFallback /offline.html"
+    },
+    {
+      "file": "src/pages/Offline.tsx",
+      "description": "React offline fallback component with i18n support and retry button"
+    },
+    {
+      "file": "src/i18n/en/common.json",
+      "description": "Added offline_title, offline_message, offline_retry keys"
+    },
+    {
+      "file": "src/i18n/he/common.json",
+      "description": "Added Hebrew translations for offline keys"
+    }
+  ],
+  "verification": {
+    "build": "npm run build — passes, dist/sw.js generated, 32 entries precached",
+    "pwa_plugin": "vite-plugin-pwa v1.2.0 — generateSW mode, 712.97 KiB precached"
+  },
+  "testing_notes": [
+    "Install on Android Chrome: visit site, banner should appear",
+    "Install on iOS Safari: Add to Home Screen works (apple-mobile-web-app-capable)",
+    "Standalone mode: no browser chrome when launched from home screen",
+    "Offline: disconnect network, navigate — /offline.html should display",
+    "SW update: autoUpdate registration, refreshes on new deploy",
+    "Supabase calls: network-first strategy with 10s timeout, 1hr cache"
+  ],
+  "branch": "agent/be-002-pwa-manifest"
+}

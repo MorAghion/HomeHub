@@ -246,6 +246,24 @@ Then fire the HUMAN ACTION REQUIRED alert — the human will review and merge th
 - NEVER merge your own PR
 - NEVER commit directly to master or main
 
+## Agent Permissions
+
+Agents operating within the HomeHub repository root (/Users/mora/AI_Learning/HomeHub) have pre-authorized permission to perform the following **without asking the user**:
+
+### Always allowed (no confirmation needed):
+- Read, create, edit, and delete any file within this directory tree
+- `npm test`, `npm run build`, `npm run dev`, `npm run test:coverage`
+- `git status`, `git log`, `git diff`, `git fetch`, `git checkout`, `git pull`
+- `git add`, `git commit`, `git push` on feature branches (`agent/*`)
+- `git merge master` into a feature branch (conflict resolution)
+
+### Never allowed without HUMAN ACTION REQUIRED alert:
+- Push to `master` or `main` directly
+- `git reset --hard`, `git clean -f`, `git branch -D`
+- `supabase db push` against production
+- Installing new npm packages (note in completion summary instead)
+- Any action outside the HomeHub directory
+
 ## Merge Conflict Protocol
 - After a PR is merged into master, all active agents must pull latest:
   git checkout master && git pull origin master
