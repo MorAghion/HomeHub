@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
 import { Home } from 'lucide-react';
+import WelcomeScreen from './WelcomeScreen';
 
 type AuthMode = 'signin' | 'signup' | 'join' | 'forgot' | 'reset';
 
@@ -26,6 +27,7 @@ function AuthScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,15 +96,23 @@ function AuthScreen() {
 
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
-      if (signUpError.message.includes('User already registered')) {
+      if (signUpError.message.includes('already a member') || signUpError.message.includes('already in this household')) {
+        setError(t('alreadyMember'));
+      } else if (signUpError.message.includes('User already registered')) {
         setError(t('alreadyHaveAccount'));
       } else {
         setError(signUpError.message || t('errorCreateAccount'));
       }
+    } else {
+      setShowWelcome(true);
     }
     // Always reset local button loading — global spinner takes over on success.
     setLoading(false);
   };
+
+  if (showWelcome) {
+    return <WelcomeScreen onDismiss={() => setShowWelcome(false)} />;
+  }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

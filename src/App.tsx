@@ -4,6 +4,7 @@ import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Calendar, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
+import WelcomeScreen from './components/WelcomeScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
 import TasksHub from './components/TasksHub'
@@ -41,6 +42,7 @@ const LazyFallback = () => (
 function App() {
   const { user, profile, loading } = useAuth();
   const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
+  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(() => localStorage.getItem('homehub-just-joined') !== null);
 
   // [AUTH] Log auth state changes — helps diagnose sign-in stuck issues
   useEffect(() => {
@@ -713,6 +715,17 @@ function App() {
 
   if (!user || !profile) {
     return <AuthScreen />;
+  }
+
+  if (showWelcomeOverlay) {
+    return (
+      <WelcomeScreen
+        onDismiss={() => {
+          localStorage.removeItem('homehub-just-joined');
+          setShowWelcomeOverlay(false);
+        }}
+      />
+    );
   }
 
   // Router: Mobile Card Stack (Hub Level) - HomeView Landing Page

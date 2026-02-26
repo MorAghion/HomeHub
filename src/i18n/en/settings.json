@@ -22,6 +22,7 @@
   "deleteHousehold": "Delete Household",
   "deleteHouseholdConfirm": "Delete Household?",
   "deleteHouseholdDesc": "This action is irreversible and will permanently delete all data for all members — shopping lists, tasks, vouchers, and everything else.",
+  "otherMembersWillLose": "Other members will lose access if you delete your account.",
   "typeDeleteToConfirm": "Type DELETE to confirm",
   "deleting": "Deleting...",
   "deleteEverything": "Delete Everything",
