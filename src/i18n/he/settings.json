@@ -22,6 +22,7 @@
   "deleteHousehold": "מחק משק בית",
   "deleteHouseholdConfirm": "למחוק את משק הבית?",
   "deleteHouseholdDesc": "פעולה זו בלתי הפיכה ותמחק לצמיתות את כל הנתונים של כל החברים — רשימות קניות, משימות, שוברים, וכל השאר.",
+  "otherMembersWillLose": "חברים אחרים יאבדו גישה אם תמחק את החשבון שלך.",
   "typeDeleteToConfirm": "הקלד DELETE לאישור",
   "deleting": "מוחק...",
   "deleteEverything": "מחק הכל",

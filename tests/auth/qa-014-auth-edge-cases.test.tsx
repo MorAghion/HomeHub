@@ -24,6 +24,9 @@ const AUTH_TRANSLATIONS: Record<string, string> = {
   passwordTooShort: 'Password must be at least 6 characters.',
   emailNotConfirmed: 'Please check your email and click the confirmation link before signing in.',
   alreadyHaveAccount: 'You already have an account. Sign in instead, then join via Settings.',
+  alreadyMember: 'You are already a member of this household.',
+  otherMembersWillLose: 'Other members will lose access if you delete your account.',
+  welcomeToHousehold: 'Welcome to your household!',
 }
 
 vi.mock('react-i18next', () => ({
@@ -428,15 +431,14 @@ describe('Join Flow edge cases', () => {
    * Fix: be-005 — check in join_household_via_invite if user is already in target household
    */
   it('[19] re-using own invite code → "already in this household" error shown', async () => {
-    // Current behaviour: Supabase returns generic "User already registered"
-    // Desired: specific "You are already a member of this household" guard (be-005)
-    mockSignUp.mockResolvedValue({ error: { message: 'User already registered' } })
+    // After be-005b: join_household_via_invite RPC returns this specific guard error
+    // when the joining user is already a member of the target household.
+    mockSignUp.mockResolvedValue({ error: { message: 'You are already a member of this household' } })
     renderAuth()
     fillJoin('OWNCODE1', 'Mor', 'mor@email.com', 'password123')
     fireEvent.click(screen.getByText('joinHousehold'))
 
     await waitFor(() => {
-      // Generic error is shown, not the specific membership check → FAIL
       expect(screen.getByText(/already a member|already in this household/i)).toBeInTheDocument()
     })
   })
@@ -552,10 +554,17 @@ describe('Household State', () => {
    * Fix: be-005 — block deletion or require ownership transfer when members > 1
    */
   it('[26] owner deletes account with partner still in household → partner data preserved', async () => {
-    renderAuth()
-    // The app should warn owners that deletion with active members is irreversible
-    // and offer ownership transfer — currently no such protection exists
-    expect(screen.getByText(/transfer ownership|cannot delete.*members|other members will lose/i)).toBeInTheDocument()
+    // be-005a: SettingsModal must warn owner that deletion will wipe all member data.
+    // The guard lives in SettingsModal (delete section) and in delete_household() RPC.
+    mockIsOwner = true
+    render(<SettingsModal isOpen={true} onClose={vi.fn()} />)
+
+    // Click the Delete Household button to reveal the confirmation + safety warning
+    fireEvent.click(screen.getByText('deleteHousehold'))
+
+    await waitFor(() => {
+      expect(screen.getByText(/other members will lose/i)).toBeInTheDocument()
+    })
   })
 
   /**

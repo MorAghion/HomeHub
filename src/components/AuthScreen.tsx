@@ -82,7 +82,9 @@ function AuthScreen() {
 
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
-      if (signUpError.message.includes('User already registered')) {
+      if (signUpError.message.includes('already a member') || signUpError.message.includes('already in this household')) {
+        setError(t('alreadyMember'));
+      } else if (signUpError.message.includes('User already registered')) {
         setError(t('alreadyHaveAccount'));
       } else {
         setError(signUpError.message || t('errorCreateAccount'));

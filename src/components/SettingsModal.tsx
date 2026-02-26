@@ -369,6 +369,9 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <p className="text-xs mt-1" style={{ color: '#7F1D1D' }}>
                       {t('deleteHouseholdDesc')}
                     </p>
+                    <p className="text-xs mt-2 font-medium" style={{ color: '#7F1D1D' }}>
+                      {t('otherMembersWillLose')}
+                    </p>
                   </div>
                 </div>
 
