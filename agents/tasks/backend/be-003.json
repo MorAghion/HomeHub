@@ -1,0 +1,47 @@
+{
+  "id": "be-003",
+  "title": "Add migration file for handle_new_user trigger search_path fix (already applied in production)",
+  "agent": "backend",
+  "phase": "1.0",
+  "priority": "high",
+  "status": "review",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "human — production incident 2026-02-25: 'database error saving new user'",
+  "wave": 10,
+  "incident_summary": {
+    "symptom": "Partner signup returned 'database error saving new user' in production",
+    "root_cause": "handle_new_user() trigger was missing SET search_path = public. The Supabase Auth service executes triggers in a context where the search_path does not include 'public', so 'households' table was not visible.",
+    "error_in_logs": "ERROR: 42P01: relation 'households' does not exist",
+    "hotfix_applied": "Applied directly in Supabase SQL Editor on 2026-02-25. Signup now works in production."
+  },
+  "task": "Create a migration file that captures the hotfix so the schema is reproducible locally and the fix is tracked in version control.",
+  "migration_file": "supabase/migrations/17-fix-trigger-search-path.sql",
+  "migration_content": "-- Fix handle_new_user() trigger: add SET search_path = public\n-- This prevents 'relation households does not exist' when Auth service calls the trigger\n-- Hotfix was applied directly in production on 2026-02-25\n\nCREATE OR REPLACE FUNCTION handle_new_user()\nRETURNS TRIGGER AS $$\nDECLARE\n  new_household_id UUID;\nBEGIN\n  -- Create a new household for this user\n  INSERT INTO households (owner_id)\n  VALUES (NEW.id)\n  RETURNING id INTO new_household_id;\n\n  -- Create user profile linked to this household\n  INSERT INTO user_profiles (user_id, household_id, display_name)\n  VALUES (\n    NEW.id,\n    new_household_id,\n    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1))\n  );\n\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;",
+  "implementation_plan": [
+    "1. Read the current handle_new_user trigger from existing migrations to get the exact body",
+    "2. Create supabase/migrations/17-fix-trigger-search-path.sql with CREATE OR REPLACE FUNCTION handle_new_user() ... SET search_path = public",
+    "3. Run supabase db reset locally to confirm the migration applies cleanly",
+    "4. Verify locally: create a new user, confirm handle_new_user fires without error, household + user_profile rows exist",
+    "5. Commit and open PR — do NOT run supabase db push against production (already fixed there)"
+  ],
+  "acceptance_criteria": [
+    "supabase/migrations/17-fix-trigger-search-path.sql exists",
+    "supabase db reset runs cleanly with all migrations",
+    "Local signup creates household + user_profile correctly",
+    "The function signature includes SET search_path = public"
+  ],
+  "completion_summary": {
+    "migration_file": "supabase/17-fix-trigger-search-path.sql",
+    "note_on_path": "Migrations live directly in supabase/ (not supabase/migrations/); file placed to match existing convention",
+    "function_source": "Body taken from 12-security-hardening.sql (most recent definition); SET search_path = public appended to function signature",
+    "supabase_db_reset": "Skipped — local Supabase not running",
+    "build": "npm run build passed with zero TypeScript errors",
+    "pr": "https://github.com/MorAghion/HomeHub/pull/33",
+    "branch": "agent/be-003-trigger-migration"
+  },
+  "notes": [
+    "DO NOT supabase db push to production — the fix is already live. The migration is for reproducibility only.",
+    "If the trigger body differs from the template above, use the actual production version (check via SQL Editor: SELECT prosrc FROM pg_proc WHERE proname = 'handle_new_user')"
+  ]
+}

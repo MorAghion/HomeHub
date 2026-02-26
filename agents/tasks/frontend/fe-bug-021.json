@@ -1,0 +1,32 @@
+{
+  "id": "fe-bug-021",
+  "title": "No inline password length validation on sign-up — short passwords silently sent to Supabase",
+  "agent": "frontend",
+  "phase": "1.0",
+  "priority": "medium",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — test [2] password too short (< 6 chars) → inline error shown, signUp NOT called",
+  "wave": 10,
+  "failing_tests": ["[2]"],
+  "root_cause": "handleSignUp() in AuthScreen.tsx calls signUp() without checking password.length first. Supabase enforces a 6-character minimum and returns an error, but the user sees a raw API error rather than a friendly inline message.",
+  "affected_files": [
+    "src/components/AuthScreen.tsx",
+    "src/i18n/en/auth.json",
+    "src/i18n/he/auth.json"
+  ],
+  "implementation_plan": [
+    "1. In AuthScreen.tsx handleSignUp(), before calling signUp(), add: if (password.length < 6) { setError(t('passwordMinLength')); return; }",
+    "2. Add i18n key 'passwordMinLength' to en/auth.json: 'Password must be at least 6 characters'",
+    "3. Add matching Hebrew translation to he/auth.json",
+    "4. Optionally: show a real-time character count hint below the password field (not required for passing test)",
+    "5. Run npm test — test [2] should now pass"
+  ],
+  "acceptance_criteria": [
+    "Submitting sign-up with a password < 6 characters does NOT call signUp()",
+    "An inline error matching /password.*too short|at least 6|minimum.*characters/i is shown",
+    "Test [2] passes"
+  ],
+  "fix_complexity": "trivial — 3 lines of code + 2 i18n keys"
+}

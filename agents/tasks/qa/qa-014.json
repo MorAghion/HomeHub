@@ -1,0 +1,49 @@
+{
+  "id": "qa-014",
+  "title": "Auth & Onboarding edge-case test suite — 32 tests",
+  "agent": "qa",
+  "phase": "1.0",
+  "priority": "high",
+  "status": "review",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "wave": 10,
+  "paired_with": ["fe-bug-020", "fe-bug-021", "fe-bug-022", "fe-bug-023", "fe-bug-024", "fe-bug-025", "be-003", "be-004", "be-005"],
+  "mode": "TDD — tests written first; 18 currently fail and define Wave 10 fixes",
+  "test_file": "tests/auth/qa-014-auth-edge-cases.test.tsx",
+  "pr": "https://github.com/MorAghion/HomeHub/pull/32",
+  "branch": "agent/qa-014-auth-edge-cases",
+  "current_results": {
+    "total": 32,
+    "passing": 14,
+    "failing": 18,
+    "todos": 0
+  },
+  "passing_tests": [1, 3, 5, 6, 8, 14, 15, 16, 17, 20, 24, 25, 27, 28],
+  "failing_tests": {
+    "2": "fe-bug-021 — inline password validation",
+    "4": "fe-bug-024 — unconfirmed email message",
+    "7": "fe-bug-024 — unconfirmed email message",
+    "9": "session expiry notification (no tracking task yet — complex E2E)",
+    "10": "cross-tab sign-out sync (no tracking task yet — complex E2E)",
+    "11": "token refresh failure UI (no tracking task yet — complex E2E)",
+    "12": "offline + expired session UI (no tracking task yet — complex E2E)",
+    "13": "fe-bug-022 — welcome screen",
+    "18": "fe-bug-025 — sign in instead message",
+    "19": "be-005b — own invite code guard",
+    "21": "fe-bug-020 — forgot password link",
+    "22": "fe-bug-020 — reset page",
+    "23": "fe-bug-020 — reset page",
+    "26": "be-005a — owner delete guard",
+    "29": "be-004 — email branding",
+    "30": "be-004 — email branding + fe-bug-020",
+    "31": "fe-bug-023 — in-app notification",
+    "32": "fe-bug-022 — welcome screen content"
+  },
+  "revalidation_trigger": "Run npm test after each Wave 10 fix merges — expect failing count to decrease",
+  "completion_criteria": [
+    "All 18 failing tests pass after Wave 10 fixes are merged",
+    "Tests [9][10][11][12] may remain failing until E2E infrastructure is built — acceptable",
+    "No regressions in the 14 currently passing tests"
+  ]
+}

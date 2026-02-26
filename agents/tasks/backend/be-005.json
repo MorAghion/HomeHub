@@ -1,0 +1,58 @@
+{
+  "id": "be-005",
+  "title": "Household safety guards: block owner deletion with members + own-invite-code guard",
+  "agent": "backend",
+  "phase": "1.0",
+  "priority": "high",
+  "status": "todo",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — tests [19] [26]",
+  "wave": 10,
+  "failing_tests": ["[19]", "[26]"],
+  "sub_tasks": [
+    {
+      "id": "be-005a",
+      "title": "Block owner from deleting household when other members exist",
+      "priority": "high",
+      "root_cause": "delete_household() function (or direct delete in AuthContext) does not check if other user_profiles exist in the household before deleting. This would cascade-delete all member data.",
+      "fix": "In the delete_household RPC or as a DB constraint: SELECT COUNT(*) FROM user_profiles WHERE household_id = target_id AND user_id != owner_id. If count > 0, raise an exception with message 'Household has active members. Transfer ownership before deleting.'",
+      "affected_files": [
+        "supabase/functions/ (if RPC exists)",
+        "supabase/migrations/18-household-delete-guard.sql (to create)",
+        "src/contexts/AuthContext.tsx (surface the error message)"
+      ]
+    },
+    {
+      "id": "be-005b",
+      "title": "Prevent user from joining household they already belong to via invite code",
+      "priority": "medium",
+      "root_cause": "join_household_via_invite RPC does not check if the joining user is already a member of the target household. An owner could accidentally use their own invite code and corrupt their profile.",
+      "fix": "In join_household_via_invite: after resolving the invite's household_id, SELECT 1 FROM user_profiles WHERE household_id = target_household_id AND user_id = auth.uid(). If found, raise an exception: 'You are already a member of this household.'",
+      "affected_files": [
+        "supabase/functions/join_household_via_invite (or migration)",
+        "supabase/migrations/18-household-delete-guard.sql (include in same migration)"
+      ]
+    }
+  ],
+  "implementation_plan": [
+    "1. Read the existing join_household_via_invite function (check supabase/migrations/ for its definition)",
+    "2. Add already-member guard: IF EXISTS (SELECT 1 FROM user_profiles WHERE household_id = target_hh AND user_id = auth.uid()) THEN RAISE EXCEPTION 'You are already a member of this household'",
+    "3. Read the delete_household function (check AuthContext.tsx and migrations)",
+    "4. Add member-count guard before delete: IF (SELECT COUNT(*) FROM user_profiles WHERE household_id = hh_id AND user_id != auth.uid()) > 0 THEN RAISE EXCEPTION 'Household has active members'",
+    "5. Create supabase/migrations/18-household-guards.sql with both fixes",
+    "6. Run supabase db reset locally to verify",
+    "7. Test locally: try joining own household → see error. Try deleting household with partner → see error.",
+    "8. Update src/contexts/AuthContext.tsx to surface these new error messages clearly in the UI",
+    "9. Open PR — do NOT supabase db push to production yet (qa must validate first)"
+  ],
+  "acceptance_criteria": [
+    "Joining own household via invite code returns 'You are already a member of this household'",
+    "Deleting household with active members returns a protective error",
+    "AuthContext surfaces these errors to the UI",
+    "supabase db reset applies all migrations cleanly",
+    "Test [19] passes after FE also surfaces the be-005b error correctly",
+    "Test [26] passes after FE also surfaces the be-005a error correctly"
+  ],
+  "dependencies": ["fe-bug-025 — FE surfaces the be-005b error in join form"]
+}

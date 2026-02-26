@@ -1,6 +1,6 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-25 — Wave 9 launched
-**Current Phase:** 0.5 — PWA foundation
+**Last updated:** 2026-02-25 — Wave 10 planned ✅ | Wave 10A ready to start
+**Current Phase:** 1.0 — Auth & Onboarding Hardening
 
 ---
 
@@ -17,8 +17,12 @@
 | Wave 5 | fe-bug-008/009/010/011/012 + QA regression tests | 🎨🧪 | ✅ Done | 2026-02-23 13:00 | 2026-02-23 15:00 | Merged PR #11 |
 | Wave 6 | fe-bug-013/014/015 | 🎨 | ✅ Done | 2026-02-23 15:00 | 2026-02-24 | PRs #13–#16 merged → master → main deployed |
 | Wave 7 | fe-008, fe-009, qa-007, qa-008, qa-009 | 🎨🧪 | ✅ Done | 2026-02-24 | 2026-02-25 | Hebrew full support + CI pipeline live |
-| Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 381 tests green |
-| Wave 9 | be-002, qa-013 | ⚙️🧪 | 🚀 In Progress | 2026-02-25 | — | PWA manifest + service worker (BE) + TDD tests (QA) |
+| Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 400 tests green |
+| Wave 9 | be-002, qa-013 | ⚙️🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | PWA live — app shell loads offline, 400 tests green |
+| Wave 10 Planning | qa-014 test suite + all task JSONs | 🧪🎯 | ✅ Done | 2026-02-25 | 2026-02-25 | 32 auth edge-case tests (14✅/14❌/4⏭️), 9 tasks created, PR #32 merged |
+| Wave 10A | be-003, fe-bug-021, fe-bug-024, fe-bug-025 | ⚙️🎨 | 🔜 Next | — | — | Trivial fixes — unblocks 5 failing tests |
+| Wave 10B | fe-bug-020, be-005 | 🎨⚙️ | ⏳ Queued | — | — | Reset flow + household guards |
+| Wave 10C | fe-bug-022, fe-bug-023, be-004 | 🎨⚙️ | ⏳ Queued | — | — | Welcome screen, notifications, email branding |
 
 ---
 
@@ -30,8 +34,9 @@ Phase 0.2 ██████████100%  (6/6 tasks done)   qa-002 ✅ | qa
 Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
 Phase 0.4 ██████████100%  (5/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 ✅ | fe-009 ✅
 Phase 0.4b ████████████100% (7/7 tasks done) fe-bug-016 ✅ | fe-bug-017 ✅ | fe-bug-018 ✅ | fe-bug-019 ✅ | qa-010 ✅ | qa-011 ✅ | qa-012 ✅
-Phase 0.5 █████░░░░░  50%  (1/2 tasks done)  fe-007 ✅ | be-002 ⏳
+Phase 0.5 ██████████100%  (3/3 tasks done)  fe-007 ✅ | be-002 ✅ | qa-013 ✅
 Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-008 ✅ | qa-009 ✅
+Phase 1.0 ░░░░░░░░░░  0%  (0/9 tasks done)  be-003 🔜 | fe-bug-020 🔜 | fe-bug-021 🔜 | fe-bug-022 🔜 | fe-bug-023 🔜 | fe-bug-024 🔜 | fe-bug-025 🔜 | be-004 🔜 | be-005 🔜
 ```
 
 ---
@@ -44,36 +49,16 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 | Run `supabase/15-oauth-tokens.sql` in SQL Editor | 🏗️ arch-002 | 🔴 Blocking | ✅ Done |
 | Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
 | Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor | 🎨 fe-bug-010 | 🔴 Blocking | ✅ Done |
-| **Merge master → main to deploy Wave 7+8 to production** | 🎯 Coordinator | 🟡 Ready | ⏳ Awaiting human |
+| Merge master → main to deploy Wave 7+8+9 to production | 🎯 Coordinator | 🟡 Ready | ✅ Done (PR #31) |
+| Configure HomeHub branding in Supabase Auth email templates | ⚙️ be-004 | 🟡 Wave 10C | ⏳ Pending — requires Supabase Dashboard access |
 
 ---
 
 ## 🖥️ Active Agents
 
-| Terminal 1 | ⚙️ Backend | be-002 — PWA manifest + service worker | agent/be-002-pwa-manifest | qa-013 |
-| Terminal 2 | 🧪 QA | qa-013 — PWA TDD tests | agent/qa-013-pwa-tests | be-002 |
+None — Wave 10 planning complete. Wave 10A ready to start.
 
 ---
-
-## 🚦 Phase 0.1 — Vouchers / Bookings Separation
-
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| arch-001: Vouchers schema split | 🏗️ Architect | ✅ done | — | fe-001, fe-002, fe-003, qa-002 |
-| fe-001: VoucherCard component | 🎨 Frontend | ✅ done | arch-001 | qa-002 |
-| fe-002: ReservationCard component | 🎨 Frontend | ✅ done | fe-001 | qa-002 |
-| fe-003: Create forms separation | 🎨 Frontend | ✅ done | fe-002 | qa-002 |
-| qa-001: Test infrastructure setup | 🧪 QA | ✅ done | — | qa-002, qa-003, qa-004, qa-005 |
-
-## 🚦 Phase 0.2 — Test Suite
-
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| qa-002: Voucher/Reservation tests | 🧪 QA | ✅ done | fe-001, fe-002, fe-003, qa-001 | — |
-| qa-003: Shopping Hub tests | 🧪 QA | ✅ done | qa-001 | — |
-| qa-004: Home Tasks tests | 🧪 QA | ✅ done | qa-001 | — |
-| qa-005: E2E test suite | 🧪 QA | ✅ done | qa-001 | — |
-| qa-006: Sanity checklist | 🧪 QA | ✅ done | — | — |
 
 ## 🚦 Phase 0.3 — Gmail OAuth
 
@@ -83,43 +68,44 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 | be-001: Gmail OAuth flow | ⚙️ Backend | 🔒 blocked | arch-002 | fe-004 |
 | fe-004: Gmail settings UI | 🎨 Frontend | 🔒 blocked | be-001 | — |
 
-## 🚦 Phase 0.4 — Hebrew Localization
+## 🚦 Phase 1.0 — Auth & Onboarding Hardening (Wave 10)
 
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| fe-005: i18n framework setup | 🎨 Frontend | ✅ done | — | fe-006 |
-| fe-006: RTL layout + translations | 🎨 Frontend | ✅ done | fe-005 | qa-007 |
-| fe-006-cont: Hebrew context mapping + settings i18n | 🎨 Frontend | ✅ done | fe-006 | qa-007 |
-| fe-008: Full Hebrew translation audit — all windows | 🎨 Frontend | ✅ done | fe-006-cont | qa-007 |
-| fe-009: Hebrew category/listCategory/context engine values | 🎨 Frontend | ✅ done | fe-006-cont | qa-007 |
+### Wave 10A — Quick Wins (start here)
 
-## 🚦 Phase 0.4b — Hebrew Polish (Wave 8)
+| Task | Agent | Status | Priority | Fixes Tests | Depends On |
+|------|-------|--------|----------|-------------|------------|
+| be-003: handle_new_user trigger search_path migration | ⚙️ Backend | 🔜 todo | HIGH | production incident | — |
+| fe-bug-021: Inline password length validation | 🎨 Frontend | 🔜 todo | MEDIUM | [2] | — |
+| fe-bug-024: "Check your email" for unconfirmed accounts | 🎨 Frontend | 🔜 todo | MEDIUM | [4][7] | — |
+| fe-bug-025: "Sign in instead" for existing email in join | 🎨 Frontend | 🔜 todo | MEDIUM | [18] | — |
 
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| fe-bug-016: ShoppingList Hub Hebrew translations | 🎨 Frontend | ✅ done | — | — |
-| fe-bug-017: Remaining hardcoded English strings (6 components) | 🎨 Frontend | ✅ done | fe-bug-016 | — |
-| qa-010: i18n translation completeness tests | 🧪 QA | ✅ done | fe-bug-017 | — |
-| fe-bug-018: Hebrew context suggestions — extend keyword coverage | 🎨 Frontend | ✅ done | — | — |
-| qa-011: Hebrew context suggestion keyword tests | 🧪 QA | ✅ done | fe-bug-018 | — |
-| fe-bug-019: Auto-categorize Hebrew + expanded English keywords | 🎨 Frontend | ✅ done | — | — |
-| qa-012: autoCategorize Hebrew + keyword unit tests | 🧪 QA | ✅ done | fe-bug-019 | — |
+### Wave 10B — Core Features
 
-## 🚦 Phase 0.5 — Responsive + PWA Foundation
+| Task | Agent | Status | Priority | Fixes Tests | Depends On |
+|------|-------|--------|----------|-------------|------------|
+| fe-bug-020: Forgot password / reset password flow | 🎨 Frontend | 🔜 todo | HIGH | [21][22][23][30] | — |
+| be-005: Household safety guards (delete + own-code) | ⚙️ Backend | 🔜 todo | HIGH | [19][26] | — |
 
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| fe-007: Responsive audit + fix | 🎨 Frontend | ✅ done | — | — |
-| be-002: PWA manifest + service worker | ⚙️ Backend | 🚀 in_progress | — | — |
-| qa-013: PWA manifest + service worker tests (TDD paired with be-002) | 🧪 QA | 🚀 in_progress (TDD) | — | — |
+### Wave 10C — UX Polish & Branding
 
-## 🚦 Phase 0.6 — CI + Test Maintenance
+| Task | Agent | Status | Priority | Fixes Tests | Depends On |
+|------|-------|--------|----------|-------------|------------|
+| fe-bug-022: Welcome screen after joining | 🎨 Frontend | 🔜 todo | MEDIUM | [13][32] | — |
+| fe-bug-023: In-app notification when partner joins | 🎨 Frontend | 🔜 todo | LOW | [31] | — |
+| be-004: Supabase email template branding | ⚙️ Backend | 🔜 todo | LOW | [29][30] | Human action required |
 
-| Task | Agent | Status | Depends On | Blocks |
-|------|-------|--------|------------|--------|
-| qa-007: RTL + Hebrew validation | 🧪 QA | ✅ done | fe-006-cont | — |
-| qa-008: Scan + fix test suite errors | 🧪 QA | ✅ done | — | — |
-| qa-009: GitHub Actions CI pipeline | 🧪 QA | ✅ done | — | — |
+### Backlog (no wave assigned)
+
+| Task | Agent | Status | Priority | Fixes Tests | Notes |
+|------|-------|--------|----------|-------------|-------|
+| fe-bug-026: Session expiry + offline resilience | 🎨 Frontend | 🔵 backlog | MEDIUM | [9][11][12] | Tests skipped — needs E2E infra |
+| fe-bug-027: Cross-tab sign-out sync | 🎨 Frontend | 🔵 backlog | LOW | [10] | Tests skipped — needs E2E infra |
+
+### QA Coverage
+
+| Task | Agent | Status | Notes |
+|------|-------|--------|-------|
+| qa-014: Auth & Onboarding edge-case tests | 🧪 QA | ✅ review | 32 tests — 14✅ 14❌ 4⏭️ skipped — PR #32 merged |
 
 ---
 
@@ -127,9 +113,19 @@ Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-
 
 None.
 
-## 🐛 Active Bugs
+## 🐛 Active Bugs (Wave 10 — not yet fixed)
 
-None open. All Wave 8 bugs resolved.
+| Bug | Title | Priority | Assigned Wave |
+|-----|-------|----------|---------------|
+| fe-bug-020 | Forgot password / reset flow | HIGH | 10B |
+| fe-bug-021 | Inline password length validation | MEDIUM | 10A |
+| fe-bug-022 | Welcome screen after joining | MEDIUM | 10C |
+| fe-bug-023 | In-app notification for partner join | LOW | 10C |
+| fe-bug-024 | "Check your email" for unconfirmed email | MEDIUM | 10A |
+| fe-bug-025 | "Sign in instead" for existing email in join | MEDIUM | 10A |
+| be-003 | handle_new_user trigger migration file | HIGH | 10A |
+| be-004 | Supabase email branding (human action) | LOW | 10C |
+| be-005 | Household safety guards | HIGH | 10B |
 
 ## ❓ Open Questions
 None.
@@ -184,6 +180,9 @@ None.
 | qa-010 | 🧪 QA | 2026-02-25 | Wave 8 | i18n completeness tests — 29 tests, all green |
 | qa-011 | 🧪 QA | 2026-02-25 | Wave 8 | Hebrew context suggestion tests — 29 tests, all green |
 | qa-012 | 🧪 QA | 2026-02-25 | Wave 8 | autoCategorize tests — 49 tests, all green |
+| be-002 | ⚙️ Backend | 2026-02-25 | Wave 9 | PWA manifest, service worker, icons, offline page — live in production |
+| qa-013 | 🧪 QA | 2026-02-25 | Wave 9 | PWA tests — 400 tests green, app shell verified offline |
+| qa-014 (planning) | 🧪🎯 | 2026-02-25 | Wave 10 Planning | 32 auth edge-case tests written — 14✅/14❌/4⏭️ — PR #32 merged |
 
 ---
 

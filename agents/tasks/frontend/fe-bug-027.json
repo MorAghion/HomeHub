@@ -1,0 +1,35 @@
+{
+  "id": "fe-bug-027",
+  "title": "Cross-tab sign-out not synchronised — signing out in one tab leaves other tabs active",
+  "agent": "frontend",
+  "phase": "backlog",
+  "priority": "low",
+  "status": "backlog",
+  "created": "2026-02-25",
+  "updated": "2026-02-25",
+  "reported_by": "qa-014 — test [10]",
+  "wave": "backlog",
+  "failing_tests": ["[10]"],
+  "root_cause": "Supabase JS v2 broadcasts auth state changes via localStorage, but the app does not listen for cross-tab storage events. If the user signs out in Tab A, Tab B continues showing the authenticated app until manually refreshed.",
+  "affected_files": [
+    "src/contexts/AuthContext.tsx"
+  ],
+  "implementation_plan": [
+    "1. In AuthContext useEffect, add a window 'storage' event listener",
+    "2. When the event key is 'supabase.auth.token' and newValue is null (or the session is cleared), call supabase.auth.getSession() to re-sync state",
+    "3. Alternatively use the BroadcastChannel API: on sign-out, post 'SIGNED_OUT' to a channel named 'homehub-auth'; all other tabs listen and call supabase.auth.signOut() or just setUser(null)",
+    "4. Show a brief 'You have been signed out' notification in the other tab before redirecting to auth",
+    "5. Clean up listeners in the useEffect return function",
+    "6. Run npm test — test [10] should now pass"
+  ],
+  "acceptance_criteria": [
+    "Signing out in Tab A causes Tab B to show signed-out state within 1-2 seconds",
+    "A notification matching /signed out|another tab|session ended/i is shown in Tab B",
+    "Test [10] passes"
+  ],
+  "notes": [
+    "Supabase JS v2 already handles cross-tab session sync for sign-in via localStorage events — sign-out may need explicit handling",
+    "BroadcastChannel has broad browser support (not IE) — preferred over storage events for explicitness",
+    "This is low priority as it only affects multi-tab power users; the session will eventually expire anyway"
+  ]
+}
