@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Home } from 'lucide-react';
+import WelcomeScreen from './WelcomeScreen';
 
 function AuthScreen() {
   const { t } = useTranslation('auth');
@@ -14,6 +15,7 @@ function AuthScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,10 +91,16 @@ function AuthScreen() {
       } else {
         setError(signUpError.message || t('errorCreateAccount'));
       }
+    } else {
+      setShowWelcome(true);
     }
     // Always reset local button loading — global spinner takes over on success.
     setLoading(false);
   };
+
+  if (showWelcome) {
+    return <WelcomeScreen onDismiss={() => setShowWelcome(false)} />;
+  }
 
   return (
     <div

@@ -159,7 +159,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   if (!error) { joined = true; break; }
                 }
                 if (import.meta.env.DEV) console.log('[AUTH] onAuthStateChange: invite join result — joined:', joined);
-                if (joined) await fetchProfile(session.user.id);
+                if (joined) {
+                  await fetchProfile(session.user.id);
+                  localStorage.setItem('homehub-just-joined', 'true');
+                }
               } catch (err) {
                 console.error('[Auth] Failed to process pending invite:', err);
               }
