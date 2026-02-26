@@ -18,9 +18,17 @@ import SettingsModal from '@/components/SettingsModal'
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
+// Translate known keys to their English values; fall back to key name for everything else.
+// This mirrors real i18n behaviour without loading translation files.
+const AUTH_TRANSLATIONS: Record<string, string> = {
+  passwordTooShort: 'Password must be at least 6 characters.',
+  emailNotConfirmed: 'Please check your email and click the confirmation link before signing in.',
+  alreadyHaveAccount: 'You already have an account. Sign in instead, then join via Settings.',
+}
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string) => AUTH_TRANSLATIONS[key] ?? key,
     i18n: { language: 'en', changeLanguage: vi.fn() },
   }),
 }))

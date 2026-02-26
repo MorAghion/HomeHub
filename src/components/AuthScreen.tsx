@@ -27,7 +27,11 @@ function AuthScreen() {
       if (import.meta.env.DEV) console.log('[AUTH] handleSignIn: signIn() returned — error:', error ?? 'none');
 
       if (error) {
-        setError(error.message || t('errorSignIn'));
+        if (error.message.includes('Email not confirmed')) {
+          setError(t('emailNotConfirmed'));
+        } else {
+          setError(error.message || t('errorSignIn'));
+        }
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('[AUTH] handleSignIn: signIn() threw unexpectedly:', err);
@@ -44,6 +48,12 @@ function AuthScreen() {
     setLoading(true);
     setError(null);
     setMessage(null);
+
+    if (password.length < 6) {
+      setError(t('passwordTooShort'));
+      setLoading(false);
+      return;
+    }
 
     const { error } = await signUp(email, password, displayName);
 
@@ -72,7 +82,11 @@ function AuthScreen() {
 
     if (signUpError) {
       localStorage.removeItem('homehub-pending-invite');
-      setError(signUpError.message || t('errorCreateAccount'));
+      if (signUpError.message.includes('User already registered')) {
+        setError(t('alreadyHaveAccount'));
+      } else {
+        setError(signUpError.message || t('errorCreateAccount'));
+      }
     }
     // Always reset local button loading — global spinner takes over on success.
     setLoading(false);
