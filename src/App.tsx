@@ -4,6 +4,7 @@ import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Calendar, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
+import WelcomeScreen from './components/WelcomeScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
 import TasksHub from './components/TasksHub'
@@ -86,6 +87,8 @@ function App() {
     }
     return () => document.body.classList.remove('app-locked');
   }, [user, profile]);
+
+  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(() => localStorage.getItem('homehub-just-joined') !== null);
 
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
 
@@ -713,6 +716,17 @@ function App() {
 
   if (!user || !profile) {
     return <AuthScreen />;
+  }
+
+  if (showWelcomeOverlay) {
+    return (
+      <WelcomeScreen
+        onDismiss={() => {
+          localStorage.removeItem('homehub-just-joined');
+          setShowWelcomeOverlay(false);
+        }}
+      />
+    );
   }
 
   // Router: Mobile Card Stack (Hub Level) - HomeView Landing Page

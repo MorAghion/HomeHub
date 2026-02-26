@@ -24,6 +24,7 @@ const AUTH_TRANSLATIONS: Record<string, string> = {
   passwordTooShort: 'Password must be at least 6 characters.',
   emailNotConfirmed: 'Please check your email and click the confirmation link before signing in.',
   alreadyHaveAccount: 'You already have an account. Sign in instead, then join via Settings.',
+  welcomeToHousehold: 'Welcome to your household!',
 }
 
 vi.mock('react-i18next', () => ({
