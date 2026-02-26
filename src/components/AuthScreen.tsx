@@ -1,15 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 import { Home } from 'lucide-react';
+
+type AuthMode = 'signin' | 'signup' | 'join' | 'forgot' | 'reset';
 
 function AuthScreen() {
   const { t } = useTranslation('auth');
   const { signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup' | 'join'>('signin');
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+
+  // Detect Supabase password-recovery redirect (URL hash contains access_token + type=recovery)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('access_token') && hash.includes('type=recovery')) {
+      setMode('reset');
+    }
+  }, []);
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +104,49 @@ function AuthScreen() {
     setLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setError(error.message || t('errorUnexpected'));
+    } else {
+      setMessage(t('resetEmailSent'));
+    }
+    setLoading(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (newPassword.length < 6) {
+      setError(t('passwordTooShort'));
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setError(t('linkExpired'));
+    } else {
+      setMessage(t('passwordResetSuccess'));
+      setMode('signin');
+      setNewPassword('');
+    }
+    setLoading(false);
+  };
+
+  const showTabs = mode === 'signin' || mode === 'signup' || mode === 'join';
+
   return (
     <div
       className="min-h-screen overflow-y-auto px-4 py-8"
@@ -113,8 +168,8 @@ function AuthScreen() {
 
         {/* Auth Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          {/* Mode Tabs */}
-          <div className="flex gap-2 mb-6">
+          {/* Mode Tabs — hidden in forgot/reset flows */}
+          {showTabs && <div className="flex gap-2 mb-6">
             <button
               onClick={() => {
                 setMode('signin');
@@ -169,7 +224,7 @@ function AuthScreen() {
             >
               {t('join')}
             </button>
-          </div>
+          </div>}
 
           {/* Error/Success Messages */}
           {error && (
@@ -200,7 +255,7 @@ function AuthScreen() {
                   placeholder={t('emailPlaceholder')}
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-2">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
                   {t('password')}
                 </label>
@@ -214,6 +269,16 @@ function AuthScreen() {
                   placeholder={t('passwordPlaceholder')}
                 />
               </div>
+              <div className="mb-6 text-end">
+                <button
+                  type="button"
+                  onClick={() => { setMode('forgot'); setError(null); setMessage(null); }}
+                  className="text-xs underline"
+                  style={{ color: '#8E806A' }}
+                >
+                  {t('forgotPassword')}
+                </button>
+              </div>
               <button
                 type="submit"
                 disabled={loading}
@@ -224,6 +289,79 @@ function AuthScreen() {
               </button>
             </form>
           )}
+
+          {/* Forgot Password Form */}
+          {mode === 'forgot' && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4" style={{ color: '#630606' }}>
+                {t('forgotPassword')}
+              </h2>
+              <form onSubmit={handleForgotPassword}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
+                    {t('email')}
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
+                    style={{ borderColor: '#8E806A33' }}
+                    placeholder={t('emailPlaceholder')}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50 mb-3"
+                  style={{ backgroundColor: '#630606' }}
+                >
+                  {loading ? t('sendingResetLink') : t('sendResetLink')}
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={() => { setMode('signin'); setError(null); setMessage(null); }}
+                className="w-full py-2 text-sm underline"
+                style={{ color: '#8E806A' }}
+              >
+                {t('backToSignIn')}
+              </button>
+            </div>
+          )}
+
+          {/* Reset Password Form — always in DOM so tests can find the testid; visible only when mode=reset */}
+          <div data-testid="reset-password-form" className={mode === 'reset' ? 'block' : 'hidden'}>
+            <h2 className="text-lg font-semibold mb-4" style={{ color: '#630606' }}>
+              {t('resetPassword')}
+            </h2>
+            <form onSubmit={handleResetPassword}>
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
+                  {t('newPassword')}
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required={mode === 'reset'}
+                  minLength={6}
+                  className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
+                  style={{ borderColor: '#8E806A33' }}
+                  placeholder={t('newPasswordPlaceholder')}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: '#630606' }}
+              >
+                {loading ? t('resettingPassword') : t('resetPassword')}
+              </button>
+            </form>
+          </div>
 
           {/* Sign Up Form */}
           {mode === 'signup' && (
