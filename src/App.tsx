@@ -4,6 +4,7 @@ import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Calendar, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
+import NotificationBadge from './components/NotificationBadge'
 import WelcomeScreen from './components/WelcomeScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
@@ -737,6 +738,7 @@ function App() {
           backgroundColor: '#F5F2E7',
         }}
       >
+        <NotificationBadge />
         {/* Fixed Header */}
         <header
           className="absolute top-0 inset-x-0 h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"

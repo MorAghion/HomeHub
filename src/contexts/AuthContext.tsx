@@ -15,12 +15,19 @@ interface UserProfile {
   household_owner_id: string | null; // owner_id from the households table
 }
 
+interface MemberNotification {
+  type: 'member_joined';
+  displayName: string;
+}
+
 interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   session: Session | null;
   loading: boolean;
   isOwner: boolean; // true if current user is the household owner
+  notification: MemberNotification | null;
+  clearNotification: () => void;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -41,8 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(() => {
     return localStorage.getItem('sb-wwqvjiekakjetspucfxp-auth-token') !== null;
   });
+  const [notification, setNotification] = useState<MemberNotification | null>(null);
 
   const isOwner = profile !== null && profile.id === profile.household_owner_id;
+
+  const clearNotification = () => setNotification(null);
 
   // Fetch user profile + household owner_id in one round-trip
   const fetchProfile = async (userId: string) => {
@@ -181,6 +191,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Realtime: watch for new members joining the household and emit a notification
+  useEffect(() => {
+    if (!profile?.household_id) return;
+
+    const channel = supabase
+      .channel(`household-members-${profile.household_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_profiles',
+          filter: `household_id=eq.${profile.household_id}`,
+        },
+        (payload) => {
+          const newMember = payload.new as { id: string; display_name: string | null };
+          // Don't notify the joining user about themselves
+          if (newMember.id !== profile.id) {
+            setNotification({
+              type: 'member_joined',
+              displayName: newMember.display_name ?? 'Someone',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.household_id, profile?.id]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
@@ -340,6 +382,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     session,
     loading,
     isOwner,
+    notification,
+    clearNotification,
     signUp,
     signIn,
     signOut,
