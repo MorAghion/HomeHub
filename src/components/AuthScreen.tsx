@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
 import { Home } from 'lucide-react';
 import WelcomeScreen from './WelcomeScreen';
+import NotificationBadge from './NotificationBadge';
 
 type AuthMode = 'signin' | 'signup' | 'join' | 'forgot' | 'reset';
 
@@ -162,6 +163,7 @@ function AuthScreen() {
       className="min-h-screen overflow-y-auto px-4 py-8"
       style={{ backgroundColor: '#F5F2E7' }}
     >
+      <NotificationBadge />
       <div className="w-full max-w-md mx-auto">
         {/* Logo */}
         <div className="text-center mb-8">
