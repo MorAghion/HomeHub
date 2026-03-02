@@ -4,6 +4,7 @@ import i18n from '../i18n/config';
 import { X, Copy, Check, Users, LogOut, UserMinus, Crown, Trash2, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
+import GmailConnection from './settings/GmailConnection';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -345,6 +346,9 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </form>
           )}
         </div>
+
+        {/* Gmail Connection */}
+        <GmailConnection />
 
         {/* Delete Household — owner only */}
         {isOwner && (

@@ -4,11 +4,11 @@
   "agent": "frontend",
   "phase": "0.3",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["be-001"],
   "blocks": [],
   "created": "2026-02-22",
-  "updated": "2026-02-22",
+  "updated": "2026-03-02",
   "description": "Build the Settings UI for Gmail OAuth connection. Single-click connect button, status indicator, and disconnect option.",
   "acceptance_criteria": [
     "Settings page shows 'Connect Gmail' button when not connected",
@@ -19,10 +19,12 @@
     "Loading state during OAuth flow"
   ],
   "files_to_touch": [
-    "src/pages/Settings.tsx (modify)",
-    "src/components/settings/GmailConnection.tsx (create)"
+    "src/components/SettingsModal.tsx (modified)",
+    "src/components/settings/GmailConnection.tsx (created)",
+    "src/i18n/en/settings.json (updated)",
+    "src/i18n/he/settings.json (updated)"
   ],
   "open_questions": [],
-  "completion_summary": "",
-  "notes": "OAuth flow is handled by Backend agent (be-001). This task is UI only — calls the OAuth initiation endpoint and displays the result."
+  "completion_summary": "Created GmailConnection component at src/components/settings/GmailConnection.tsx with three states: loading (spinner), connected (green indicator + email + disconnect button with confirm modal), not connected (connect button). On mount, checks oauth_tokens table for existing Gmail token row; detects ?gmail=connected callback param and cleans URL. Wired into SettingsModal.tsx between Join Household and Delete Household sections. Added 8 new i18n keys to en and he settings namespaces. data-testid attributes added for testability. All Tailwind uses logical properties (ms-/me-). Build clean, no test regressions.",
+  "notes": "OAuth flow is handled by Backend agent (be-001). Connected email displayed from user.email (Supabase auth) since oauth_tokens table does not store an email column."
 }
