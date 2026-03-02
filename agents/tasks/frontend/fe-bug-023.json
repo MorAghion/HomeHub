@@ -4,9 +4,9 @@
   "agent": "frontend",
   "phase": "1.0",
   "priority": "low",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-25",
-  "updated": "2026-02-25",
+  "updated": "2026-03-02",
   "reported_by": "qa-014 — test [31]",
   "wave": 10,
   "failing_tests": ["[31]"],
@@ -35,5 +35,6 @@
     "Supabase Realtime requires the household_id filter to avoid cross-household leakage",
     "RLS must allow SELECT on user_profiles for the owner's household",
     "If realtime is too complex, a simpler approach: poll household members on app focus every 60s and show toast if count increased"
-  ]
+  ],
+  "completion_summary": "Implemented NotificationBadge component with data-testid='notification-badge', Supabase Realtime subscription in AuthContext filtered by household_id, 8s auto-dismiss, i18n keys (partnerJoined, viewSettings) in en+he. Test [31] passes. Build clean. Only pre-existing failure: test [29] (Wave 10 extras — not yet built) which is unrelated to this task."
 }

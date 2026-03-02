@@ -4,6 +4,7 @@ import { useKeyboardHeight } from './hooks/useKeyboardHeight'
 import { ShoppingBag, ListTodo, Gift, Calendar, Settings, RotateCcw } from 'lucide-react'
 import { useAuth } from './contexts/AuthContext'
 import AuthScreen from './components/AuthScreen'
+import NotificationBadge from './components/NotificationBadge'
 import WelcomeScreen from './components/WelcomeScreen'
 import SettingsModal from './components/SettingsModal'
 import ShoppingHub from './components/ShoppingHub'
@@ -42,6 +43,18 @@ const LazyFallback = () => (
 function App() {
   const { user, profile, loading } = useAuth();
   const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
+  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(() => localStorage.getItem('homehub-just-joined') !== null);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('__homehub_oauth_popup') !== '1') return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        sessionStorage.removeItem('__homehub_oauth_popup')
+        window.close()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   // [AUTH] Log auth state changes — helps diagnose sign-in stuck issues
   useEffect(() => {
@@ -87,8 +100,6 @@ function App() {
     }
     return () => document.body.classList.remove('app-locked');
   }, [user, profile]);
-
-  const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(() => localStorage.getItem('homehub-just-joined') !== null);
 
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'shopping-hub' | 'shopping' | 'home-tasks-hub' | 'home-tasks' | 'vouchers-hub' | 'vouchers'>('dashboard');
 
@@ -738,6 +749,7 @@ function App() {
           backgroundColor: '#F5F2E7',
         }}
       >
+        <NotificationBadge />
         {/* Fixed Header */}
         <header
           className="absolute top-0 inset-x-0 h-16 z-50 flex items-center justify-between px-4 backdrop-blur-md border-b"

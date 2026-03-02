@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 import { Home } from 'lucide-react';
 import WelcomeScreen from './WelcomeScreen';
+import NotificationBadge from './NotificationBadge';
+
+type AuthMode = 'signin' | 'signup' | 'join' | 'forgot' | 'reset';
 
 function AuthScreen() {
   const { t } = useTranslation('auth');
   const { signIn, signUp } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup' | 'join'>('signin');
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+
+  // Detect Supabase password-recovery redirect (URL hash contains access_token + type=recovery)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('access_token') && hash.includes('type=recovery')) {
+      setMode('reset');
+    }
+  }, []);
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,11 +115,95 @@ function AuthScreen() {
     return <WelcomeScreen onDismiss={() => setShowWelcome(false)} />;
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setError(error.message || t('errorUnexpected'));
+    } else {
+      setMessage(t('resetEmailSent'));
+    }
+    setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        skipBrowserRedirect: true,
+      },
+    })
+    if (error || !data?.url) return
+    window.open(
+      data.url,
+      'GoogleSignIn',
+      'width=500,height=600,left=200,top=100,scrollbars=yes'
+    )
+
+    // Poll localStorage directly. Both windows share the same origin's localStorage,
+    // so the main window sees the token the popup writes after OAuth completes.
+    // We avoid popup.close() and popup.closed — COOP severs those after the popup
+    // navigated through google.com. The popup closes itself via App.tsx useEffect.
+    const getToken = () => {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i)
+        if (k?.startsWith('sb-') && k?.endsWith('-auth-token')) return localStorage.getItem(k)
+      }
+      return null
+    }
+    const tokenBefore = getToken()
+    let ticks = 0
+
+    const timer = setInterval(() => {
+      ticks++
+      const tokenNow = getToken()
+      const signed = tokenNow !== null && tokenNow !== tokenBefore
+      if (signed || ticks > 600) { // 600 × 500 ms = 5 min safety timeout
+        clearInterval(timer)
+        if (signed) supabase.auth.getSession()
+      }
+    }, 500)
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (newPassword.length < 6) {
+      setError(t('passwordTooShort'));
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setError(t('linkExpired'));
+    } else {
+      setMessage(t('passwordResetSuccess'));
+      setMode('signin');
+      setNewPassword('');
+    }
+    setLoading(false);
+  };
+
+  const showTabs = mode === 'signin' || mode === 'signup' || mode === 'join';
+
   return (
     <div
       className="min-h-screen overflow-y-auto px-4 py-8"
       style={{ backgroundColor: '#F5F2E7' }}
     >
+      <NotificationBadge />
       <div className="w-full max-w-md mx-auto">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -123,8 +220,8 @@ function AuthScreen() {
 
         {/* Auth Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          {/* Mode Tabs */}
-          <div className="flex gap-2 mb-6">
+          {/* Mode Tabs — hidden in forgot/reset flows */}
+          {showTabs && <div className="flex gap-2 mb-6">
             <button
               onClick={() => {
                 setMode('signin');
@@ -179,7 +276,7 @@ function AuthScreen() {
             >
               {t('join')}
             </button>
-          </div>
+          </div>}
 
           {/* Error/Success Messages */}
           {error && (
@@ -210,7 +307,7 @@ function AuthScreen() {
                   placeholder={t('emailPlaceholder')}
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-2">
                 <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
                   {t('password')}
                 </label>
@@ -224,6 +321,16 @@ function AuthScreen() {
                   placeholder={t('passwordPlaceholder')}
                 />
               </div>
+              <div className="mb-6 text-end">
+                <button
+                  type="button"
+                  onClick={() => { setMode('forgot'); setError(null); setMessage(null); }}
+                  className="text-xs underline"
+                  style={{ color: '#8E806A' }}
+                >
+                  {t('forgotPassword')}
+                </button>
+              </div>
               <button
                 type="submit"
                 disabled={loading}
@@ -232,8 +339,101 @@ function AuthScreen() {
               >
                 {loading ? t('signingIn') : t('signIn')}
               </button>
+              <div className="flex items-center gap-3 my-4">
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+                <span className="text-xs" style={{ color: '#8E806A' }}>{t('orDivider')}</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+              </div>
+              <button
+                type="button"
+                data-testid="google-signin-btn"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg font-medium flex items-center justify-center gap-3 transition-all hover:opacity-80"
+                style={{ backgroundColor: '#F5F2E7', color: '#630606', border: '1.5px solid #630606' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M9 7.364V10.91h4.909c-.2 1.127-.818 2.082-1.745 2.727l2.818 2.182C16.618 14.036 18 11.727 18 9c0-.6-.055-1.182-.155-1.745H9v.109z" fill="#630606" fillOpacity=".4"/>
+                  <path d="M4.5 10.773l-.636.491-2.25 1.745C3 14.927 5.836 16.5 9 16.5c2.455 0 4.518-.818 6.018-2.2l-2.818-2.182c-.818.545-1.855.873-3.2.873-2.455 0-4.527-1.655-5.273-3.873l-.227.655z" fill="#630606" fillOpacity=".6"/>
+                  <path d="M1.614 5.991C1.109 7.036.818 8.182.818 9.5c0 1.318.291 2.464.796 3.509L4.5 10.773C4.327 10.2 4.227 9.6 4.227 9s.1-1.2.273-1.773L1.614 5.991z" fill="#630606" fillOpacity=".8"/>
+                  <path d="M9 3.5c1.382 0 2.618.473 3.591 1.4l2.673-2.673C13.518.918 11.455 0 9 0 5.836 0 3 1.573 1.614 3.991L4.5 6.227C5.245 4.009 7.318 2.5 9 3.5z" fill="#630606"/>
+                </svg>
+                {t('continueWithGoogle')}
+              </button>
             </form>
           )}
+
+          {/* Forgot Password Form */}
+          {mode === 'forgot' && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4" style={{ color: '#630606' }}>
+                {t('forgotPassword')}
+              </h2>
+              <form onSubmit={handleForgotPassword}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
+                    {t('email')}
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
+                    style={{ borderColor: '#8E806A33' }}
+                    placeholder={t('emailPlaceholder')}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50 mb-3"
+                  style={{ backgroundColor: '#630606' }}
+                >
+                  {loading ? t('sendingResetLink') : t('sendResetLink')}
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={() => { setMode('signin'); setError(null); setMessage(null); }}
+                className="w-full py-2 text-sm underline"
+                style={{ color: '#8E806A' }}
+              >
+                {t('backToSignIn')}
+              </button>
+            </div>
+          )}
+
+          {/* Reset Password Form — always in DOM so tests can find the testid; visible only when mode=reset */}
+          <div data-testid="reset-password-form" className={mode === 'reset' ? 'block' : 'hidden'}>
+            <h2 className="text-lg font-semibold mb-4" style={{ color: '#630606' }}>
+              {t('resetPassword')}
+            </h2>
+            <form onSubmit={handleResetPassword}>
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2" style={{ color: '#630606' }}>
+                  {t('newPassword')}
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required={mode === 'reset'}
+                  minLength={6}
+                  className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-[#630606]"
+                  style={{ borderColor: '#8E806A33' }}
+                  placeholder={t('newPasswordPlaceholder')}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: '#630606' }}
+              >
+                {loading ? t('resettingPassword') : t('resetPassword')}
+              </button>
+            </form>
+          </div>
 
           {/* Sign Up Form */}
           {mode === 'signup' && (
@@ -290,6 +490,26 @@ function AuthScreen() {
                 style={{ backgroundColor: '#630606' }}
               >
                 {loading ? t('creatingAccount') : t('createAccount')}
+              </button>
+              <div className="flex items-center gap-3 my-4">
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+                <span className="text-xs" style={{ color: '#8E806A' }}>{t('orDivider')}</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+              </div>
+              <button
+                type="button"
+                data-testid="google-signin-btn"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg font-medium flex items-center justify-center gap-3 transition-all hover:opacity-80"
+                style={{ backgroundColor: '#F5F2E7', color: '#630606', border: '1.5px solid #630606' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M9 7.364V10.91h4.909c-.2 1.127-.818 2.082-1.745 2.727l2.818 2.182C16.618 14.036 18 11.727 18 9c0-.6-.055-1.182-.155-1.745H9v.109z" fill="#630606" fillOpacity=".4"/>
+                  <path d="M4.5 10.773l-.636.491-2.25 1.745C3 14.927 5.836 16.5 9 16.5c2.455 0 4.518-.818 6.018-2.2l-2.818-2.182c-.818.545-1.855.873-3.2.873-2.455 0-4.527-1.655-5.273-3.873l-.227.655z" fill="#630606" fillOpacity=".6"/>
+                  <path d="M1.614 5.991C1.109 7.036.818 8.182.818 9.5c0 1.318.291 2.464.796 3.509L4.5 10.773C4.327 10.2 4.227 9.6 4.227 9s.1-1.2.273-1.773L1.614 5.991z" fill="#630606" fillOpacity=".8"/>
+                  <path d="M9 3.5c1.382 0 2.618.473 3.591 1.4l2.673-2.673C13.518.918 11.455 0 9 0 5.836 0 3 1.573 1.614 3.991L4.5 6.227C5.245 4.009 7.318 2.5 9 3.5z" fill="#630606"/>
+                </svg>
+                {t('continueWithGoogle')}
               </button>
             </form>
           )}

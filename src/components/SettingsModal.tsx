@@ -4,6 +4,7 @@ import i18n from '../i18n/config';
 import { X, Copy, Check, Users, LogOut, UserMinus, Crown, Trash2, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../supabaseClient';
+import GmailConnection from './settings/GmailConnection';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -346,6 +347,9 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           )}
         </div>
 
+        {/* Gmail Connection */}
+        <GmailConnection />
+
         {/* Delete Household — owner only */}
         {isOwner && (
           <div className="mb-4">
@@ -368,6 +372,9 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     </p>
                     <p className="text-xs mt-1" style={{ color: '#7F1D1D' }}>
                       {t('deleteHouseholdDesc')}
+                    </p>
+                    <p className="text-xs mt-2 font-medium" style={{ color: '#7F1D1D' }}>
+                      {t('otherMembersWillLose')}
                     </p>
                   </div>
                 </div>

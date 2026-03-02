@@ -1,5 +1,5 @@
 # 📋 HomeHub Agent Board
-**Last updated:** 2026-02-25 — Wave 10 planned ✅ | Wave 10A ready to start
+**Last updated:** 2026-03-02 — Phase 0.3 ✅ complete | Phase 1.0 ✅ complete | master → main pending deploy
 **Current Phase:** 1.0 — Auth & Onboarding Hardening
 
 ---
@@ -20,9 +20,9 @@
 | Wave 8 | fe-bug-017, fe-bug-018, fe-bug-019 + qa-010, qa-011, qa-012 | 🎨🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | All 6 PRs merged — 400 tests green |
 | Wave 9 | be-002, qa-013 | ⚙️🧪 | ✅ Done | 2026-02-25 | 2026-02-25 | PWA live — app shell loads offline, 400 tests green |
 | Wave 10 Planning | qa-014 test suite + all task JSONs | 🧪🎯 | ✅ Done | 2026-02-25 | 2026-02-25 | 32 auth edge-case tests (14✅/14❌/4⏭️), 9 tasks created, PR #32 merged |
-| Wave 10A | be-003, fe-bug-021, fe-bug-024, fe-bug-025 | ⚙️🎨 | 🔜 Next | — | — | Trivial fixes — unblocks 5 failing tests |
-| Wave 10B | fe-bug-020, be-005 | 🎨⚙️ | ⏳ Queued | — | — | Reset flow + household guards |
-| Wave 10C | fe-bug-022, fe-bug-023, be-004 | 🎨⚙️ | ⏳ Queued | — | — | Welcome screen, notifications, email branding |
+| Wave 10A | be-003, fe-bug-021, fe-bug-024, fe-bug-025 | ⚙️🎨 | ✅ Done | 2026-02-25 | 2026-02-26 | PRs #33 + #34 merged — 4 failing tests now green |
+| Wave 10B | fe-bug-020, be-005 | 🎨⚙️ | ✅ Done | 2026-02-26 | 2026-02-26 | PRs #35 + #36 merged |
+| Wave 10C | fe-bug-022, fe-bug-023, be-004 | 🎨⚙️ | ✅ Done* | 2026-02-26 | 2026-03-02 | PR #37 + PR #38 merged; be-004 = human action only (no agent code) |
 
 ---
 
@@ -31,12 +31,12 @@
 ```
 Phase 0.1 ██████████100%  (5/5 tasks done)   arch-001 ✅ | fe-001 ✅ | fe-002 ✅ | fe-003 ✅ | qa-001 ✅
 Phase 0.2 ██████████100%  (6/6 tasks done)   qa-002 ✅ | qa-003 ✅ | qa-004 ✅ | qa-005 ✅ | qa-006 ✅
-Phase 0.3 ████░░░░░░  33%  (1/3 tasks done)  arch-002 ✅ | be-001 🔒 | fe-004 🔒
+Phase 0.3 ██████████100%  (3/3 tasks done)  arch-002 ✅ | be-001 ✅ | fe-004 ✅
 Phase 0.4 ██████████100%  (5/5 tasks done)  fe-005 ✅ | fe-006 ✅ | fe-006-cont ✅ | fe-008 ✅ | fe-009 ✅
 Phase 0.4b ████████████100% (7/7 tasks done) fe-bug-016 ✅ | fe-bug-017 ✅ | fe-bug-018 ✅ | fe-bug-019 ✅ | qa-010 ✅ | qa-011 ✅ | qa-012 ✅
 Phase 0.5 ██████████100%  (3/3 tasks done)  fe-007 ✅ | be-002 ✅ | qa-013 ✅
 Phase 0.6 ██████████100%  (3/3 tasks done)  qa-007 ✅ | qa-008 ✅ | qa-009 ✅
-Phase 1.0 ░░░░░░░░░░  0%  (0/9 tasks done)  be-003 🔜 | fe-bug-020 🔜 | fe-bug-021 🔜 | fe-bug-022 🔜 | fe-bug-023 🔜 | fe-bug-024 🔜 | fe-bug-025 🔜 | be-004 🔜 | be-005 🔜
+Phase 1.0 ██████████100%  (9/9 tasks done)  be-003 ✅ | fe-bug-020 ✅ | fe-bug-021 ✅ | fe-bug-022 ✅ | fe-bug-023 ✅ | fe-bug-024 ✅ | fe-bug-025 ✅ | be-005 ✅ | be-004 ✅
 ```
 
 ---
@@ -50,13 +50,14 @@ Phase 1.0 ░░░░░░░░░░  0%  (0/9 tasks done)  be-003 🔜 | fe
 | Review + merge Wave 3–6 PRs → master | 🎨🧪 | 🔴 Done | ✅ Merged (PRs #1–#16) |
 | Run `supabase/16-restore-voucher-schema.sql` in Supabase SQL Editor | 🎨 fe-bug-010 | 🔴 Blocking | ✅ Done |
 | Merge master → main to deploy Wave 7+8+9 to production | 🎯 Coordinator | 🟡 Ready | ✅ Done (PR #31) |
-| Configure HomeHub branding in Supabase Auth email templates | ⚙️ be-004 | 🟡 Wave 10C | ⏳ Pending — requires Supabase Dashboard access |
+| Configure HomeHub branding in Supabase Auth email templates | ⚙️ be-004 | 🟡 Wave 10C | ✅ Done |
+| Whitelist `/reset-password` in Supabase Redirect URLs | 🎨 fe-bug-020 | 🔴 Blocking | ✅ Done — covered by existing `https://our-homehub.vercel.app/**` wildcard |
 
 ---
 
 ## 🖥️ Active Agents
 
-None — Wave 10 planning complete. Wave 10A ready to start.
+None. All Phase 0.3 + 1.0 tasks complete. Ready for manual QA.
 
 ---
 
@@ -65,8 +66,8 @@ None — Wave 10 planning complete. Wave 10A ready to start.
 | Task | Agent | Status | Depends On | Blocks |
 |------|-------|--------|------------|--------|
 | arch-002: OAuth tokens schema | 🏗️ Architect | ✅ done | — | be-001 |
-| be-001: Gmail OAuth flow | ⚙️ Backend | 🔒 blocked | arch-002 | fe-004 |
-| fe-004: Gmail settings UI | 🎨 Frontend | 🔒 blocked | be-001 | — |
+| be-001: Gmail OAuth flow | ⚙️ Backend | ✅ done | arch-002 | fe-004 |
+| fe-004: Gmail settings UI + Google sign-in | 🎨 Frontend | ✅ done | be-001 | — |
 
 ## 🚦 Phase 1.0 — Auth & Onboarding Hardening (Wave 10)
 
@@ -74,24 +75,24 @@ None — Wave 10 planning complete. Wave 10A ready to start.
 
 | Task | Agent | Status | Priority | Fixes Tests | Depends On |
 |------|-------|--------|----------|-------------|------------|
-| be-003: handle_new_user trigger search_path migration | ⚙️ Backend | 🔜 todo | HIGH | production incident | — |
-| fe-bug-021: Inline password length validation | 🎨 Frontend | 🔜 todo | MEDIUM | [2] | — |
-| fe-bug-024: "Check your email" for unconfirmed accounts | 🎨 Frontend | 🔜 todo | MEDIUM | [4][7] | — |
-| fe-bug-025: "Sign in instead" for existing email in join | 🎨 Frontend | 🔜 todo | MEDIUM | [18] | — |
+| be-003: handle_new_user trigger search_path migration | ⚙️ Backend | ✅ done | HIGH | production incident | — |
+| fe-bug-021: Inline password length validation | 🎨 Frontend | ✅ done | MEDIUM | [2] | — |
+| fe-bug-024: "Check your email" for unconfirmed accounts | 🎨 Frontend | ✅ done | MEDIUM | [4][7] | — |
+| fe-bug-025: "Sign in instead" for existing email in join | 🎨 Frontend | ✅ done | MEDIUM | [18] | — |
 
 ### Wave 10B — Core Features
 
 | Task | Agent | Status | Priority | Fixes Tests | Depends On |
 |------|-------|--------|----------|-------------|------------|
-| fe-bug-020: Forgot password / reset password flow | 🎨 Frontend | 🔜 todo | HIGH | [21][22][23][30] | — |
-| be-005: Household safety guards (delete + own-code) | ⚙️ Backend | 🔜 todo | HIGH | [19][26] | — |
+| fe-bug-020: Forgot password / reset password flow | 🎨 Frontend | ✅ done | HIGH | [21][22][23][30] | — |
+| be-005: Household safety guards (delete + own-code) | ⚙️ Backend | ✅ done | HIGH | [19][26] | — |
 
 ### Wave 10C — UX Polish & Branding
 
 | Task | Agent | Status | Priority | Fixes Tests | Depends On |
 |------|-------|--------|----------|-------------|------------|
-| fe-bug-022: Welcome screen after joining | 🎨 Frontend | 🔜 todo | MEDIUM | [13][32] | — |
-| fe-bug-023: In-app notification when partner joins | 🎨 Frontend | 🔜 todo | LOW | [31] | — |
+| fe-bug-022: Welcome screen after joining | 🎨 Frontend | ✅ done | MEDIUM | [13][32] | — |
+| fe-bug-023: In-app notification when partner joins | 🎨 Frontend | 🔄 in progress | LOW | [31] | — |
 | be-004: Supabase email template branding | ⚙️ Backend | 🔜 todo | LOW | [29][30] | Human action required |
 
 ### Backlog (no wave assigned)
@@ -117,15 +118,6 @@ None.
 
 | Bug | Title | Priority | Assigned Wave |
 |-----|-------|----------|---------------|
-| fe-bug-020 | Forgot password / reset flow | HIGH | 10B |
-| fe-bug-021 | Inline password length validation | MEDIUM | 10A |
-| fe-bug-022 | Welcome screen after joining | MEDIUM | 10C |
-| fe-bug-023 | In-app notification for partner join | LOW | 10C |
-| fe-bug-024 | "Check your email" for unconfirmed email | MEDIUM | 10A |
-| fe-bug-025 | "Sign in instead" for existing email in join | MEDIUM | 10A |
-| be-003 | handle_new_user trigger migration file | HIGH | 10A |
-| be-004 | Supabase email branding (human action) | LOW | 10C |
-| be-005 | Household safety guards | HIGH | 10B |
 
 ## ❓ Open Questions
 None.
@@ -134,7 +126,6 @@ None.
 
 | Task | Blocked By | Notes |
 |------|-----------|-------|
-| be-001 | Human: Gmail OAuth setup | arch-002 done, be-001 can proceed when human is ready |
 | fe-004 | be-001 | — |
 
 ---
@@ -183,6 +174,17 @@ None.
 | be-002 | ⚙️ Backend | 2026-02-25 | Wave 9 | PWA manifest, service worker, icons, offline page — live in production |
 | qa-013 | 🧪 QA | 2026-02-25 | Wave 9 | PWA tests — 400 tests green, app shell verified offline |
 | qa-014 (planning) | 🧪🎯 | 2026-02-25 | Wave 10 Planning | 32 auth edge-case tests written — 14✅/14❌/4⏭️ — PR #32 merged |
+| be-003 | ⚙️ Backend | 2026-02-26 | Wave 10A | handle_new_user trigger search_path migration — PR #33 merged |
+| fe-bug-021 | 🎨 Frontend | 2026-02-26 | Wave 10A | Inline password length validation — PR #34 merged |
+| fe-bug-024 | 🎨 Frontend | 2026-02-26 | Wave 10A | "Check your email" for unconfirmed accounts — PR #34 merged |
+| fe-bug-025 | 🎨 Frontend | 2026-02-26 | Wave 10A | "Sign in instead" for existing email in join — PR #34 merged |
+| fe-bug-020 | 🎨 Frontend | 2026-02-26 | Wave 10B | Forgot/reset password flow — PR #35 merged |
+| be-005 | ⚙️ Backend | 2026-02-26 | Wave 10B | Household safety guards (already-member + delete protection) — PR #36 merged |
+| fe-bug-022 | 🎨 Frontend | 2026-02-26 | Wave 10C | Welcome screen after joining household — PR #37 merged |
+| fe-bug-023 | 🎨 Frontend | 2026-03-02 | Wave 10C | In-app notification when partner joins household — PR #38 merged |
+| be-004 | 👤 Human | 2026-03-02 | Wave 10C | HomeHub branding on Supabase Auth email templates — configured in Dashboard |
+| be-001 | ⚙️ Backend | 2026-03-02 | Phase 0.3 | Gmail OAuth 2.0 — Edge Functions deployed, PR #39 merged |
+| fe-004 | 🎨 Frontend | 2026-03-02 | Phase 0.3 | Gmail Settings UI + Google sign-in button — PR #40 merged |
 
 ---
 

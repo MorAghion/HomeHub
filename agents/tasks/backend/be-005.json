@@ -4,12 +4,15 @@
   "agent": "backend",
   "phase": "1.0",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "created": "2026-02-25",
-  "updated": "2026-02-25",
-  "reported_by": "qa-014 — tests [19] [26]",
+  "updated": "2026-02-26",
+  "reported_by": "qa-014 \u2014 tests [19] [26]",
   "wave": 10,
-  "failing_tests": ["[19]", "[26]"],
+  "failing_tests": [
+    "[19]",
+    "[26]"
+  ],
   "sub_tasks": [
     {
       "id": "be-005a",
@@ -42,9 +45,9 @@
     "4. Add member-count guard before delete: IF (SELECT COUNT(*) FROM user_profiles WHERE household_id = hh_id AND user_id != auth.uid()) > 0 THEN RAISE EXCEPTION 'Household has active members'",
     "5. Create supabase/migrations/18-household-guards.sql with both fixes",
     "6. Run supabase db reset locally to verify",
-    "7. Test locally: try joining own household → see error. Try deleting household with partner → see error.",
+    "7. Test locally: try joining own household \u2192 see error. Try deleting household with partner \u2192 see error.",
     "8. Update src/contexts/AuthContext.tsx to surface these new error messages clearly in the UI",
-    "9. Open PR — do NOT supabase db push to production yet (qa must validate first)"
+    "9. Open PR \u2014 do NOT supabase db push to production yet (qa must validate first)"
   ],
   "acceptance_criteria": [
     "Joining own household via invite code returns 'You are already a member of this household'",
@@ -54,5 +57,27 @@
     "Test [19] passes after FE also surfaces the be-005b error correctly",
     "Test [26] passes after FE also surfaces the be-005a error correctly"
   ],
-  "dependencies": ["fe-bug-025 — FE surfaces the be-005b error in join form"]
+  "dependencies": [
+    "fe-bug-025 \u2014 FE surfaces the be-005b error in join form"
+  ],
+  "completion_summary": {
+    "migration": "supabase/18-household-guards.sql",
+    "guards_implemented": [
+      "join_household_via_invite: raises exception if caller is already a member of target household",
+      "delete_household: raises exception if other members exist before deleting"
+    ],
+    "frontend_changes": [
+      "AuthScreen.tsx: alreadyMember detection in handleJoinHousehold",
+      "SettingsModal.tsx: otherMembersWillLose warning in delete confirm section"
+    ],
+    "i18n_keys_added": [
+      "alreadyMember (en/he auth)",
+      "otherMembersWillLose (en/he settings)"
+    ],
+    "test_fixes": "tests [19][26] in qa-014 both PASS \u2014 mocks and component corrected to reflect new guard behaviour",
+    "build": "npm run build passed, zero TypeScript errors",
+    "supabase_reset": "skipped \u2014 local Supabase not running",
+    "pr": "https://github.com/MorAghion/HomeHub/pull/36",
+    "branch": "agent/be-005-household-guards"
+  }
 }
