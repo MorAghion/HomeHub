@@ -133,6 +133,15 @@ function AuthScreen() {
     setLoading(false);
   };
 
+  const handleGoogleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+  };
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -299,6 +308,26 @@ function AuthScreen() {
               >
                 {loading ? t('signingIn') : t('signIn')}
               </button>
+              <div className="flex items-center gap-3 my-4">
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+                <span className="text-xs" style={{ color: '#8E806A' }}>{t('orDivider')}</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+              </div>
+              <button
+                type="button"
+                data-testid="google-signin-btn"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg font-medium flex items-center justify-center gap-3 transition-all hover:opacity-80"
+                style={{ backgroundColor: '#F5F2E7', color: '#630606', border: '1.5px solid #630606' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M9 7.364V10.91h4.909c-.2 1.127-.818 2.082-1.745 2.727l2.818 2.182C16.618 14.036 18 11.727 18 9c0-.6-.055-1.182-.155-1.745H9v.109z" fill="#630606" fillOpacity=".4"/>
+                  <path d="M4.5 10.773l-.636.491-2.25 1.745C3 14.927 5.836 16.5 9 16.5c2.455 0 4.518-.818 6.018-2.2l-2.818-2.182c-.818.545-1.855.873-3.2.873-2.455 0-4.527-1.655-5.273-3.873l-.227.655z" fill="#630606" fillOpacity=".6"/>
+                  <path d="M1.614 5.991C1.109 7.036.818 8.182.818 9.5c0 1.318.291 2.464.796 3.509L4.5 10.773C4.327 10.2 4.227 9.6 4.227 9s.1-1.2.273-1.773L1.614 5.991z" fill="#630606" fillOpacity=".8"/>
+                  <path d="M9 3.5c1.382 0 2.618.473 3.591 1.4l2.673-2.673C13.518.918 11.455 0 9 0 5.836 0 3 1.573 1.614 3.991L4.5 6.227C5.245 4.009 7.318 2.5 9 3.5z" fill="#630606"/>
+                </svg>
+                {t('continueWithGoogle')}
+              </button>
             </form>
           )}
 
@@ -430,6 +459,26 @@ function AuthScreen() {
                 style={{ backgroundColor: '#630606' }}
               >
                 {loading ? t('creatingAccount') : t('createAccount')}
+              </button>
+              <div className="flex items-center gap-3 my-4">
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+                <span className="text-xs" style={{ color: '#8E806A' }}>{t('orDivider')}</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: '#8E806A33' }} />
+              </div>
+              <button
+                type="button"
+                data-testid="google-signin-btn"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg font-medium flex items-center justify-center gap-3 transition-all hover:opacity-80"
+                style={{ backgroundColor: '#F5F2E7', color: '#630606', border: '1.5px solid #630606' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M9 7.364V10.91h4.909c-.2 1.127-.818 2.082-1.745 2.727l2.818 2.182C16.618 14.036 18 11.727 18 9c0-.6-.055-1.182-.155-1.745H9v.109z" fill="#630606" fillOpacity=".4"/>
+                  <path d="M4.5 10.773l-.636.491-2.25 1.745C3 14.927 5.836 16.5 9 16.5c2.455 0 4.518-.818 6.018-2.2l-2.818-2.182c-.818.545-1.855.873-3.2.873-2.455 0-4.527-1.655-5.273-3.873l-.227.655z" fill="#630606" fillOpacity=".6"/>
+                  <path d="M1.614 5.991C1.109 7.036.818 8.182.818 9.5c0 1.318.291 2.464.796 3.509L4.5 10.773C4.327 10.2 4.227 9.6 4.227 9s.1-1.2.273-1.773L1.614 5.991z" fill="#630606" fillOpacity=".8"/>
+                  <path d="M9 3.5c1.382 0 2.618.473 3.591 1.4l2.673-2.673C13.518.918 11.455 0 9 0 5.836 0 3 1.573 1.614 3.991L4.5 6.227C5.245 4.009 7.318 2.5 9 3.5z" fill="#630606"/>
+                </svg>
+                {t('continueWithGoogle')}
               </button>
             </form>
           )}
