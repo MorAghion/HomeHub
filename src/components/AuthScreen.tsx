@@ -142,7 +142,7 @@ function AuthScreen() {
       },
     })
     if (error || !data?.url) return
-    const popup = window.open(
+    window.open(
       data.url,
       'GoogleSignIn',
       'width=500,height=600,left=200,top=100,scrollbars=yes'
