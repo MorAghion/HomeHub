@@ -45,6 +45,17 @@ function App() {
   const { t, i18n } = useTranslation(['common', 'shopping', 'tasks', 'vouchers']);
   const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(() => localStorage.getItem('homehub-just-joined') !== null);
 
+  useEffect(() => {
+    if (sessionStorage.getItem('__homehub_oauth_popup') !== '1') return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        sessionStorage.removeItem('__homehub_oauth_popup')
+        window.close()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
   // [AUTH] Log auth state changes — helps diagnose sign-in stuck issues
   useEffect(() => {
     if (import.meta.env.DEV) {

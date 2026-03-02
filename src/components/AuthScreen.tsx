@@ -134,12 +134,43 @@ function AuthScreen() {
   };
 
   const handleGoogleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`,
+        skipBrowserRedirect: true,
       },
-    });
+    })
+    if (error || !data?.url) return
+    const popup = window.open(
+      data.url,
+      'GoogleSignIn',
+      'width=500,height=600,left=200,top=100,scrollbars=yes'
+    )
+
+    // Poll localStorage directly. Both windows share the same origin's localStorage,
+    // so the main window sees the token the popup writes after OAuth completes.
+    // We avoid popup.close() and popup.closed — COOP severs those after the popup
+    // navigated through google.com. The popup closes itself via App.tsx useEffect.
+    const getToken = () => {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i)
+        if (k?.startsWith('sb-') && k?.endsWith('-auth-token')) return localStorage.getItem(k)
+      }
+      return null
+    }
+    const tokenBefore = getToken()
+    let ticks = 0
+
+    const timer = setInterval(() => {
+      ticks++
+      const tokenNow = getToken()
+      const signed = tokenNow !== null && tokenNow !== tokenBefore
+      if (signed || ticks > 600) { // 600 × 500 ms = 5 min safety timeout
+        clearInterval(timer)
+        if (signed) supabase.auth.getSession()
+      }
+    }, 500)
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
