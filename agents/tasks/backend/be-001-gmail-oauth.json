@@ -4,11 +4,11 @@
   "agent": "backend",
   "phase": "0.3",
   "priority": "high",
-  "status": "todo",
+  "status": "review",
   "depends_on": ["arch-002"],
   "blocks": ["fe-004"],
   "created": "2026-02-22",
-  "updated": "2026-02-22",
+  "updated": "2026-03-02",
   "description": "Implement Gmail OAuth 2.0 flow with metadata-only read access. Store tokens in Supabase. Create Edge Function for email metadata fetching.",
   "acceptance_criteria": [
     "OAuth 2.0 authorization code flow implemented (Google Cloud Console setup documented)",
@@ -27,6 +27,6 @@
     "Environment variables documented in .env.example"
   ],
   "open_questions": [],
-  "completion_summary": "",
+  "completion_summary": "Implemented full Gmail OAuth 2.0 integration. (1) supabase/functions/gmail-auth/index.ts: handles /authorize (builds OAuth URL with HMAC-signed state for CSRF protection, redirects to Google) and /callback (verifies state, exchanges code for tokens, encrypts with AES-256-GCM via crypto.subtle, upserts into oauth_tokens using service role). (2) supabase/functions/gmail-fetch/index.ts: POST endpoint, verifies Supabase JWT, decrypts tokens, auto-refreshes if expired (5-min buffer), calls Gmail API for inbox metadata (maxResults=20), handles revoked access by cleaning up the token row. (3) src/lib/api/gmail.ts: connectGmail() triggers OAuth flow via browser redirect, fetchGmailMessages() calls gmail-fetch, disconnectGmail() deletes token row via RLS-authenticated client. (4) src/types/gmail.ts: GmailMessage and GmailConnectionStatus types. Encryption key derived from OAUTH_ENCRYPTION_KEY via SHA-256; state CSRF token uses HMAC-SHA256. Human must deploy Edge Functions: supabase functions deploy gmail-auth --project-ref wwqvjiekakjetspucfxp && supabase functions deploy gmail-fetch --project-ref wwqvjiekakjetspucfxp.",
   "notes": "Google Cloud Console setup requires: OAuth consent screen, credentials, redirect URI. Document all setup steps in a SETUP.md for the developer to follow."
 }
