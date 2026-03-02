@@ -15,7 +15,7 @@
     "1. Go to Supabase Dashboard → Authentication → Email Templates",
     "2. Customise 'Confirm signup' template: add HomeHub name, primary colour #630606, app icon, and a clear CTA button",
     "3. Customise 'Reset password' template: same branding, with a 'Reset your password' CTA",
-    "4. Set the redirectTo URL in both templates to https://home-hub-five.vercel.app/reset-password (production URL)",
+    "4. Set the redirectTo URL in both templates to https://our-homehub.vercel.app/reset-password (production URL)",
     "5. Test by triggering a signup confirmation and a password reset from the production app",
     "6. Document the template HTML in agents/docs/email-templates.md for version control (Supabase templates are not in repo)"
   ],
